@@ -51,7 +51,7 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 |---|---|---|---|
 | M0 | Repository scaffold and quality gates | in_progress | Locked local format, lint, type, and unit-test gates pass; remote CI run pending |
 | M1 | Source acquisition and data contracts | done | Nine sources verified; 2,103 program-years parsed to 10,515 validated P0 signal rows |
-| M2 | Canonical signal table and panel | not_started | Deterministic Parquet and invariant report |
+| M2 | Canonical signal table and panel | done | 10,515 signal rows, 2,103 panel rows, deterministic Parquet, and reconciled QA JSON |
 | M3 | Baselines and temporal backtest harness | not_started | Frozen split artifact and baseline metrics |
 | M4 | Ridge challenger and frozen retrospective replay | not_started | Hash-addressed write-once replay bundle and descriptive promotion decision |
 | M5 | Offline Streamlit product | not_started | Critical user-flow smoke test and demo rehearsal |

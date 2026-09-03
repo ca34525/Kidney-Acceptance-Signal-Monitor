@@ -9,6 +9,7 @@ description = "Public-data kidney transplant program offer-acceptance signal mon
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+  "pyarrow>=20,<22",
   "PyYAML>=6.0.2,<7",
   "xlrd>=2.0.2,<3",
 ]
@@ -31,6 +32,8 @@ dev = [
 packages = ["src/kasm"]
 
 [tool.pytest.ini_options]
+addopts = "--basetemp=.test-tmp/pytest"
+cache_dir = ".test-tmp/pytest-cache"
 testpaths = ["tests"]
 
 [tool.ruff]

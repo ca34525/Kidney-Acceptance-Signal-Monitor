@@ -3,6 +3,7 @@ from typing import Any
 
 import kasm.cli
 from kasm.cli import main
+from kasm.data.build import DataBuildResult
 from kasm.data.download import CacheSync
 from kasm.data.parse import ParseError, SourceInventoryEntry
 
@@ -116,3 +117,39 @@ def test_inspect_sources_command_reports_contract_failure(
     captured = capsys.readouterr()
     assert '"ok": false' in captured.out
     assert "row count changed" in captured.out
+
+
+def test_data_build_command_reports_canonical_paths_and_counts(
+    tmp_path: Path, capsys: Any, monkeypatch: Any
+) -> None:
+    output_dir = tmp_path / "processed"
+    monkeypatch.setattr(
+        kasm.cli,
+        "build_cached_data",
+        lambda manifest, cache_dir, destination: DataBuildResult(
+            program_signals_path=destination / "program_signals.parquet",
+            model_panel_path=destination / "model_panel.parquet",
+            qa_report_path=destination / "qa_report.json",
+            program_signal_rows=10515,
+            model_panel_rows=2103,
+        ),
+    )
+
+    exit_code = main(
+        [
+            "data",
+            "build",
+            "--manifest",
+            "configs/data_sources.yaml",
+            "--cache-dir",
+            str(tmp_path / "cache"),
+            "--output-dir",
+            str(output_dir),
+        ]
+    )
+
+    assert exit_code == 0
+    captured = capsys.readouterr()
+    assert '"program_signal_rows": 10515' in captured.out
+    assert '"model_panel_rows": 2103' in captured.out
+    assert str(output_dir / "qa_report.json").replace("\\", "\\\\") in captured.out

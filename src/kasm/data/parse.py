@@ -77,6 +77,8 @@ class ProgramSignal:
     oar_upper: float | None
     source_url: str
     source_sha256: str
+    raw_cohort_start: str | None = None
+    raw_cohort_end: str | None = None
 
 
 @dataclass(frozen=True)
@@ -287,6 +289,14 @@ def _cohort_date(
     return normalized
 
 
+def _raw_cohort_value(value: object) -> str | None:
+    if isinstance(value, datetime | date):
+        return value.isoformat()
+    if value is None:
+        return None
+    return str(value).strip() or None
+
+
 def _value(row: tuple[object, ...], positions: dict[str, int], field: str) -> object:
     position = positions[field]
     return row[position] if position < len(row) else None
@@ -359,14 +369,16 @@ def _parse_program(
         )
         or f"Program {center_code}"
     )
+    raw_cohort_start_value = _value(row, positions, "OAR_cohort_start")
+    raw_cohort_end_value = _value(row, positions, "OAR_cohort_end")
     cohort_start = _cohort_date(
-        _value(row, positions, "OAR_cohort_start"),
+        raw_cohort_start_value,
         source=source,
         boundary="start",
         context=context,
     )
     cohort_end = _cohort_date(
-        _value(row, positions, "OAR_cohort_end"),
+        raw_cohort_end_value,
         source=source,
         boundary="end",
         context=context,
@@ -438,6 +450,8 @@ def _parse_program(
                 oar_upper=oar_upper,
                 source_url=source.url,
                 source_sha256=source.download_sha256,
+                raw_cohort_start=_raw_cohort_value(raw_cohort_start_value),
+                raw_cohort_end=_raw_cohort_value(raw_cohort_end_value),
             )
         )
     return tuple(signals)

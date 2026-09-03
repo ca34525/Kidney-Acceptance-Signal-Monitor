@@ -331,6 +331,8 @@ def test_output_is_logically_deterministic_and_preserves_provenance() -> None:
     ]
     assert all(row.cohort_start.isoformat() == "2025-01-01" for row in first.signals)
     assert all(row.cohort_end.isoformat() == "2025-12-31" for row in first.signals)
+    assert all(row.raw_cohort_start == "2025-01-01T12:30:00" for row in first.signals)
+    assert all(row.raw_cohort_end == "2025-12-30T23:59:00" for row in first.signals)
     assert all(row.published_value == "2026-07-07" for row in first.signals)
     assert all(row.published_precision == "day" for row in first.signals)
     assert all(row.source_url == source.url for row in first.signals)

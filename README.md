@@ -24,6 +24,7 @@ sources explicitly, then verify the cache offline:
 uv run kasm data sync
 uv run kasm data verify-cache
 uv run kasm data inspect-sources
+uv run kasm data build
 ```
 
 `data sync` is the networked preflight/maintenance path. It skips valid existing files, refuses to
@@ -37,3 +38,12 @@ member, locates the versioned offer-acceptance sheet by name and machine fields,
 pinned source row/column counts plus the center-level scientific invariants. Its JSON inventory is
 the M1 evidence that all nine source eras reshape into the five P0 offer groups without silently
 accepting schema drift.
+
+`data build` also stays offline. It reparses the verified cache and atomically publishes
+`data/processed/program_signals.parquet`, `data/processed/model_panel.parquet`, and
+`data/processed/qa_report.json`. The long signal table uses the current `Tiers` directory only for
+display fields. The model panel aligns each feature cohort to the next calendar year, retains
+program exits as missing targets, and materializes analytic, first-observed, and public-forecast
+eligibility. The QA report records source counts, raw-to-normalized cohort dates, annual additions
+and closures, missing subgroup OARs, and nonblocking publication-rounding diagnostics. These
+canonical build products remain ignored until the approved release-bundle step.
