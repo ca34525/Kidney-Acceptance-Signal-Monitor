@@ -49,12 +49,12 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 
 | ID | Milestone | Status | Completion evidence |
 |---|---|---|---|
-| M0 | Repository scaffold and quality gates | in_progress | Locked sync, format, lint, strict mypy, 117-test/85% branch-coverage suite, and nine-source cache verification pass after Plan 0010; remote CI rerun pending |
+| M0 | Repository scaffold and quality gates | in_progress | Locked sync, format, lint, strict mypy, 126-test/84.81% branch-coverage suite, and nine-source cache verification pass after Plan 0011; remote CI rerun pending |
 | M1 | Source acquisition and data contracts | done | Nine sources verified; 2,103 program-years parsed to 10,515 validated P0 signal rows |
 | M2 | Canonical signal table and panel | done | 10,515 signal rows, 2,103 panel rows, deterministic Parquet, and reconciled QA JSON |
 | M3 | Baselines and temporal backtest harness | done | Plan 0007: 2,763 paired predictions; persistence selection MAE 0.3415; 2025 untouched |
 | M4 | Ridge challenger and frozen retrospective replay | done | Plan 0010: 229-row write-once replay; ridge not promoted on frozen bias rule; persistence retained; model card complete |
-| M5 | Offline Streamlit product | in_progress | Offline one-program historical walking skeleton is green; model-evaluation flow and demo rehearsal remain |
+| M5 | Offline Streamlit product | done | Plan 0011: complete offline program flow, persistence projection, model evaluation, explicit non-promotion/band suppression, provenance, AppTest, and process health smoke |
 | M6 | Reproducibility, documentation, and container | not_started | Clean-clone reproduction and non-root Docker smoke |
 | M7 | Interview presentation release | not_started | Tagged release, backup demo, completed rehearsal |
 

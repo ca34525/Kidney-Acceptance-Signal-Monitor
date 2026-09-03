@@ -12,12 +12,14 @@ from kasm.reporting.history import (
     HistoricalDataError,
     interval_status,
     latest_overall_status,
+    latest_persistence_projection,
     latest_public_forecast_eligibility,
     latest_subgroup_rows,
     latest_volume_context,
     load_historical_artifacts,
     overall_history,
     program_options,
+    subgroup_history,
 )
 
 
@@ -203,6 +205,7 @@ def test_history_status_volume_and_subgroups_preserve_source_meaning(tmp_path: P
 
     assert [point.cohort_year for point in history] == [2024, 2025]
     assert history[0].publication_display == "July 2025"
+    assert len(artifacts.panel_sha256) == 64
     assert history[1].publication_display == "July 7, 2026"
     assert status.label == "95% interval entirely below 1"
     assert volume.offers == 100
@@ -235,3 +238,52 @@ def test_forecast_eligibility_is_read_from_latest_panel_row(tmp_path: Path) -> N
     assert eligibility.feature_cohort_year == 2025
     assert eligibility.target_cohort_year == 2026
     assert eligibility.eligible is False
+
+
+def test_persistence_projection_reads_latest_trusted_panel_state(tmp_path: Path) -> None:
+    latest_panel = _panel_row(feature_year=2025, public_eligible=True)
+    latest_panel["current_log_overall_oar"] = -0.10536051565782628
+    latest_panel["prediction_as_of"] = "2026-07"
+    latest_panel["prediction_as_of_precision"] = "month"
+    latest_panel["elapsed_target_cohort_fraction_at_prediction"] = 0.515
+    _write_artifacts(
+        tmp_path,
+        [
+            _signal_row(year=2024),
+            _signal_row(year=2025, oar_mean=0.9),
+            _signal_row(year=2024, offer_group="low", oar_mean=0.8),
+            _signal_row(year=2025, offer_group="low", oar_mean=None),
+        ],
+        [
+            _panel_row(feature_year=2024, public_eligible=False),
+            latest_panel,
+        ],
+    )
+    artifacts = load_historical_artifacts(tmp_path)
+
+    projection = latest_persistence_projection(artifacts, "ABCD:TX1")
+    subgroups = subgroup_history(artifacts, "ABCD:TX1")
+
+    assert projection.eligible is True
+    assert projection.feature_cohort_year == 2025
+    assert projection.target_cohort_year == 2026
+    assert projection.prediction_as_of_display == "July 2026"
+    assert projection.elapsed_target_cohort_fraction == pytest.approx(0.515)
+    assert projection.point_oar == pytest.approx(0.9)
+    assert [(row.cohort_year, row.offer_group, row.oar_mean) for row in subgroups] == [
+        (2024, "low", 0.8),
+        (2025, "low", None),
+    ]
+
+
+def test_ineligible_projection_is_unavailable(tmp_path: Path) -> None:
+    _write_artifacts(
+        tmp_path,
+        [_signal_row(year=2025)],
+        [_panel_row(feature_year=2025, public_eligible=False)],
+    )
+
+    projection = latest_persistence_projection(load_historical_artifacts(tmp_path), "ABCD:TX1")
+
+    assert projection.eligible is False
+    assert projection.point_oar is None

@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import date, datetime
 from hashlib import sha256
+from math import exp, isfinite
 from pathlib import Path
 from typing import Literal, cast
 
@@ -32,6 +33,7 @@ class HistoricalArtifacts:
     signals: pa.Table
     panel: pa.Table
     artifact_version: str
+    panel_sha256: str
 
 
 @dataclass(frozen=True)
@@ -96,12 +98,41 @@ class SubgroupRow:
 
 
 @dataclass(frozen=True)
+class SubgroupPoint:
+    """One historical donor-stratum signal for a compact longitudinal view."""
+
+    cohort_year: int
+    offer_group: str
+    label: str
+    offers: int | None
+    expected_acceptances: float | None
+    oar_mean: float | None
+    oar_lower: float | None
+    oar_upper: float | None
+
+
+@dataclass(frozen=True)
 class ForecastEligibility:
     """Materialized public eligibility from the latest model-panel row."""
 
     feature_cohort_year: int
     target_cohort_year: int
     eligible: bool
+
+
+@dataclass(frozen=True)
+class PersistenceProjection:
+    """Trusted latest eligibility plus the prespecified persistence projection."""
+
+    feature_cohort_year: int
+    target_cohort_year: int
+    prediction_as_of: str
+    prediction_as_of_precision: Literal["month", "day"]
+    prediction_as_of_display: str
+    target_cohort_end: date
+    elapsed_target_cohort_fraction: float
+    eligible: bool
+    point_oar: float | None
 
 
 SignalRow = dict[str, object]
@@ -140,6 +171,7 @@ def load_historical_artifacts(artifact_dir: Path) -> HistoricalArtifacts:
         signals=signals,
         panel=panel,
         artifact_version=_artifact_hash((signals_path, panel_path))[:12],
+        panel_sha256=_artifact_hash((panel_path,)),
     )
 
 
@@ -177,6 +209,13 @@ def _optional_float(row: SignalRow, field: str) -> float | None:
     if isinstance(value, bool) or not isinstance(value, float | int):
         raise HistoricalDataError(f"Trusted field {field!r} must be numeric or null.")
     return float(value)
+
+
+def _required_float(row: SignalRow, field: str) -> float:
+    value = _optional_float(row, field)
+    if value is None or not isfinite(value):
+        raise HistoricalDataError(f"Trusted field {field!r} must be finite numeric data.")
+    return value
 
 
 def _required_date(row: SignalRow, field: str) -> date:
@@ -365,14 +404,48 @@ def latest_subgroup_rows(
     return tuple(result)
 
 
+def subgroup_history(artifacts: HistoricalArtifacts, program_key: str) -> tuple[SubgroupPoint, ...]:
+    """Return chronological published donor-stratum signals in a fixed group order."""
+    labels = dict(_SUBGROUPS)
+    order = {offer_group: index for index, (offer_group, _) in enumerate(_SUBGROUPS)}
+    rows = [
+        row
+        for row in _table_rows(artifacts.signals)
+        if row["program_key"] == program_key and row["offer_group"] in labels
+    ]
+    return tuple(
+        SubgroupPoint(
+            cohort_year=_required_int(row, "cohort_year"),
+            offer_group=_required_text(row, "offer_group"),
+            label=labels[_required_text(row, "offer_group")],
+            offers=_optional_int(row, "offers"),
+            expected_acceptances=_optional_float(row, "expected_acceptances"),
+            oar_mean=_optional_float(row, "oar_mean"),
+            oar_lower=_optional_float(row, "oar_lower"),
+            oar_upper=_optional_float(row, "oar_upper"),
+        )
+        for row in sorted(
+            rows,
+            key=lambda item: (
+                _required_int(item, "cohort_year"),
+                order[_required_text(item, "offer_group")],
+            ),
+        )
+    )
+
+
+def _latest_panel_row(artifacts: HistoricalArtifacts, program_key: str) -> SignalRow:
+    rows = [row for row in _table_rows(artifacts.panel) if row["program_key"] == program_key]
+    if not rows:
+        raise HistoricalDataError(f"Program {program_key!r} has no model-panel row.")
+    return max(rows, key=lambda row: _required_int(row, "feature_cohort_year"))
+
+
 def latest_public_forecast_eligibility(
     artifacts: HistoricalArtifacts, program_key: str
 ) -> ForecastEligibility:
     """Read, rather than derive, the latest trusted public-forecast eligibility flag."""
-    rows = [row for row in _table_rows(artifacts.panel) if row["program_key"] == program_key]
-    if not rows:
-        raise HistoricalDataError(f"Program {program_key!r} has no model-panel row.")
-    latest = max(rows, key=lambda row: _required_int(row, "feature_cohort_year"))
+    latest = _latest_panel_row(artifacts, program_key)
     eligible = latest["public_forecast_eligible"]
     if not isinstance(eligible, bool):
         raise HistoricalDataError(
@@ -382,4 +455,42 @@ def latest_public_forecast_eligibility(
         feature_cohort_year=_required_int(latest, "feature_cohort_year"),
         target_cohort_year=_required_int(latest, "target_cohort_year"),
         eligible=eligible,
+    )
+
+
+def latest_persistence_projection(
+    artifacts: HistoricalArtifacts, program_key: str
+) -> PersistenceProjection:
+    """Return an eligible next-year persistence point without deriving eligibility."""
+    latest = _latest_panel_row(artifacts, program_key)
+    eligible = latest["public_forecast_eligible"]
+    first_observed = latest["first_observed_program"]
+    if not isinstance(eligible, bool):
+        raise HistoricalDataError(
+            "Trusted field 'public_forecast_eligible' must be a materialized boolean."
+        )
+    if not isinstance(first_observed, bool):
+        raise HistoricalDataError("Trusted field 'first_observed_program' must be boolean.")
+    if eligible and first_observed:
+        raise HistoricalDataError(
+            "Trusted artifacts cannot expose a first-observed program projection."
+        )
+    prediction_as_of = _required_text(latest, "prediction_as_of")
+    prediction_precision = _precision(latest, "prediction_as_of_precision")
+    elapsed = _required_float(latest, "elapsed_target_cohort_fraction_at_prediction")
+    if not 0 <= elapsed <= 1:
+        raise HistoricalDataError(
+            "Trusted elapsed_target_cohort_fraction_at_prediction must be between 0 and 1."
+        )
+    current_log_oar = _required_float(latest, "current_log_overall_oar")
+    return PersistenceProjection(
+        feature_cohort_year=_required_int(latest, "feature_cohort_year"),
+        target_cohort_year=_required_int(latest, "target_cohort_year"),
+        prediction_as_of=prediction_as_of,
+        prediction_as_of_precision=prediction_precision,
+        prediction_as_of_display=format_publication_value(prediction_as_of, prediction_precision),
+        target_cohort_end=_required_date(latest, "target_cohort_end"),
+        elapsed_target_cohort_fraction=elapsed,
+        eligible=eligible,
+        point_oar=exp(current_log_oar) if eligible else None,
     )
