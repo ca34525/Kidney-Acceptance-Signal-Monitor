@@ -50,7 +50,7 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 | ID | Milestone | Status | Completion evidence |
 |---|---|---|---|
 | M0 | Repository scaffold and quality gates | in_progress | Locked local format, lint, type, and unit-test gates pass; remote CI run pending |
-| M1 | Source acquisition and data contracts | not_started | Offline verifier implemented; nine-file local cache is absent |
+| M1 | Source acquisition and data contracts | in_progress | Nine pinned files sync and verify; parser and workbook contracts are next |
 | M2 | Canonical signal table and panel | not_started | Deterministic Parquet and invariant report |
 | M3 | Baselines and temporal backtest harness | not_started | Frozen split artifact and baseline metrics |
 | M4 | Ridge challenger and frozen retrospective replay | not_started | Hash-addressed write-once replay bundle and descriptive promotion decision |

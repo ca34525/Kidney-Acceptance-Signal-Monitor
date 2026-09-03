@@ -17,13 +17,16 @@ uv run mypy src/kasm
 uv run pytest -q
 ```
 
-Raw SRTR inputs are immutable local files and are ignored by Git. Once acquired, place each
-download under `data/raw/srtr/` using the filename from its manifest URL, then verify it:
+Raw SRTR inputs are immutable local files and are ignored by Git. Acquire any missing pinned
+sources explicitly, then verify the cache offline:
 
 ```powershell
+uv run kasm data sync
 uv run kasm data verify-cache
 ```
 
-The verification command is offline: it checks the pinned file size, SHA-256, file type, and,
-for ZIP sources, the expected archive member and its pinned size and SHA-256.
-
+`data sync` is the networked preflight/maintenance path. It skips valid existing files, refuses to
+overwrite an invalid cache entry, downloads through a temporary file, and publishes a source only
+after its complete pinned contract passes. `data verify-cache` is offline and is the starting point
+for release reproduction; it checks file size, SHA-256, file type, and, for ZIP sources, the
+configured archive member with its pinned size and SHA-256.

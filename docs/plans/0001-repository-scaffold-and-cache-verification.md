@@ -1,7 +1,7 @@
 # Plan 0001 — Repository scaffold and cache verification
 
 **Milestones:** M0 repository scaffold; initial M1 source contract  
-**Status:** in_progress (source-cache gate not satisfied)  
+**Status:** done (source-cache gate handed to Plan 0002)
 **Started:** 2026-09-03
 
 ## Scope and acceptance evidence
@@ -13,7 +13,7 @@
 | Offline cache verification checks presence, pinned size, SHA-256, file type, and configured ZIP member | Focused unit tests and `kasm data verify-cache` | done |
 | Raw and generated data cannot be committed accidentally | `.gitignore` excludes `data/` and non-release artifacts | done |
 | Fixture-only checks run in CI with pinned actions | `.github/workflows/ci.yml` matches local quality commands | configured; remote run pending |
-| Nine-source start condition is evaluated | Real manifest command reports either nine verified inputs or actionable missing-file failures | blocked: all nine files absent |
+| Nine-source start condition is evaluated | Real manifest command reports either nine verified inputs or actionable missing-file failures | done: initially absent; all nine verified by Plan 0002 |
 
 ## Test-first log
 
@@ -37,3 +37,6 @@ is reported as an explicit start-condition failure rather than repaired or fetch
 The 2026-09-03 addition of a commit-message handoff rule to `AGENTS.md` is documentation-only and
 cannot be meaningfully exercised by an automated repository test; review of the rendered rule is
 the acceptance evidence.
+
+Plan 0001 is complete as an offline verification slice. The missing-cache start condition was not
+waived; Plan 0002 added explicit acquisition and subsequently satisfied it.

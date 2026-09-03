@@ -2,6 +2,7 @@
 .uv-cache/
 .git-bootstrap/
 .pytest_cache/
+.test-tmp/
 .mypy_cache/
 .ruff_cache/
 .coverage
@@ -10,8 +11,9 @@ htmlcov/
 __pycache__/
 *.py[cod]
 
-# Immutable source cache and generated data stay local.
-data/
+# Immutable source cache and generated data stay local. Anchor this rule so the
+# importable package at src/kasm/data remains trackable.
+/data/
 
 # Only the approved small release bundle may eventually be tracked here.
 artifacts/*
