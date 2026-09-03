@@ -39,8 +39,9 @@ non-root container contract without changing the frozen experiment
 | Streamlit process `/_stcore/health` smoke | passed; HTTP 200 with body `ok` |
 | Dockerfile contract | passed static regression test: final user `kasm`, UID 10001 creation, offline bundle roots, and health check precede the runtime command |
 | `docker build` plus configured/runtime non-root and health smoke | passed on Docker Desktop 4.89.0 / Linux engine 29.7.2; image configured user `kasm`, live process user `kasm`, UID/GID 10001, HTTP 200 body `ok`, and Docker health `healthy`; verification container removed afterward |
+| GitHub Actions clean-checkout CI | passed; 2/2 checks green for commit `2c815688c9ecb66d2519ee1c00638a803f17704d` |
 | Source attribution and permissions check | confirmed against the current SRTR PSR, technical-methods, and citations/permissions pages on 2026-09-03 |
 
 `uv run kasm data sync` remains the separately networked, nonblocking source-maintenance path. It
-is intentionally not part of release reproduction or automated tests. The local Docker acceptance
-evidence is complete; a green remote run of the pinned CI workflow remains the final M6 item.
+is intentionally not part of release reproduction or automated tests. Local Docker acceptance and
+the pinned remote CI workflow are green; M6 is complete.

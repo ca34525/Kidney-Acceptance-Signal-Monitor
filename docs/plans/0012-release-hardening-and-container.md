@@ -1,7 +1,7 @@
 # Plan 0012 — Release hardening and container verification
 
 **Milestone:** M6 reproducibility, documentation, and container  
-**Status:** in_progress  
+**Status:** done
 **Started:** 2026-09-03
 
 ## Scope and acceptance evidence
@@ -10,7 +10,7 @@
 |---|---|---|
 | Exactly one attributed, reproducible release bundle under 5 MB is tracked and bound by content hashes to the canonical processed, backtest, and frozen-replay artifacts | Release-manifest and bundle-integrity tests validate required provenance, checksums, allowed files, size, and equality with canonical artifact content | done |
 | A clean checkout opens the tracked bundle without raw inputs or network access, while the immutable-cache command sequence reproduces it deterministically | Clean-checkout fixture/app smoke and a recorded local full-data reproduction log pass without live-source access | done |
-| CI enforces the locked environment, formatting, lint, strict typing, branch coverage, dependency consistency, fixture/AppTest/process smoke, bundle policy, and Docker smoke | Workflow contract tests pass and all non-container gates pass locally; remote workflow execution remains pending | in_progress |
+| CI enforces the locked environment, formatting, lint, strict typing, branch coverage, dependency consistency, fixture/AppTest/process smoke, bundle policy, and Docker smoke | GitHub Actions reported 2/2 checks green for commit `2c815688c9ecb66d2519ee1c00638a803f17704d` | done |
 | The container runs Streamlit as an unprivileged user, reads only the tracked bundle by default, and exposes a working health check | Docker Desktop 4.89.0 built the image; configured user `kasm`, runtime UID/GID 10001, HTTP 200 `ok`, and Docker `healthy` status were verified | done |
 | README, data card, model card, decision record, diagrams, licensing boundary, accessibility checklist, and four-minute demo path match the frozen artifacts | Documentation review and repository-contract tests show every required deliverable and attribution | done |
 
@@ -54,5 +54,7 @@ display decision. It does not rerun the canonical write-once replay in place.
   `kidney-acceptance-signal-monitor:m6`. Image configuration named user `kasm`; the live
   container reported user `kasm`, UID/GID 10001, HTTP 200 with body `ok`, and Docker health
   `healthy`. The isolated verification container was removed after the check.
-- The pinned CI workflow contains the same image/user/health assertions. Its remote run remains
-  the final M6 acceptance item.
+- The pinned CI workflow contains the same image/user/health assertions. GitHub Actions reported
+  2/2 checks green for commit `2c815688c9ecb66d2519ee1c00638a803f17704d`.
+- These closing edits only record completed status and external CI evidence; no executable behavior
+  changed, so an additional fail-first test does not meaningfully apply.

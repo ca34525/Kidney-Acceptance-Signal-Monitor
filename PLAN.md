@@ -49,13 +49,13 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 
 | ID | Milestone | Status | Completion evidence |
 |---|---|---|---|
-| M0 | Repository scaffold and quality gates | in_progress | Locked sync, dependency checks, format, lint, strict mypy, 140-test/83.81% branch-coverage suite, and nine-source cache verification pass after Plan 0012; remote CI rerun pending |
+| M0 | Repository scaffold and quality gates | done | Locked sync, dependency checks, format, lint, strict mypy, 140-test/83.81% branch-coverage suite, nine-source cache verification, and 2/2 remote CI checks pass at `2c815688` |
 | M1 | Source acquisition and data contracts | done | Nine sources verified; 2,103 program-years parsed to 10,515 validated P0 signal rows |
 | M2 | Canonical signal table and panel | done | 10,515 signal rows, 2,103 panel rows, deterministic Parquet, and reconciled QA JSON |
 | M3 | Baselines and temporal backtest harness | done | Plan 0007: 2,763 paired predictions; persistence selection MAE 0.3415; 2025 untouched |
 | M4 | Ridge challenger and frozen retrospective replay | done | Plan 0010: 229-row write-once replay; ridge not promoted on frozen bias rule; persistence retained; model card complete |
 | M5 | Offline Streamlit product | done | Plan 0011: complete offline program flow, persistence projection, model evaluation, explicit non-promotion/band suppression, provenance, AppTest, and process health smoke |
-| M6 | Reproducibility, documentation, and container | in_progress | Plan 0012: 1.23 MB tracked bundle, clean-checkout/full reproduction, docs, local quality gates, and Docker non-root/health smoke pass; remote CI run pending |
+| M6 | Reproducibility, documentation, and container | done | Plan 0012: 1.23 MB tracked bundle, clean-checkout/full reproduction, docs, local Docker non-root/health smoke, and 2/2 remote CI checks pass at `2c815688` |
 | M7 | Interview presentation release | not_started | Tagged release, backup demo, completed rehearsal |
 
 ## 5. Day-by-day execution
@@ -362,9 +362,9 @@ If reconciling source definitions requires an era restriction that leaves fewer 
 
 ## 8. Release checklist
 
-- [ ] All P0 acceptance criteria in `SPEC.md` are satisfied.
-- [ ] Current milestone statuses and evidence are updated above.
-- [ ] Full CI is green from a clean checkout.
+- [x] All P0 acceptance criteria in `SPEC.md` are satisfied.
+- [x] Current milestone statuses and evidence are updated above.
+- [x] Full CI is green from a clean checkout.
 - [x] The tracked `<5 MB` bundle opens offline; full-data artifacts reproduce from the immutable, checksum-verified cache.
 - [x] Frozen-replay output is hash-addressed, write-once, and was not used for retuning.
 - [x] Forecast activation status and any promotion decision match the frozen configuration and rules.
