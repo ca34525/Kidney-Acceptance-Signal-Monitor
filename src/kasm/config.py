@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 from typing import Literal, cast
 from urllib.parse import urlparse
@@ -11,6 +12,7 @@ from urllib.parse import urlparse
 import yaml
 
 Transport = Literal["zip", "xls"]
+PublishedPrecision = Literal["month", "day"]
 
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 
@@ -32,6 +34,12 @@ class SourceRecord:
     member_path: str | None = None
     member_bytes: int | None = None
     member_sha256: str | None = None
+    release_label: str = ""
+    published_value: str = ""
+    published_precision: PublishedPrecision = "day"
+    expected_rows: int = 0
+    expected_columns: int = 0
+    sheet_name: str = ""
 
     @property
     def cache_filename(self) -> str:
@@ -45,6 +53,8 @@ class DataSourceManifest:
 
     schema_version: int
     sources: tuple[SourceRecord, ...]
+    required_machine_columns: tuple[str, ...] = ()
+    optional_recent_machine_columns: tuple[str, ...] = ()
 
 
 def _mapping(value: object, context: str) -> dict[str, object]:
@@ -85,16 +95,66 @@ def _optional_integer(values: dict[str, object], key: str, context: str) -> int 
     return value
 
 
+def _string_tuple(
+    values: dict[str, object], key: str, context: str, *, allow_empty: bool = False
+) -> tuple[str, ...]:
+    value = values.get(key)
+    if not isinstance(value, list) or (not value and not allow_empty):
+        qualifier = "a list" if allow_empty else "a non-empty list"
+        raise ManifestError(f"{context}.{key} must be {qualifier} of non-empty strings.")
+    if not all(isinstance(item, str) and item.strip() for item in value):
+        raise ManifestError(f"{context}.{key} must contain only non-empty strings.")
+    result = cast(tuple[str, ...], tuple(value))
+    duplicate = next((item for index, item in enumerate(result) if item in result[:index]), None)
+    if duplicate is not None:
+        raise ManifestError(f"Duplicate {key} field {duplicate!r}.")
+    return result
+
+
 def _validate_sha256(value: str, context: str) -> None:
     if _SHA256_PATTERN.fullmatch(value) is None:
         raise ManifestError(f"{context} must be a lowercase 64-character SHA-256 digest.")
+
+
+def _parse_published_value(
+    values: dict[str, object], context: str
+) -> tuple[str, PublishedPrecision]:
+    published_value = _required_string(values, "release_date_value", context)
+    raw_precision = _required_string(values, "release_date_precision", context)
+    if raw_precision not in {"month", "day"}:
+        raise ManifestError(f"{context}.release_date_precision must be 'month' or 'day'.")
+    published_precision = cast(PublishedPrecision, raw_precision)
+    try:
+        if published_precision == "month":
+            if re.fullmatch(r"\d{4}-\d{2}", published_value) is None:
+                raise ValueError
+            date.fromisoformat(f"{published_value}-01")
+        else:
+            if date.fromisoformat(published_value).isoformat() != published_value:
+                raise ValueError
+    except ValueError as error:
+        expected = "YYYY-MM" if published_precision == "month" else "YYYY-MM-DD"
+        raise ManifestError(
+            f"{context}.release_date_value must be a valid {expected} value for "
+            f"release_date_precision={published_precision!r}."
+        ) from error
+    return published_value, published_precision
 
 
 def _parse_source(value: object, index: int) -> SourceRecord:
     context = f"sources[{index}]"
     values = _mapping(value, context)
     release_code = _required_string(values, "release_code", context)
+    release_label = _required_string(values, "release_label", context)
+    published_value, published_precision = _parse_published_value(values, context)
     cohort_year = _required_integer(values, "cohort_year", context)
+    expected_rows = _required_integer(values, "expected_rows", context)
+    expected_columns = _required_integer(values, "expected_columns", context)
+    if expected_rows < 200:
+        raise ManifestError(f"{context}.expected_rows must be at least 200.")
+    if expected_columns <= 0:
+        raise ManifestError(f"{context}.expected_columns must be positive.")
+    sheet_name = _required_string(values, "sheet_name", context)
     raw_transport = _required_string(values, "transport", context)
     if raw_transport not in {"zip", "xls"}:
         raise ManifestError(f"{context}.transport must be 'zip' or 'xls'.")
@@ -137,6 +197,12 @@ def _parse_source(value: object, index: int) -> SourceRecord:
         member_path=member_path,
         member_bytes=member_bytes,
         member_sha256=member_sha256,
+        release_label=release_label,
+        published_value=published_value,
+        published_precision=published_precision,
+        expected_rows=expected_rows,
+        expected_columns=expected_columns,
+        sheet_name=sheet_name,
     )
 
 
@@ -167,6 +233,25 @@ def load_data_source_manifest(path: Path) -> DataSourceManifest:
     if not isinstance(raw_sources, list) or not raw_sources:
         raise ManifestError("Manifest root.sources must be a non-empty list.")
 
+    required_machine_columns = _string_tuple(values, "required_machine_columns", "Manifest root")
+    optional_recent_machine_columns = _string_tuple(
+        values, "optional_recent_machine_columns", "Manifest root", allow_empty=True
+    )
+    overlap = set(required_machine_columns) & set(optional_recent_machine_columns)
+    if overlap:
+        field = sorted(overlap)[0]
+        raise ManifestError(f"Machine field {field!r} cannot be both required and optional.")
+
     sources = tuple(_parse_source(value, index) for index, value in enumerate(raw_sources))
     _reject_duplicate_sources(sources)
-    return DataSourceManifest(schema_version=schema_version, sources=sources)
+    for source in sources:
+        if source.expected_columns < len(required_machine_columns):
+            raise ManifestError(
+                f"Source {source.release_code!r} expects fewer columns than the required schema."
+            )
+    return DataSourceManifest(
+        schema_version=schema_version,
+        sources=sources,
+        required_machine_columns=required_machine_columns,
+        optional_recent_machine_columns=optional_recent_machine_columns,
+    )

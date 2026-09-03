@@ -23,6 +23,7 @@ sources explicitly, then verify the cache offline:
 ```powershell
 uv run kasm data sync
 uv run kasm data verify-cache
+uv run kasm data inspect-sources
 ```
 
 `data sync` is the networked preflight/maintenance path. It skips valid existing files, refuses to
@@ -30,3 +31,9 @@ overwrite an invalid cache entry, downloads through a temporary file, and publis
 after its complete pinned contract passes. `data verify-cache` is offline and is the starting point
 for release reproduction; it checks file size, SHA-256, file type, and, for ZIP sources, the
 configured archive member with its pinned size and SHA-256.
+
+`data inspect-sources` stays offline, re-verifies every input, opens only the configured XLS or ZIP
+member, locates the versioned offer-acceptance sheet by name and machine fields, and validates the
+pinned source row/column counts plus the center-level scientific invariants. Its JSON inventory is
+the M1 evidence that all nine source eras reshape into the five P0 offer groups without silently
+accepting schema drift.

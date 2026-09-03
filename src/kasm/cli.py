@@ -11,6 +11,7 @@ from pathlib import Path
 from kasm.config import load_data_source_manifest
 from kasm.data.cache import verify_cache
 from kasm.data.download import sync_cache
+from kasm.data.parse import ParseError, inspect_source_cache
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -25,6 +26,9 @@ def build_parser() -> argparse.ArgumentParser:
     verify_parser = data_commands.add_parser("verify-cache")
     verify_parser.add_argument("--manifest", type=Path, default=Path("configs/data_sources.yaml"))
     verify_parser.add_argument("--cache-dir", type=Path, default=Path("data/raw/srtr"))
+    inspect_parser = data_commands.add_parser("inspect-sources")
+    inspect_parser.add_argument("--manifest", type=Path, default=Path("configs/data_sources.yaml"))
+    inspect_parser.add_argument("--cache-dir", type=Path, default=Path("data/raw/srtr"))
     return parser
 
 
@@ -48,6 +52,25 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         )
         return 0 if sync_result.ok else 1
+
+    if args.data_command == "inspect-sources":
+        try:
+            inventory = inspect_source_cache(manifest, args.cache_dir)
+        except ParseError as error:
+            print(json.dumps({"error": str(error), "ok": False}, indent=2, sort_keys=True))
+            return 1
+        print(
+            json.dumps(
+                {
+                    "checked_sources": len(inventory),
+                    "ok": True,
+                    "releases": [asdict(entry) for entry in inventory],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
 
     result = verify_cache(manifest, args.cache_dir)
     print(
