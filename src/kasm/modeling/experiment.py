@@ -17,6 +17,14 @@ class ExperimentConfigError(ValueError):
 
 
 @dataclass(frozen=True)
+class SensitivitySpec:
+    """One prespecified transition-exclusion drift check."""
+
+    name: str
+    excluded_cohort_years: tuple[int, ...]
+
+
+@dataclass(frozen=True)
 class ExperimentConfig:
     """Configuration fields needed by the pre-replay temporal harness."""
 
@@ -56,6 +64,7 @@ class ExperimentConfig:
     point_maximum_lowest_quartile_relative_worsening: float
     band_exact_interval_must_include_nominal_coverage: bool
     band_maximum_mean_width_relative_to_persistence: float
+    sensitivities: tuple[SensitivitySpec, ...]
 
     @property
     def pre_replay_evaluation_target_years(self) -> tuple[int, ...]:
@@ -117,6 +126,34 @@ def _number_tuple(value: object, context: str) -> tuple[float, ...]:
     if not isinstance(value, list):
         raise ExperimentConfigError(f"{context} must be a list of numbers.")
     return tuple(_number(item, context) for item in value)
+
+
+def _sensitivity_specs(value: object) -> tuple[SensitivitySpec, ...]:
+    if not isinstance(value, list):
+        raise ExperimentConfigError("sensitivities must be a list.")
+    specs: list[SensitivitySpec] = []
+    for index, item in enumerate(value):
+        context = f"sensitivities[{index}]"
+        values = _mapping(item, context)
+        specs.append(
+            SensitivitySpec(
+                name=_string(values.get("name"), f"{context}.name"),
+                excluded_cohort_years=_integer_tuple(
+                    values.get("excluded_cohort_years"),
+                    f"{context}.excluded_cohort_years",
+                ),
+            )
+        )
+    result = tuple(specs)
+    expected = (
+        SensitivitySpec("exclude_transitions_touching_2020", (2020,)),
+        SensitivitySpec("exclude_transitions_touching_2021", (2021,)),
+    )
+    if result != expected:
+        raise ExperimentConfigError(
+            "Sensitivity rules must match the prespecified 2020/2021 checks."
+        )
+    return result
 
 
 def load_experiment_config(path: Path) -> ExperimentConfig:
@@ -369,6 +406,8 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
     if (band_interval_includes_nominal, band_maximum_relative_width) != (True, 1.0):
         raise ExperimentConfigError("Replay band-promotion rules must match the specification.")
 
+    sensitivities = _sensitivity_specs(values.get("sensitivities"))
+
     activation_attempted = _optional_boolean(
         values.get("forecast_activation_attempted"), "forecast_activation_attempted"
     )
@@ -410,6 +449,7 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
         point_maximum_lowest_quartile_relative_worsening=point_lowest_quartile_worsening,
         band_exact_interval_must_include_nominal_coverage=band_interval_includes_nominal,
         band_maximum_mean_width_relative_to_persistence=band_maximum_relative_width,
+        sensitivities=sensitivities,
     )
 
 

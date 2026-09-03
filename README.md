@@ -65,16 +65,34 @@ replay remains unevaluated.
 
 On the verified nine-release panel, alpha 10 was selected. Ridge improved over persistence in all
 four pre-replay years and produced 5.47% year-balanced log-OAR MAE skill, so it passed the
-prespecified pre-replay candidate gate. This is model-development evidence only: activation is
-still undecided, `forecast_activation_attempted` remains unset, and no 2025 result has been used.
+prespecified pre-replay candidate gate. The activation rules and 2024 residual radii were then
+frozen in the committed `configs/frozen_experiment.yaml`.
+
+The confirmed replay is an exceptional, write-once command:
+
+```powershell
+uv run kasm model evaluate-frozen-replay --confirm
+```
+
+It requires the frozen config to match `HEAD`, fits the fixed alpha using target years 2018–2023,
+excludes 2024 outcomes from fitting, and evaluates only target year 2025. It atomically publishes
+predictions, metrics, and a completion ledger to a directory keyed by the full frozen-config and
+source-manifest SHA-256 values; an existing canonical directory is never overwritten.
+
+In the 229-program replay, ridge reduced log-OAR MAE by 10.13% and its descriptive paired
+bootstrap interval favored ridge, but the point-promotion gate failed because ridge's absolute
+mean signed log error (0.01145) exceeded persistence's (0.00885). Persistence therefore remains
+the displayed projection. The ridge band's separate statistical gate passed, but cannot expose an
+unpromoted ridge forecast. See `docs/model_card.md` for the complete frozen result, quartile and
+sensitivity reporting, provenance, and limitations.
 
 ## Historical walking skeleton
 
 The current Streamlit slice reads only the trusted precomputed Parquet files. It provides
 composite-key program selection, published overall OAR history with SRTR credible intervals,
 latest source-volume context, donor-stratum values, explicit missing states, and the materialized
-public-forecast eligibility state. Model evaluation and any eligible projection remain later
-milestones.
+public-forecast eligibility state. Integrating the frozen model-evaluation result and persistence
+projection into the offline product remains the next product milestone.
 
 Build the local artifacts first, then start the offline view:
 

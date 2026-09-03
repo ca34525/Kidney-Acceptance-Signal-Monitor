@@ -16,6 +16,7 @@ from kasm.data.parse import ParseError, inspect_source_cache
 from kasm.modeling.backtest import BacktestError, run_baseline_backtest
 from kasm.modeling.challenger import ChallengerError, run_ridge_backtest
 from kasm.modeling.experiment import ExperimentConfigError
+from kasm.modeling.replay import FrozenReplayError, run_frozen_replay
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -47,6 +48,25 @@ def build_parser() -> argparse.ArgumentParser:
     )
     backtest_parser.add_argument("--config", type=Path, default=Path("configs/experiment.yaml"))
     backtest_parser.add_argument("--output-dir", type=Path, default=Path("data/modeling"))
+    replay_parser = model_commands.add_parser("evaluate-frozen-replay")
+    replay_parser.add_argument(
+        "--confirm",
+        action="store_true",
+        required=True,
+        help="Confirm the one-time, write-once retrospective replay.",
+    )
+    replay_parser.add_argument(
+        "--panel-path", type=Path, default=Path("data/processed/model_panel.parquet")
+    )
+    replay_parser.add_argument(
+        "--config", type=Path, default=Path("configs/frozen_experiment.yaml")
+    )
+    replay_parser.add_argument(
+        "--source-manifest", type=Path, default=Path("configs/data_sources.yaml")
+    )
+    replay_parser.add_argument(
+        "--output-root", type=Path, default=Path("data/modeling/frozen-replay")
+    )
     return parser
 
 
@@ -54,6 +74,34 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Run a command and return a process exit code."""
     args = build_parser().parse_args(argv)
     if args.command == "model":
+        if args.model_command == "evaluate-frozen-replay":
+            try:
+                replay_result = run_frozen_replay(
+                    panel_path=args.panel_path,
+                    config_path=args.config,
+                    source_manifest_path=args.source_manifest,
+                    output_root=args.output_root,
+                )
+            except (FrozenReplayError, ExperimentConfigError, OSError) as error:
+                print(json.dumps({"error": str(error), "ok": False}, indent=2, sort_keys=True))
+                return 1
+            print(
+                json.dumps(
+                    {
+                        "completion_path": str(replay_result.completion_path),
+                        "display_band": replay_result.display_band,
+                        "displayed_model": replay_result.displayed_model,
+                        "metrics_path": str(replay_result.metrics_path),
+                        "ok": True,
+                        "output_directory": str(replay_result.output_directory),
+                        "prediction_rows": replay_result.prediction_rows,
+                        "predictions_path": str(replay_result.predictions_path),
+                    },
+                    indent=2,
+                    sort_keys=True,
+                )
+            )
+            return 0
         try:
             baseline_result = run_baseline_backtest(args.panel_path, args.config, args.output_dir)
             ridge_result = run_ridge_backtest(args.panel_path, args.config, args.output_dir)

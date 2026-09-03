@@ -8,6 +8,7 @@ from kasm.data.download import CacheSync
 from kasm.data.parse import ParseError, SourceInventoryEntry
 from kasm.modeling.backtest import BaselineBacktestResult
 from kasm.modeling.challenger import RidgeBacktestResult
+from kasm.modeling.replay import FrozenReplayResult
 
 
 def test_verify_cache_command_returns_failure_and_names_missing_release(
@@ -200,3 +201,48 @@ def test_model_backtest_command_reports_artifacts_without_loading_source_cache(
     assert '"ridge_prediction_rows": 920' in captured.out
     assert '"ridge_selected_alpha": 10.0' in captured.out
     assert str(output_dir / "baseline_metrics.json").replace("\\", "\\\\") in captured.out
+
+
+def test_frozen_replay_command_requires_confirmation() -> None:
+    import pytest
+
+    with pytest.raises(SystemExit):
+        main(["model", "evaluate-frozen-replay"])
+
+
+def test_frozen_replay_command_reports_write_once_bundle(
+    tmp_path: Path, capsys: Any, monkeypatch: Any
+) -> None:
+    output_directory = tmp_path / "frozen" / "config-source"
+    monkeypatch.setattr(
+        kasm.cli,
+        "run_frozen_replay",
+        lambda **kwargs: FrozenReplayResult(
+            output_directory=output_directory,
+            predictions_path=output_directory / "replay_predictions.parquet",
+            metrics_path=output_directory / "replay_metrics.json",
+            completion_path=output_directory / "completion.json",
+            prediction_rows=229,
+            displayed_model="ridge",
+            display_band=False,
+        ),
+    )
+
+    exit_code = main(
+        [
+            "model",
+            "evaluate-frozen-replay",
+            "--confirm",
+            "--panel-path",
+            str(tmp_path / "model_panel.parquet"),
+            "--output-root",
+            str(tmp_path / "frozen"),
+        ]
+    )
+
+    assert exit_code == 0
+    captured = capsys.readouterr()
+    assert '"prediction_rows": 229' in captured.out
+    assert '"displayed_model": "ridge"' in captured.out
+    assert '"display_band": false' in captured.out
+    assert str(output_directory).replace("\\", "\\\\") in captured.out

@@ -1,7 +1,7 @@
 # Plan 0009 — Pre-replay activation freeze
 
 **Milestone:** M4 ridge challenger and frozen retrospective replay  
-**Status:** in_progress  
+**Status:** done
 **Started:** 2026-09-03
 
 ## Scope and acceptance evidence
@@ -12,7 +12,7 @@
 | The descriptive paired bootstrap resamples 2025 program keys with replacement using the frozen seed, count, percentiles, and percentile method | Unit tests prove deterministic output, program-key pairing, and rejection of duplicate keys | done |
 | Ridge point promotion applies every replay criterion, including low-volume eligibility, independently of the empirical-band display gate | Unit tests make each criterion fail in isolation and prove a failed point gate retains persistence | done |
 | The band display gate uses a two-sided 95% Clopper–Pearson interval and compares mean width with a persistence band calibrated by the same rule | Unit tests check exact-binomial endpoints, nominal-coverage inclusion, and width rejection | done |
-| `configs/frozen_experiment.yaml` serializes the activation decision, selected alpha, and every prespecified replay rule without exposing target year 2025 | A strict frozen-config loader rejects null decisions or altered methods and the checked-in config contains only pre-replay evidence | in_progress |
+| `configs/frozen_experiment.yaml` serializes the activation decision, selected alpha, and every prespecified replay rule without exposing target year 2025 | A strict frozen-config loader rejects null decisions or altered methods and the checked-in config contains only pre-replay evidence | done |
 
 ## Test-first log
 
@@ -36,8 +36,7 @@
   contract, point gate, and band gate serialized before replay.
 - Locked sync, formatting, lint, strict mypy, all 110 tests, 85.11% branch coverage across core
   modules, and verification of all nine cached sources passed.
-- The frozen config remains uncommitted because repository commits require explicit user
-  authorization. The 2025 replay has not been run.
+- The frozen config was committed at `2a5b524` before the separately planned 2025 replay.
 
 ## Scope boundary
 
