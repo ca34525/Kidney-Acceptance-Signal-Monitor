@@ -12,6 +12,7 @@ dependencies = [
   "numpy>=2.3,<3",
   "pyarrow>=20,<22",
   "PyYAML>=6.0.2,<7",
+  "scipy>=1.16,<2",
   "scikit-learn>=1.7,<2",
   "streamlit>=1.62,<2",
   "xlrd>=2.0.2,<3",

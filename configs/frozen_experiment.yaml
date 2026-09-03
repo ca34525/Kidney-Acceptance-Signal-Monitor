@@ -1,0 +1,123 @@
+schema_version: 1
+forecast_activation_attempted: true
+
+unit: kidney_transplant_program_year
+target:
+  column: target_log_oar
+  meaning: next_same_cadence_calendar_year_published_log_oar
+
+features:
+  columns:
+    - current_log_overall_oar
+    - previous_annual_log_overall_oar
+    - one_year_change_log_overall_oar
+    - log1p_overall_expected_acceptances
+    - log_credible_interval_width
+    - current_log_low_oar
+    - current_log_medium_oar
+    - current_log_high_oar
+    - current_log_hard_to_place_oar
+    - high_offers_share
+    - hard_to_place_offers_share
+    - missing_previous_annual_log_overall_oar
+    - missing_one_year_change_log_overall_oar
+    - missing_current_log_low_oar
+    - missing_current_log_medium_oar
+    - missing_current_log_high_oar
+    - missing_current_log_hard_to_place_oar
+  selection: prespecified_no_data_driven_selection
+  preprocessing_scope: fit_within_each_training_fold
+
+preprocessing:
+  numeric_imputation: median
+  scaling: standard
+  fit_scope: training_fold_only
+  missingness_indicators: prespecified_input_columns
+
+baselines:
+  - neutral
+  - persistence
+  - historical_mean
+
+temporal_evaluation:
+  split_method: rolling_origin_by_target_year
+  training_target_year_start: 2018
+  selection_target_years: [2021, 2022, 2023]
+  validation_target_year: 2024
+  frozen_replay_target_year: 2025
+  replay_model_training_target_year_end: 2023
+
+metrics:
+  primary: mae_log_oar
+  primary_aggregation: unweighted_mean_of_target_year_maes
+  secondary:
+    - row_pooled_mae_log_oar
+    - mae_oar
+    - skill_over_persistence
+    - paired_absolute_error_difference_vs_persistence
+    - mean_signed_log_error
+    - calibration_slope
+  within_year_weighting: equal_program_weight
+
+ridge:
+  alpha_grid: [0.01, 0.1, 1, 10, 100]
+  alpha_tie_relative_tolerance: 0.01
+  alpha_tie_break: larger_alpha
+  random_seed: 20260903
+  selected_alpha: 10
+
+volume_quartiles:
+  source_field: log1p_overall_expected_acceptances
+  assignment: "min(4, 1 + floor(4 * zero_based_rank / n))"
+  sort: [expected_acceptances, program_key]
+  within: target_year
+  minimum_lowest_quartile_rows: 30
+
+empirical_band:
+  nominal_coverage: 0.8
+  calibration_target_year: 2024
+  residual: absolute_log_scale
+  order_statistic: "min(n, ceil((n + 1) * 0.80))"
+  coverage_interval: two_sided_95_percent_clopper_pearson
+  calibration_evidence:
+    sample_size: 229
+    order_statistic_rank: 184
+    ridge_absolute_log_residual_radius: 0.3842946113686516
+    persistence_absolute_log_residual_radius: 0.4054651081081644
+
+bootstrap:
+  resamples: 10000
+  seed: 20260903
+  percentiles: [2.5, 97.5]
+  percentile_method: linear
+  resampling_unit: program_key
+
+promotion:
+  pre_replay:
+    minimum_skill_over_persistence: 0.05
+    minimum_improved_years: 3
+    maximum_single_year_relative_worsening: 0.10
+    maximum_lowest_quartile_relative_worsening: 0.10
+  point_replay:
+    minimum_skill_over_persistence: 0.05
+    bootstrap_interval_must_be_below_zero: true
+    maximum_absolute_mean_signed_log_error: 0.05
+    bias_must_not_exceed_persistence: true
+    maximum_lowest_quartile_relative_worsening: 0.10
+  band_replay:
+    exact_interval_must_include_nominal_coverage: true
+    maximum_mean_width_relative_to_persistence: 1.0
+
+sensitivities:
+  - name: exclude_transitions_touching_2020
+    excluded_cohort_years: [2020]
+  - name: exclude_transitions_touching_2021
+    excluded_cohort_years: [2021]
+
+pre_replay_freeze:
+  evaluated_target_years: [2021, 2022, 2023, 2024]
+  candidate_gate_passed: true
+  frozen_replay_evaluated: false
+  ridge_predictions_sha256: 6e451509cb4c681c2bd91c1a5617eb2facf178f8df8b6656f77d6db5eda5c7e8
+  ridge_metrics_sha256: 2cc3efd9b7413fdab7a27b6125c9c471f2be6db35f2e2e4e62e77422bdbd3c18
+  ridge_selection_sha256: b10d42d5ca5e38b492def2cf45a7b3e37bac6be4887ddce8357d317ae487c7cc
