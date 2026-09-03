@@ -48,18 +48,25 @@ eligibility. The QA report records source counts, raw-to-normalized cohort dates
 and closures, missing subgroup OARs, and nonblocking publication-rounding diagnostics. These
 canonical build products remain ignored until the approved release-bundle step.
 
-The baseline gate likewise runs entirely from the trusted model panel:
+The temporal backtest likewise runs entirely from the trusted model panel:
 
 ```powershell
 uv run kasm model backtest
 ```
 
-This command enforces the exact predictor allowlist, constructs expanding target-year folds,
-and writes paired neutral, persistence, and historical-mean predictions plus year-specific and
-expected-acceptance-quartile metrics under `data/modeling/`. It evaluates target years 2021–2024
-only. The draft `configs/experiment.yaml` records the later ridge, uncertainty, and promotion
-rules, but `forecast_activation_attempted` remains unset and the command does not access the 2025
-frozen replay.
+This command enforces the exact predictor allowlist, constructs expanding target-year folds, and
+writes paired neutral, persistence, and historical-mean predictions under `data/modeling/`. It
+also fits median imputation, standardization, and ridge inside each training fold; selects alpha
+from the fixed grid using year-balanced 2021–2023 log-OAR MAE and the prespecified 1% larger-alpha
+tie rule; then evaluates the selected alpha through held-out target year 2024. Ridge selection,
+predictions, metrics, and the pre-replay candidate-gate decision are separate deterministic
+artifacts. The panel read is filtered through 2024, and every artifact records that the 2025 frozen
+replay remains unevaluated.
+
+On the verified nine-release panel, alpha 10 was selected. Ridge improved over persistence in all
+four pre-replay years and produced 5.47% year-balanced log-OAR MAE skill, so it passed the
+prespecified pre-replay candidate gate. This is model-development evidence only: activation is
+still undecided, `forecast_activation_attempted` remains unset, and no 2025 result has been used.
 
 ## Historical walking skeleton
 

@@ -7,6 +7,7 @@ from kasm.data.build import DataBuildResult
 from kasm.data.download import CacheSync
 from kasm.data.parse import ParseError, SourceInventoryEntry
 from kasm.modeling.backtest import BaselineBacktestResult
+from kasm.modeling.challenger import RidgeBacktestResult
 
 
 def test_verify_cache_command_returns_failure_and_names_missing_release(
@@ -41,7 +42,6 @@ def test_sync_command_reports_downloaded_and_skipped_sources(
             issues=(),
         ),
     )
-
     exit_code = main(
         [
             "data",
@@ -170,6 +170,18 @@ def test_model_backtest_command_reports_artifacts_without_loading_source_cache(
             prediction_rows=2760,
         ),
     )
+    monkeypatch.setattr(
+        kasm.cli,
+        "run_ridge_backtest",
+        lambda panel_path, config_path, destination: RidgeBacktestResult(
+            predictions_path=destination / "ridge_predictions.parquet",
+            metrics_path=destination / "ridge_metrics.json",
+            selection_path=destination / "ridge_selection.json",
+            prediction_rows=920,
+            selected_alpha=10.0,
+            candidate_gate_passed=True,
+        ),
+    )
 
     exit_code = main(
         [
@@ -185,4 +197,6 @@ def test_model_backtest_command_reports_artifacts_without_loading_source_cache(
     assert exit_code == 0
     captured = capsys.readouterr()
     assert '"prediction_rows": 2760' in captured.out
+    assert '"ridge_prediction_rows": 920' in captured.out
+    assert '"ridge_selected_alpha": 10.0' in captured.out
     assert str(output_dir / "baseline_metrics.json").replace("\\", "\\\\") in captured.out

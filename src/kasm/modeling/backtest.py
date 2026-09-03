@@ -506,10 +506,12 @@ def _write_json(value: Mapping[str, object], path: Path) -> None:
     )
 
 
-def _read_panel_rows(panel_path: Path) -> tuple[dict[str, object], ...]:
+def _read_panel_rows(
+    panel_path: Path, *, maximum_target_year: int
+) -> tuple[dict[str, object], ...]:
     if not panel_path.is_file():
         raise BacktestError(f"Trusted model panel not found: {panel_path}.")
-    table = pq.read_table(panel_path)
+    table = pq.read_table(panel_path, filters=[("target_cohort_year", "<=", maximum_target_year)])
     if table.schema != MODEL_PANEL_SCHEMA:
         raise BacktestError("Trusted model panel schema does not match MODEL_PANEL_SCHEMA.")
     return tuple(cast(dict[str, object], row) for row in table.to_pylist())
@@ -542,7 +544,7 @@ def run_baseline_backtest(
 ) -> BaselineBacktestResult:
     """Run the offline pre-replay baseline evaluation and publish its artifact set."""
     config = load_experiment_config(config_path)
-    rows = _read_panel_rows(panel_path)
+    rows = _read_panel_rows(panel_path, maximum_target_year=config.validation_target_year)
     predictions, folds, metrics = _run_from_rows(rows, config)
     metrics["input_panel_sha256"] = _file_sha256(panel_path)
     metrics["experiment_config_sha256"] = _file_sha256(config_path)

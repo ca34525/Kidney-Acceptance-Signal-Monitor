@@ -14,6 +14,7 @@ from kasm.data.cache import verify_cache
 from kasm.data.download import sync_cache
 from kasm.data.parse import ParseError, inspect_source_cache
 from kasm.modeling.backtest import BacktestError, run_baseline_backtest
+from kasm.modeling.challenger import ChallengerError, run_ridge_backtest
 from kasm.modeling.experiment import ExperimentConfigError
 
 
@@ -55,7 +56,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.command == "model":
         try:
             baseline_result = run_baseline_backtest(args.panel_path, args.config, args.output_dir)
-        except (BacktestError, ExperimentConfigError, OSError) as error:
+            ridge_result = run_ridge_backtest(args.panel_path, args.config, args.output_dir)
+        except (BacktestError, ChallengerError, ExperimentConfigError, OSError) as error:
             print(json.dumps({"error": str(error), "ok": False}, indent=2, sort_keys=True))
             return 1
         print(
@@ -66,6 +68,12 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "ok": True,
                     "prediction_rows": baseline_result.prediction_rows,
                     "predictions_path": str(baseline_result.predictions_path),
+                    "ridge_candidate_gate_passed": ridge_result.candidate_gate_passed,
+                    "ridge_metrics_path": str(ridge_result.metrics_path),
+                    "ridge_prediction_rows": ridge_result.prediction_rows,
+                    "ridge_predictions_path": str(ridge_result.predictions_path),
+                    "ridge_selected_alpha": ridge_result.selected_alpha,
+                    "ridge_selection_path": str(ridge_result.selection_path),
                 },
                 indent=2,
                 sort_keys=True,

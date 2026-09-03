@@ -17,7 +17,7 @@ class ExperimentConfigError(ValueError):
 
 @dataclass(frozen=True)
 class ExperimentConfig:
-    """Configuration fields needed by the baseline temporal harness."""
+    """Configuration fields needed by the pre-replay temporal harness."""
 
     feature_columns: tuple[str, ...]
     target_column: str
@@ -26,6 +26,14 @@ class ExperimentConfig:
     validation_target_year: int
     replay_target_year: int
     baselines: tuple[str, ...]
+    ridge_alpha_grid: tuple[float, ...]
+    ridge_alpha_tie_relative_tolerance: float
+    ridge_random_seed: int
+    minimum_lowest_quartile_rows: int
+    pre_replay_minimum_skill_over_persistence: float
+    pre_replay_minimum_improved_years: int
+    pre_replay_maximum_single_year_relative_worsening: float
+    pre_replay_maximum_lowest_quartile_relative_worsening: float
 
     @property
     def pre_replay_evaluation_target_years(self) -> tuple[int, ...]:
@@ -63,6 +71,18 @@ def _integer_tuple(value: object, context: str) -> tuple[int, ...]:
     ):
         raise ExperimentConfigError(f"{context} must be a list of integers.")
     return tuple(value)
+
+
+def _number(value: object, context: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        raise ExperimentConfigError(f"{context} must be numeric.")
+    return float(value)
+
+
+def _number_tuple(value: object, context: str) -> tuple[float, ...]:
+    if not isinstance(value, list):
+        raise ExperimentConfigError(f"{context} must be a list of numbers.")
+    return tuple(_number(item, context) for item in value)
 
 
 def load_experiment_config(path: Path) -> ExperimentConfig:
@@ -121,6 +141,54 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
             "baselines must be neutral, persistence, and historical_mean in that order."
         )
 
+    ridge = _mapping(values.get("ridge"), "ridge")
+    alpha_grid = _number_tuple(ridge.get("alpha_grid"), "ridge.alpha_grid")
+    alpha_tolerance = _number(
+        ridge.get("alpha_tie_relative_tolerance"),
+        "ridge.alpha_tie_relative_tolerance",
+    )
+    random_seed = _integer(ridge.get("random_seed"), "ridge.random_seed")
+    if alpha_grid != (0.01, 0.1, 1.0, 10.0, 100.0):
+        raise ExperimentConfigError("ridge.alpha_grid must match the prespecified fixed grid.")
+    if alpha_tolerance != 0.01:
+        raise ExperimentConfigError(
+            "ridge.alpha_tie_relative_tolerance must match the prespecified 0.01 rule."
+        )
+    if random_seed != 20260903:
+        raise ExperimentConfigError("ridge.random_seed must be 20260903.")
+
+    volume = _mapping(values.get("volume_quartiles"), "volume_quartiles")
+    minimum_lowest_quartile_rows = _integer(
+        volume.get("minimum_lowest_quartile_rows"),
+        "volume_quartiles.minimum_lowest_quartile_rows",
+    )
+    promotion = _mapping(values.get("promotion"), "promotion")
+    pre_replay = _mapping(promotion.get("pre_replay"), "promotion.pre_replay")
+    minimum_skill = _number(
+        pre_replay.get("minimum_skill_over_persistence"),
+        "promotion.pre_replay.minimum_skill_over_persistence",
+    )
+    minimum_improved_years = _integer(
+        pre_replay.get("minimum_improved_years"),
+        "promotion.pre_replay.minimum_improved_years",
+    )
+    maximum_single_year_worsening = _number(
+        pre_replay.get("maximum_single_year_relative_worsening"),
+        "promotion.pre_replay.maximum_single_year_relative_worsening",
+    )
+    maximum_lowest_quartile_worsening = _number(
+        pre_replay.get("maximum_lowest_quartile_relative_worsening"),
+        "promotion.pre_replay.maximum_lowest_quartile_relative_worsening",
+    )
+    if (
+        minimum_lowest_quartile_rows,
+        minimum_skill,
+        minimum_improved_years,
+        maximum_single_year_worsening,
+        maximum_lowest_quartile_worsening,
+    ) != (30, 0.05, 3, 0.10, 0.10):
+        raise ExperimentConfigError("Pre-replay promotion rules must match the specification.")
+
     return ExperimentConfig(
         feature_columns=feature_columns,
         target_column=target_column,
@@ -129,4 +197,12 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
         validation_target_year=validation_year,
         replay_target_year=replay_year,
         baselines=baselines,
+        ridge_alpha_grid=alpha_grid,
+        ridge_alpha_tie_relative_tolerance=alpha_tolerance,
+        ridge_random_seed=random_seed,
+        minimum_lowest_quartile_rows=minimum_lowest_quartile_rows,
+        pre_replay_minimum_skill_over_persistence=minimum_skill,
+        pre_replay_minimum_improved_years=minimum_improved_years,
+        pre_replay_maximum_single_year_relative_worsening=maximum_single_year_worsening,
+        pre_replay_maximum_lowest_quartile_relative_worsening=(maximum_lowest_quartile_worsening),
     )

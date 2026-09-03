@@ -20,6 +20,10 @@ def test_experiment_config_freezes_prespecified_baseline_design() -> None:
     assert config.validation_target_year == 2024
     assert config.replay_target_year == 2025
     assert config.baselines == ("neutral", "persistence", "historical_mean")
+    assert config.ridge_alpha_grid == (0.01, 0.1, 1.0, 10.0, 100.0)
+    assert config.ridge_alpha_tie_relative_tolerance == 0.01
+    assert config.ridge_random_seed == 20260903
+    assert config.minimum_lowest_quartile_rows == 30
     assert raw["ridge"]["alpha_grid"] == [0.01, 0.1, 1, 10, 100]
     assert raw["preprocessing"] == {
         "numeric_imputation": "median",
