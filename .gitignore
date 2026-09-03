@@ -15,7 +15,7 @@ __pycache__/
 # importable package at src/kasm/data remains trackable.
 /data/
 
-# Only the approved small release bundle may eventually be tracked here.
+# Only the approved small release bundle is tracked here.
 artifacts/*
 !artifacts/release/
-!artifacts/release/.gitkeep
+!artifacts/release/**

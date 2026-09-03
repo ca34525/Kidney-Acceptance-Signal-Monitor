@@ -9,6 +9,7 @@ from kasm.data.parse import ParseError, SourceInventoryEntry
 from kasm.modeling.backtest import BaselineBacktestResult
 from kasm.modeling.challenger import RidgeBacktestResult
 from kasm.modeling.replay import FrozenReplayResult
+from kasm.reporting.artifacts import ReleaseBundleResult
 
 
 def test_verify_cache_command_returns_failure_and_names_missing_release(
@@ -246,3 +247,40 @@ def test_frozen_replay_command_reports_write_once_bundle(
     assert '"displayed_model": "ridge"' in captured.out
     assert '"display_band": false' in captured.out
     assert str(output_directory).replace("\\", "\\\\") in captured.out
+
+
+def test_artifacts_build_command_reports_validated_release_bundle(
+    tmp_path: Path, capsys: Any, monkeypatch: Any
+) -> None:
+    output_dir = tmp_path / "release"
+    monkeypatch.setattr(
+        kasm.cli,
+        "build_release_bundle",
+        lambda **kwargs: ReleaseBundleResult(
+            output_directory=output_dir,
+            manifest_path=output_dir / "release_manifest.json",
+            file_count=12,
+            total_bytes=123456,
+            bundle_content_sha256="a" * 64,
+        ),
+    )
+
+    exit_code = main(
+        [
+            "artifacts",
+            "build",
+            "--processed-dir",
+            str(tmp_path / "processed"),
+            "--modeling-dir",
+            str(tmp_path / "modeling"),
+            "--output-dir",
+            str(output_dir),
+        ]
+    )
+
+    assert exit_code == 0
+    captured = capsys.readouterr()
+    assert '"file_count": 12' in captured.out
+    assert '"total_bytes": 123456' in captured.out
+    assert '"bundle_content_sha256": "' + "a" * 64 + '"' in captured.out
+    assert str(output_dir / "release_manifest.json").replace("\\", "\\\\") in captured.out

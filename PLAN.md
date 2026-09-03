@@ -49,13 +49,13 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 
 | ID | Milestone | Status | Completion evidence |
 |---|---|---|---|
-| M0 | Repository scaffold and quality gates | in_progress | Locked sync, format, lint, strict mypy, 126-test/84.81% branch-coverage suite, and nine-source cache verification pass after Plan 0011; remote CI rerun pending |
+| M0 | Repository scaffold and quality gates | in_progress | Locked sync, dependency checks, format, lint, strict mypy, 140-test/83.81% branch-coverage suite, and nine-source cache verification pass after Plan 0012; remote CI rerun pending |
 | M1 | Source acquisition and data contracts | done | Nine sources verified; 2,103 program-years parsed to 10,515 validated P0 signal rows |
 | M2 | Canonical signal table and panel | done | 10,515 signal rows, 2,103 panel rows, deterministic Parquet, and reconciled QA JSON |
 | M3 | Baselines and temporal backtest harness | done | Plan 0007: 2,763 paired predictions; persistence selection MAE 0.3415; 2025 untouched |
 | M4 | Ridge challenger and frozen retrospective replay | done | Plan 0010: 229-row write-once replay; ridge not promoted on frozen bias rule; persistence retained; model card complete |
 | M5 | Offline Streamlit product | done | Plan 0011: complete offline program flow, persistence projection, model evaluation, explicit non-promotion/band suppression, provenance, AppTest, and process health smoke |
-| M6 | Reproducibility, documentation, and container | not_started | Clean-clone reproduction and non-root Docker smoke |
+| M6 | Reproducibility, documentation, and container | in_progress | Plan 0012: 1.23 MB tracked bundle, clean-checkout/full reproduction, docs, local quality gates, and Docker non-root/health smoke pass; remote CI run pending |
 | M7 | Interview presentation release | not_started | Tagged release, backup demo, completed rehearsal |
 
 ## 5. Day-by-day execution
@@ -365,11 +365,11 @@ If reconciling source definitions requires an era restriction that leaves fewer 
 - [ ] All P0 acceptance criteria in `SPEC.md` are satisfied.
 - [ ] Current milestone statuses and evidence are updated above.
 - [ ] Full CI is green from a clean checkout.
-- [ ] The tracked `<5 MB` bundle opens offline; full-data artifacts reproduce from the immutable, checksum-verified cache.
-- [ ] Frozen-replay output is hash-addressed, write-once, and was not used for retuning.
-- [ ] Forecast activation status and any promotion decision match the frozen configuration and rules.
-- [ ] Data card and model card match the artifacts.
-- [ ] App works offline and has no ranking or regulatory language.
-- [ ] Docker runs as non-root and passes its health check.
-- [ ] No raw source, credential, or large generated artifact is tracked; only the approved release bundle is committed.
+- [x] The tracked `<5 MB` bundle opens offline; full-data artifacts reproduce from the immutable, checksum-verified cache.
+- [x] Frozen-replay output is hash-addressed, write-once, and was not used for retuning.
+- [x] Forecast activation status and any promotion decision match the frozen configuration and rules.
+- [x] Data card and model card match the artifacts.
+- [x] App works offline and has no ranking or regulatory language.
+- [x] Docker runs as non-root and passes its health check.
+- [x] No raw source, credential, or large generated artifact is tracked; only the approved release bundle is committed.
 - [ ] Four-minute demo, backup screenshots, and likely-question notes are ready.

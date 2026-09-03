@@ -17,6 +17,7 @@ from kasm.modeling.backtest import BacktestError, run_baseline_backtest
 from kasm.modeling.challenger import ChallengerError, run_ridge_backtest
 from kasm.modeling.experiment import ExperimentConfigError
 from kasm.modeling.replay import FrozenReplayError, run_frozen_replay
+from kasm.reporting.artifacts import ReleaseBundleError, build_release_bundle
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -67,12 +68,57 @@ def build_parser() -> argparse.ArgumentParser:
     replay_parser.add_argument(
         "--output-root", type=Path, default=Path("data/modeling/frozen-replay")
     )
+    artifacts_parser = commands.add_parser("artifacts")
+    artifacts_commands = artifacts_parser.add_subparsers(dest="artifacts_command", required=True)
+    release_parser = artifacts_commands.add_parser("build")
+    release_parser.add_argument("--processed-dir", type=Path, default=Path("data/processed"))
+    release_parser.add_argument("--modeling-dir", type=Path, default=Path("data/modeling"))
+    release_parser.add_argument(
+        "--source-manifest", type=Path, default=Path("configs/data_sources.yaml")
+    )
+    release_parser.add_argument(
+        "--experiment-config", type=Path, default=Path("configs/experiment.yaml")
+    )
+    release_parser.add_argument(
+        "--frozen-experiment", type=Path, default=Path("configs/frozen_experiment.yaml")
+    )
+    release_parser.add_argument("--lock", type=Path, default=Path("uv.lock"))
+    release_parser.add_argument("--output-dir", type=Path, default=Path("artifacts/release"))
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     """Run a command and return a process exit code."""
     args = build_parser().parse_args(argv)
+    if args.command == "artifacts":
+        try:
+            release_result = build_release_bundle(
+                processed_dir=args.processed_dir,
+                modeling_dir=args.modeling_dir,
+                source_manifest_path=args.source_manifest,
+                experiment_config_path=args.experiment_config,
+                frozen_experiment_path=args.frozen_experiment,
+                lock_path=args.lock,
+                output_dir=args.output_dir,
+            )
+        except (ReleaseBundleError, OSError) as error:
+            print(json.dumps({"error": str(error), "ok": False}, indent=2, sort_keys=True))
+            return 1
+        print(
+            json.dumps(
+                {
+                    "bundle_content_sha256": release_result.bundle_content_sha256,
+                    "file_count": release_result.file_count,
+                    "manifest_path": str(release_result.manifest_path),
+                    "ok": True,
+                    "output_directory": str(release_result.output_directory),
+                    "total_bytes": release_result.total_bytes,
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
     if args.command == "model":
         if args.model_command == "evaluate-frozen-replay":
             try:

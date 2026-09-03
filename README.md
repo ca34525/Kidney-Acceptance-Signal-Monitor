@@ -1,12 +1,123 @@
 # Kidney Acceptance Signal Monitor
 
-An offline-capable, public-data quality-improvement prototype for reviewing longitudinal
-kidney transplant program offer-acceptance signals. The scientific and product requirements
-are defined in `SPEC.md`; implementation order is defined in `PLAN.md`.
+An offline-capable public-data screening signal for kidney transplant program
+quality-improvement review. It shows longitudinal SRTR-published offer-acceptance ratios (OARs),
+their published 95% credible intervals, donor-stratum context, and a separately evaluated
+next-calendar-year PSR projection.
 
-## Development
+> Public aggregate prototype — not clinical or regulatory decision support.
 
-Python 3.12 and `uv` are required.
+The frozen 2025 retrospective replay did not promote ridge: although ridge improved log-OAR MAE
+by 10.13%, its absolute mean signed error exceeded persistence. The application therefore carries
+the latest published OAR forward as its displayed projection and suppresses the ridge empirical
+band. This is an intentional, prespecified negative selection result.
+
+## Start the tracked offline demo
+
+Python 3.12 and [`uv`](https://docs.astral.sh/uv/) are required. After the locked environment has
+been installed, the application reads the checked-in bundle under `artifacts/release/` and makes
+no network requests:
+
+```powershell
+$env:UV_CACHE_DIR = "$PWD/.uv-cache"
+uv sync --frozen
+uv run streamlit run app/streamlit_app.py
+```
+
+Open <http://localhost:8501>. No raw workbook, model fitting, or live source is needed at app
+startup. `KASM_ARTIFACT_DIR` and `KASM_MODELING_DIR` may override the default release paths for
+development or an audited reproduction.
+
+## Four-minute offline demo
+
+1. **Problem (30 seconds):** explain that public program-level OARs compare observed with expected
+   acceptances and can support quality-improvement review, not offer-level decisions.
+2. **History (75 seconds):** select a program; show its non-overlapping annual overall OARs, SRTR
+   credible intervals, published date, volume, and explicit interval-status text.
+3. **Strata (45 seconds):** scan low-, medium-, high-KDRI and hard-to-place history. Point out that
+   missing values are “Not reported” and hard-to-place offers overlap KDRI strata.
+4. **Projection (45 seconds):** show the eligible persistence next-calendar-year PSR projection,
+   prediction origin, and elapsed target-cohort fraction; call it a delayed-report nowcast.
+5. **Validity and result (45 seconds):** open model evaluation. Show intact target-year folds,
+   the frozen 2025 descriptive replay, ridge non-promotion, and band suppression.
+
+Networking can be disabled after `uv sync`; the critical path is covered by an offline Streamlit
+AppTest and a process health smoke test.
+
+## Methodology in brief
+
+- The modeling unit is `(CTR_CD, CTR_TY) × calendar year`, never a patient or offer.
+- Nine checksum-pinned SRTR releases supply non-overlapping 2017–2025 calendar-year cohorts.
+- The target is next-calendar-year published `log(OAR)`, not credible-interval status.
+- Neutral, persistence, and historical-mean baselines precede one ridge challenger.
+- Rolling-origin target years remain intact; preprocessing is fit inside each training fold.
+- Ridge alpha 10 was frozen before the write-once 2025 replay. The replay fit uses targets through
+  2023; 2024 outcomes calibrate the separate empirical-band rule and never enter that fit.
+- The 2025 replay is descriptive retrospective product-selection evidence, not prospective or
+  independent validation.
+
+Full scientific requirements live in `SPEC.md`; execution status is in `PLAN.md`. See
+`docs/data_card.md`, `docs/model_card.md`, and `docs/reproduction_log.md` for the release evidence.
+
+## Architecture
+
+```mermaid
+flowchart LR
+    A["Pinned SRTR ZIP/XLS cache"] --> B["Size, type, SHA-256, archive validation"]
+    B --> C["Schema-aware annual parser"]
+    C --> D["Validated program_signals.parquet"]
+    D --> E["Leakage-checked model_panel.parquet"]
+    E --> F["Temporal baselines and ridge"]
+    F --> G["Write-once frozen replay"]
+    D --> H["Tracked <5 MB release bundle"]
+    G --> H
+    H --> I["Offline Streamlit view"]
+```
+
+The Streamlit process is a view layer. It reads trusted Parquet and JSON only; acquisition,
+parsing, validation, feature construction, fitting, and artifact publication stay in importable
+modules and command-line boundaries.
+
+## Cohort-to-target method
+
+```mermaid
+flowchart LR
+    A["Feature cohort t<br/>public annual aggregates"] --> B["Prediction origin<br/>6–10 months into t+1"]
+    B --> C["Target cohort t+1<br/>full calendar year"]
+    C --> D["Later PSR publication<br/>observed target log OAR"]
+    E["Only target years before evaluation year"] --> F["Fold-local imputation, scaling, fit"]
+    F --> B
+```
+
+This timing makes the output a next-calendar-year PSR projection and delayed-report nowcast, not a
+real-time or clean 12-month-ahead forecast.
+
+## Reproduce the canonical pipeline
+
+Source reacquisition is a separate, networked maintenance action:
+
+```powershell
+uv run kasm data sync
+```
+
+Release reproduction begins from the immutable verified cache and stays offline. Use a fresh audit
+root so the canonical write-once replay is never overwritten:
+
+```powershell
+$audit = "data/m6-reproduction"
+uv run kasm data verify-cache
+uv run kasm data build --output-dir "$audit/processed"
+uv run kasm model backtest --panel-path "$audit/processed/model_panel.parquet" --output-dir "$audit/modeling"
+uv run kasm model evaluate-frozen-replay --confirm --panel-path "$audit/processed/model_panel.parquet" --output-root "$audit/modeling/frozen-replay"
+uv run kasm artifacts build --processed-dir "$audit/processed" --modeling-dir "$audit/modeling" --output-dir "$audit/release"
+```
+
+`artifacts build` requires exactly one completed replay, binds every payload to its canonical hash,
+copies only the approved 12 files, writes an attributed manifest, enforces the 5 MiB ceiling, and
+publishes the directory atomically. The checked-in bundle content identity is
+`1de89083ceebfda9afaf2d6b1c6ba3f1e6d0c1a1da16df9d09d994c4ec3581ad`.
+
+## Verification
 
 ```powershell
 $env:UV_CACHE_DIR = "$PWD/.uv-cache"
@@ -14,91 +125,24 @@ uv sync --frozen
 uv run ruff format --check .
 uv run ruff check .
 uv run mypy src/kasm
-uv run pytest -q
+uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov-branch --cov-fail-under=80
+docker build -t kidney-acceptance-signal-monitor .
+docker run --rm -p 8501:8501 kidney-acceptance-signal-monitor
 ```
 
-Raw SRTR inputs are immutable local files and are ignored by Git. Acquire any missing pinned
-sources explicitly, then verify the cache offline:
+The image declares user `kasm` (UID 10001), reads the tracked bundle by default, and checks
+`/_stcore/health` without requiring an external utility.
 
-```powershell
-uv run kasm data sync
-uv run kasm data verify-cache
-uv run kasm data inspect-sources
-uv run kasm data build
-```
+## Data, attribution, and licensing boundary
 
-`data sync` is the networked preflight/maintenance path. It skips valid existing files, refuses to
-overwrite an invalid cache entry, downloads through a temporary file, and publishes a source only
-after its complete pinned contract passes. `data verify-cache` is offline and is the starting point
-for release reproduction; it checks file size, SHA-256, file type, and, for ZIP sources, the
-configured archive member with its pinned size and SHA-256.
+SRTR is the authoritative source for the Program-Specific Report materials. Its
+[citations and permissions page](https://srtr.hrsa.gov/requesting-data/citations-and-permissions/)
+states that website material is not copyrighted and may be used without permission when
+appropriately cited. This repository does not redistribute raw SRTR workbooks; it tracks a small
+attributed derivative bundle of public aggregate fields needed for the offline demonstration.
+Source URLs, exact hashes, methods, and permissions guidance are preserved in
+`configs/data_sources.yaml` and the release manifest.
 
-`data inspect-sources` stays offline, re-verifies every input, opens only the configured XLS or ZIP
-member, locates the versioned offer-acceptance sheet by name and machine fields, and validates the
-pinned source row/column counts plus the center-level scientific invariants. Its JSON inventory is
-the M1 evidence that all nine source eras reshape into the five P0 offer groups without silently
-accepting schema drift.
-
-`data build` also stays offline. It reparses the verified cache and atomically publishes
-`data/processed/program_signals.parquet`, `data/processed/model_panel.parquet`, and
-`data/processed/qa_report.json`. The long signal table uses the current `Tiers` directory only for
-display fields. The model panel aligns each feature cohort to the next calendar year, retains
-program exits as missing targets, and materializes analytic, first-observed, and public-forecast
-eligibility. The QA report records source counts, raw-to-normalized cohort dates, annual additions
-and closures, missing subgroup OARs, and nonblocking publication-rounding diagnostics. These
-canonical build products remain ignored until the approved release-bundle step.
-
-The temporal backtest likewise runs entirely from the trusted model panel:
-
-```powershell
-uv run kasm model backtest
-```
-
-This command enforces the exact predictor allowlist, constructs expanding target-year folds, and
-writes paired neutral, persistence, and historical-mean predictions under `data/modeling/`. It
-also fits median imputation, standardization, and ridge inside each training fold; selects alpha
-from the fixed grid using year-balanced 2021–2023 log-OAR MAE and the prespecified 1% larger-alpha
-tie rule; then evaluates the selected alpha through held-out target year 2024. Ridge selection,
-predictions, metrics, and the pre-replay candidate-gate decision are separate deterministic
-artifacts. The panel read is filtered through 2024, and every artifact records that the 2025 frozen
-replay remains unevaluated.
-
-On the verified nine-release panel, alpha 10 was selected. Ridge improved over persistence in all
-four pre-replay years and produced 5.47% year-balanced log-OAR MAE skill, so it passed the
-prespecified pre-replay candidate gate. The activation rules and 2024 residual radii were then
-frozen in the committed `configs/frozen_experiment.yaml`.
-
-The confirmed replay is an exceptional, write-once command:
-
-```powershell
-uv run kasm model evaluate-frozen-replay --confirm
-```
-
-It requires the frozen config to match `HEAD`, fits the fixed alpha using target years 2018–2023,
-excludes 2024 outcomes from fitting, and evaluates only target year 2025. It atomically publishes
-predictions, metrics, and a completion ledger to a directory keyed by the full frozen-config and
-source-manifest SHA-256 values; an existing canonical directory is never overwritten.
-
-In the 229-program replay, ridge reduced log-OAR MAE by 10.13% and its descriptive paired
-bootstrap interval favored ridge, but the point-promotion gate failed because ridge's absolute
-mean signed log error (0.01145) exceeded persistence's (0.00885). Persistence therefore remains
-the displayed projection. The ridge band's separate statistical gate passed, but cannot expose an
-unpromoted ridge forecast. See `docs/model_card.md` for the complete frozen result, quartile and
-sensitivity reporting, provenance, and limitations.
-
-## Historical walking skeleton
-
-The current Streamlit slice reads only the trusted precomputed Parquet files. It provides
-composite-key program selection, published overall OAR history with SRTR credible intervals,
-latest source-volume context, donor-stratum values, explicit missing states, and the materialized
-public-forecast eligibility state. Integrating the frozen model-evaluation result and persistence
-projection into the offline product remains the next product milestone.
-
-Build the local artifacts first, then start the offline view:
-
-```powershell
-$env:KASM_ARTIFACT_DIR = "$PWD/data/processed"
-uv run streamlit run app/streamlit_app.py
-```
-
-Once the artifacts exist, the critical view does not require network access.
+Repository code is available under the MIT License in `LICENSE`. That license applies to the code,
+not to third-party dependencies and not as a substitute for the source attribution described
+above. Dependencies retain their own licenses.

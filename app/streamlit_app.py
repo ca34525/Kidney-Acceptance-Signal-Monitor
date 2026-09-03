@@ -29,14 +29,14 @@ def _artifact_dir() -> Path:
     configured = os.environ.get("KASM_ARTIFACT_DIR")
     if configured:
         return Path(configured)
-    return Path(__file__).resolve().parents[1] / "data" / "processed"
+    return Path(__file__).resolve().parents[1] / "artifacts" / "release" / "processed"
 
 
 def _modeling_dir() -> Path:
     configured = os.environ.get("KASM_MODELING_DIR")
     if configured:
         return Path(configured)
-    return Path(__file__).resolve().parents[1] / "data" / "modeling"
+    return Path(__file__).resolve().parents[1] / "artifacts" / "release" / "modeling"
 
 
 def _history_chart(points: tuple[HistoricalPoint, ...]) -> dict[str, object]:
@@ -229,6 +229,17 @@ def _comparison_rows(evaluation: ModelEvaluation) -> list[dict[str, object]]:
 
 
 st.set_page_config(page_title="Kidney Acceptance Signal Monitor", layout="wide")
+st.markdown(
+    """
+    <style>
+    :focus-visible {
+        outline: 3px solid #005fcc !important;
+        outline-offset: 3px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 st.warning(_NONCLINICAL_BANNER)
 st.title("Kidney Acceptance Signal Monitor")
 st.caption(

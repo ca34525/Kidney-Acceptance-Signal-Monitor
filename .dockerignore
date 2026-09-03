@@ -1,0 +1,16 @@
+.git
+.git-bootstrap
+.mypy_cache
+.pytest_cache
+.ruff_cache
+.test-tmp
+.uv-cache
+.venv
+data
+docs
+tests
+*.pyc
+__pycache__
+.coverage
+coverage.xml
+htmlcov

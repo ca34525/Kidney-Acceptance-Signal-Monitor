@@ -153,3 +153,15 @@ The local completion ledger also records that the worktree contained the replay 
 changes at execution time. The artifact includes the dependency-lock hash, feature-schema hash,
 all source hashes, UTC build time, cohort roles, fixed model parameters, and a per-release
 methodology ledger.
+
+The tracked offline bundle is generated from those canonical artifacts with:
+
+```powershell
+uv run kasm artifacts build
+```
+
+Its manifest binds all 12 approved payloads to their canonical byte size and SHA-256, preserves
+the complete replay provenance envelope and SRTR attribution, and enforces a total size below
+5 MiB. Bundle content SHA-256 is
+`1de89083ceebfda9afaf2d6b1c6ba3f1e6d0c1a1da16df9d09d994c4ec3581ad`. Packaging does not refit,
+retune, reinterpret, or overwrite the frozen replay.
