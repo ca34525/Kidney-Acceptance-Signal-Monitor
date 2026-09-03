@@ -49,5 +49,5 @@ claims with the frozen JSON/model card, and exercise the offline app used for sc
   evaluation views; its local health endpoint returned HTTP 200 with body `ok`.
 - `uv sync --frozen`, Ruff format and lint, strict mypy, and the required 140-test suite pass. Core
   data/modeling/reporting branch coverage remains 83.81%.
-- The package is complete. M7 remains `in_progress` only because a Git commit and release tag need
-  explicit user authorization.
+- The package is complete and committed at `dc34b3a`. M7 remains `in_progress` only because the
+  release tag needs explicit user authorization.

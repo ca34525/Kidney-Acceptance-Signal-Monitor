@@ -56,7 +56,7 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 | M4 | Ridge challenger and frozen retrospective replay | done | Plan 0010: 229-row write-once replay; ridge not promoted on frozen bias rule; persistence retained; model card complete |
 | M5 | Offline Streamlit product | done | Plan 0011: complete offline program flow, persistence projection, model evaluation, explicit non-promotion/band suppression, provenance, AppTest, and process health smoke |
 | M6 | Reproducibility, documentation, and container | done | Plan 0012: 1.23 MB tracked bundle, clean-checkout/full reproduction, docs, local Docker non-root/health smoke, and 2/2 remote CI checks pass at `2c815688` |
-| M7 | Interview presentation release | in_progress | Plan 0013: verified eight-slide deck, offline backup demo, and 3:55 rehearsal package complete; release tag awaits an explicit commit request |
+| M7 | Interview presentation release | in_progress | Plan 0013: verified eight-slide deck, offline backup demo, and 3:55 rehearsal package committed at `dc34b3a`; release tag awaits explicit user authorization |
 
 ## 5. Day-by-day execution
 
