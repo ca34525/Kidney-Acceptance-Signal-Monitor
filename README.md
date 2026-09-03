@@ -48,6 +48,19 @@ eligibility. The QA report records source counts, raw-to-normalized cohort dates
 and closures, missing subgroup OARs, and nonblocking publication-rounding diagnostics. These
 canonical build products remain ignored until the approved release-bundle step.
 
+The baseline gate likewise runs entirely from the trusted model panel:
+
+```powershell
+uv run kasm model backtest
+```
+
+This command enforces the exact predictor allowlist, constructs expanding target-year folds,
+and writes paired neutral, persistence, and historical-mean predictions plus year-specific and
+expected-acceptance-quartile metrics under `data/modeling/`. It evaluates target years 2021–2024
+only. The draft `configs/experiment.yaml` records the later ridge, uncertainty, and promotion
+rules, but `forecast_activation_attempted` remains unset and the command does not access the 2025
+frozen replay.
+
 ## Historical walking skeleton
 
 The current Streamlit slice reads only the trusted precomputed Parquet files. It provides

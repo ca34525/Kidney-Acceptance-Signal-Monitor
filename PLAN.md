@@ -52,7 +52,7 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 | M0 | Repository scaffold and quality gates | in_progress | Locked sync, format, lint, type, and 68-test gates pass from an absent temp parent after Plan 0006; remote CI rerun pending |
 | M1 | Source acquisition and data contracts | done | Nine sources verified; 2,103 program-years parsed to 10,515 validated P0 signal rows |
 | M2 | Canonical signal table and panel | done | 10,515 signal rows, 2,103 panel rows, deterministic Parquet, and reconciled QA JSON |
-| M3 | Baselines and temporal backtest harness | not_started | Frozen split artifact and baseline metrics |
+| M3 | Baselines and temporal backtest harness | done | Plan 0007: 2,763 paired predictions; persistence selection MAE 0.3415; 2025 untouched |
 | M4 | Ridge challenger and frozen retrospective replay | not_started | Hash-addressed write-once replay bundle and descriptive promotion decision |
 | M5 | Offline Streamlit product | in_progress | Offline one-program historical walking skeleton is green; model-evaluation flow and demo rehearsal remain |
 | M6 | Reproducibility, documentation, and container | not_started | Clean-clone reproduction and non-root Docker smoke |

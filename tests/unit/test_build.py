@@ -13,7 +13,6 @@ import pytest
 import kasm.data.build as build_module
 from kasm.config import SourceRecord
 from kasm.data.build import (
-    MODEL_FEATURE_COLUMNS,
     MODEL_PANEL_SCHEMA,
     PROGRAM_SIGNALS_SCHEMA,
     BuildError,
@@ -27,6 +26,7 @@ from kasm.data.build import (
     write_data_artifacts,
 )
 from kasm.data.parse import ProgramSignal, WorkbookSheet
+from kasm.modeling.features import MODEL_FEATURE_COLUMNS
 
 
 def _source(*, year: int = 2025, release_code: str = "2605") -> SourceRecord:

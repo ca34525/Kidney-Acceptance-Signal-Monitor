@@ -39,26 +39,6 @@ _DIRECTORY_FIELDS = (
 _CENTER_CODE = re.compile(r"^[A-Z0-9]{4}$")
 _SUBGROUPS: tuple[OfferGroup, ...] = ("low", "medium", "high", "hard-to-place")
 
-MODEL_FEATURE_COLUMNS = (
-    "current_log_overall_oar",
-    "previous_annual_log_overall_oar",
-    "one_year_change_log_overall_oar",
-    "log1p_overall_expected_acceptances",
-    "log_credible_interval_width",
-    "current_log_low_oar",
-    "current_log_medium_oar",
-    "current_log_high_oar",
-    "current_log_hard_to_place_oar",
-    "high_offers_share",
-    "hard_to_place_offers_share",
-    "missing_previous_annual_log_overall_oar",
-    "missing_one_year_change_log_overall_oar",
-    "missing_current_log_low_oar",
-    "missing_current_log_medium_oar",
-    "missing_current_log_high_oar",
-    "missing_current_log_hard_to_place_oar",
-)
-
 _CATEGORY = pa.dictionary(pa.int8(), pa.string())
 PROGRAM_SIGNALS_SCHEMA = pa.schema(
     [

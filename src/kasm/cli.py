@@ -13,6 +13,8 @@ from kasm.data.build import BuildError, build_cached_data
 from kasm.data.cache import verify_cache
 from kasm.data.download import sync_cache
 from kasm.data.parse import ParseError, inspect_source_cache
+from kasm.modeling.backtest import BacktestError, run_baseline_backtest
+from kasm.modeling.experiment import ExperimentConfigError
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -36,12 +38,41 @@ def build_parser() -> argparse.ArgumentParser:
     )
     build_data_parser.add_argument("--cache-dir", type=Path, default=Path("data/raw/srtr"))
     build_data_parser.add_argument("--output-dir", type=Path, default=Path("data/processed"))
+    model_parser = commands.add_parser("model")
+    model_commands = model_parser.add_subparsers(dest="model_command", required=True)
+    backtest_parser = model_commands.add_parser("backtest")
+    backtest_parser.add_argument(
+        "--panel-path", type=Path, default=Path("data/processed/model_panel.parquet")
+    )
+    backtest_parser.add_argument("--config", type=Path, default=Path("configs/experiment.yaml"))
+    backtest_parser.add_argument("--output-dir", type=Path, default=Path("data/modeling"))
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     """Run a command and return a process exit code."""
     args = build_parser().parse_args(argv)
+    if args.command == "model":
+        try:
+            baseline_result = run_baseline_backtest(args.panel_path, args.config, args.output_dir)
+        except (BacktestError, ExperimentConfigError, OSError) as error:
+            print(json.dumps({"error": str(error), "ok": False}, indent=2, sort_keys=True))
+            return 1
+        print(
+            json.dumps(
+                {
+                    "folds_path": str(baseline_result.folds_path),
+                    "metrics_path": str(baseline_result.metrics_path),
+                    "ok": True,
+                    "prediction_rows": baseline_result.prediction_rows,
+                    "predictions_path": str(baseline_result.predictions_path),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
+
     manifest = load_data_source_manifest(args.manifest)
     if args.data_command == "sync":
         sync_result = sync_cache(manifest, args.cache_dir)

@@ -6,6 +6,7 @@ from kasm.cli import main
 from kasm.data.build import DataBuildResult
 from kasm.data.download import CacheSync
 from kasm.data.parse import ParseError, SourceInventoryEntry
+from kasm.modeling.backtest import BaselineBacktestResult
 
 
 def test_verify_cache_command_returns_failure_and_names_missing_release(
@@ -153,3 +154,35 @@ def test_data_build_command_reports_canonical_paths_and_counts(
     assert '"program_signal_rows": 10515' in captured.out
     assert '"model_panel_rows": 2103' in captured.out
     assert str(output_dir / "qa_report.json").replace("\\", "\\\\") in captured.out
+
+
+def test_model_backtest_command_reports_artifacts_without_loading_source_cache(
+    tmp_path: Path, capsys: Any, monkeypatch: Any
+) -> None:
+    output_dir = tmp_path / "modeling"
+    monkeypatch.setattr(
+        kasm.cli,
+        "run_baseline_backtest",
+        lambda panel_path, config_path, destination: BaselineBacktestResult(
+            predictions_path=destination / "baseline_predictions.parquet",
+            metrics_path=destination / "baseline_metrics.json",
+            folds_path=destination / "temporal_folds.json",
+            prediction_rows=2760,
+        ),
+    )
+
+    exit_code = main(
+        [
+            "model",
+            "backtest",
+            "--panel-path",
+            str(tmp_path / "model_panel.parquet"),
+            "--output-dir",
+            str(output_dir),
+        ]
+    )
+
+    assert exit_code == 0
+    captured = capsys.readouterr()
+    assert '"prediction_rows": 2760' in captured.out
+    assert str(output_dir / "baseline_metrics.json").replace("\\", "\\\\") in captured.out
