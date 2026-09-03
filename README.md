@@ -47,3 +47,20 @@ program exits as missing targets, and materializes analytic, first-observed, and
 eligibility. The QA report records source counts, raw-to-normalized cohort dates, annual additions
 and closures, missing subgroup OARs, and nonblocking publication-rounding diagnostics. These
 canonical build products remain ignored until the approved release-bundle step.
+
+## Historical walking skeleton
+
+The current Streamlit slice reads only the trusted precomputed Parquet files. It provides
+composite-key program selection, published overall OAR history with SRTR credible intervals,
+latest source-volume context, donor-stratum values, explicit missing states, and the materialized
+public-forecast eligibility state. Model evaluation and any eligible projection remain later
+milestones.
+
+Build the local artifacts first, then start the offline view:
+
+```powershell
+$env:KASM_ARTIFACT_DIR = "$PWD/data/processed"
+uv run streamlit run app/streamlit_app.py
+```
+
+Once the artifacts exist, the critical view does not require network access.
