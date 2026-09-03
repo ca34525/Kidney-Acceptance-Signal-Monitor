@@ -44,6 +44,10 @@ development or an audited reproduction.
 Networking can be disabled after `uv sync`; the critical path is covered by an offline Streamlit
 AppTest and a process health smoke test.
 
+The interview package includes an [eight-slide presentation](docs/presentation/kidney-acceptance-signal-monitor-interview.pptx),
+a [rehearsal and likely-question guide](docs/presentation/interview-rehearsal-guide.md), and three
+wide [backup screenshots](docs/demo/) of the tracked offline flow.
+
 ## Methodology in brief
 
 - The modeling unit is `(CTR_CD, CTR_TY) × calendar year`, never a patient or offer.
