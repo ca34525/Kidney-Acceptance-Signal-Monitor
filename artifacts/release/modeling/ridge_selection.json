@@ -1,0 +1,111 @@
+{
+  "candidate_scores": [
+    {
+      "alpha": 0.01,
+      "mae_log_oar_by_target_year": [
+        [
+          2021,
+          0.30148385083566054
+        ],
+        [
+          2022,
+          0.4012798489808662
+        ],
+        [
+          2023,
+          0.271468406209663
+        ]
+      ],
+      "row_pooled_mae_log_oar": 0.3245900595353222,
+      "unweighted_mean_yearly_mae_log_oar": 0.32474403534206325
+    },
+    {
+      "alpha": 0.1,
+      "mae_log_oar_by_target_year": [
+        [
+          2021,
+          0.3014791439844668
+        ],
+        [
+          2022,
+          0.40133254890931697
+        ],
+        [
+          2023,
+          0.27144982577583326
+        ]
+      ],
+      "row_pooled_mae_log_oar": 0.32459978171324216,
+      "unweighted_mean_yearly_mae_log_oar": 0.324753839556539
+    },
+    {
+      "alpha": 1.0,
+      "mae_log_oar_by_target_year": [
+        [
+          2021,
+          0.30144166804515554
+        ],
+        [
+          2022,
+          0.4018023716986435
+        ],
+        [
+          2023,
+          0.27129943318818756
+        ]
+      ],
+      "row_pooled_mae_log_oar": 0.3246930601744701,
+      "unweighted_mean_yearly_mae_log_oar": 0.3248478243106622
+    },
+    {
+      "alpha": 10.0,
+      "mae_log_oar_by_target_year": [
+        [
+          2021,
+          0.3017367107985364
+        ],
+        [
+          2022,
+          0.40520410117380523
+        ],
+        [
+          2023,
+          0.27155636440852904
+        ]
+      ],
+      "row_pooled_mae_log_oar": 0.32600789493701926,
+      "unweighted_mean_yearly_mae_log_oar": 0.32616572546029027
+    },
+    {
+      "alpha": 100.0,
+      "mae_log_oar_by_target_year": [
+        [
+          2021,
+          0.3034008592189111
+        ],
+        [
+          2022,
+          0.4070064161727744
+        ],
+        [
+          2023,
+          0.2741320578444289
+        ]
+      ],
+      "row_pooled_mae_log_oar": 0.32802357046242075,
+      "unweighted_mean_yearly_mae_log_oar": 0.32817977774537144
+    }
+  ],
+  "experiment_config_sha256": "36db92a54184b4f17e7ee8a7a83dce6e1124573ea23fe2559e5d94be15253bce",
+  "frozen_replay_evaluated": false,
+  "input_panel_sha256": "00e1c6e14e0afdb9330022ac773eefaf1e3132edd24212e881967a2cc5a6c174",
+  "random_seed": 20260903,
+  "selected_alpha": 10.0,
+  "selection_method": "unweighted_mean_of_target_year_maes",
+  "selection_target_years": [
+    2021,
+    2022,
+    2023
+  ],
+  "tie_rule": "largest_alpha_within_one_percent_of_best"
+}

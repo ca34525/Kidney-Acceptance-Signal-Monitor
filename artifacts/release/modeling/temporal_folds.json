@@ -1,0 +1,58 @@
+{
+  "experiment_config_sha256": "36db92a54184b4f17e7ee8a7a83dce6e1124573ea23fe2559e5d94be15253bce",
+  "folds": [
+    {
+      "evaluation_rows": 230,
+      "evaluation_target_year": 2021,
+      "fold_id": "target_2021",
+      "training_rows": 699,
+      "training_target_years": [
+        2018,
+        2019,
+        2020
+      ]
+    },
+    {
+      "evaluation_rows": 230,
+      "evaluation_target_year": 2022,
+      "fold_id": "target_2022",
+      "training_rows": 929,
+      "training_target_years": [
+        2018,
+        2019,
+        2020,
+        2021
+      ]
+    },
+    {
+      "evaluation_rows": 232,
+      "evaluation_target_year": 2023,
+      "fold_id": "target_2023",
+      "training_rows": 1159,
+      "training_target_years": [
+        2018,
+        2019,
+        2020,
+        2021,
+        2022
+      ]
+    },
+    {
+      "evaluation_rows": 229,
+      "evaluation_target_year": 2024,
+      "fold_id": "target_2024",
+      "training_rows": 1391,
+      "training_target_years": [
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+      ]
+    }
+  ],
+  "input_panel_sha256": "00e1c6e14e0afdb9330022ac773eefaf1e3132edd24212e881967a2cc5a6c174",
+  "random_row_split_available": false,
+  "split_method": "rolling_origin_by_target_year"
+}

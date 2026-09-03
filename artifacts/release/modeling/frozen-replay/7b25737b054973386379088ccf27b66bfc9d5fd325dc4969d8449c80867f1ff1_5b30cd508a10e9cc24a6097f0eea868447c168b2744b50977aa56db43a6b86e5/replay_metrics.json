@@ -1,0 +1,528 @@
+{
+  "band_promotion": {
+    "coverage": 0.8165938864628821,
+    "display_band": true,
+    "exact_interval_lower": 0.7602850903587146,
+    "exact_interval_upper": 0.8645037086011985,
+    "failed_criteria": [],
+    "mean_width_relative_to_persistence": 0.9004593403423461
+  },
+  "bootstrap": {
+    "lower": -0.040869910508441396,
+    "observed_mean_difference": -0.027051001265231463,
+    "percentile_method": "linear",
+    "percentiles": [
+      2.5,
+      97.5
+    ],
+    "resamples": 10000,
+    "resampling_unit": "program_key",
+    "seed": 20260903,
+    "upper": -0.013321974380916158
+  },
+  "by_expected_acceptance_quartile": [
+    {
+      "expected_acceptance_quartile": 1,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.03229259199061832,
+      "n": 58,
+      "persistence_band_coverage": 0.6379310344827587,
+      "persistence_band_coverage_exact_95_interval": [
+        0.5011789795089977,
+        0.7600791805936984
+      ],
+      "persistence_band_mean_width_oar": 0.9524425287356322,
+      "persistence_calibration_slope": 0.6790098496803139,
+      "persistence_mae_log_oar": 0.34631382308381065,
+      "persistence_mae_oar": 0.34810344827586204,
+      "persistence_mean_signed_log_error": -0.018960218905331026,
+      "ridge_band_coverage": 0.6896551724137931,
+      "ridge_band_coverage_exact_95_interval": [
+        0.5545582123163506,
+        0.8046135226178159
+      ],
+      "ridge_band_coverage_warning": false,
+      "ridge_band_mean_width_oar": 0.8118934138692329,
+      "ridge_calibration_slope": 0.8591511745135479,
+      "ridge_mae_log_oar": 0.3140212310931923,
+      "ridge_mae_oar": 0.3210475364491062,
+      "ridge_mean_signed_log_error": -0.04523914052537937,
+      "skill_over_persistence": 0.09324661575175786
+    },
+    {
+      "expected_acceptance_quartile": 2,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.029817405065391395,
+      "n": 57,
+      "persistence_band_coverage": 0.7894736842105263,
+      "persistence_band_coverage_exact_95_interval": [
+        0.6611299420734733,
+        0.8862097756836405
+      ],
+      "persistence_band_mean_width_oar": 0.8918128654970761,
+      "persistence_calibration_slope": 0.594793456659305,
+      "persistence_mae_log_oar": 0.2812655555204373,
+      "persistence_mae_oar": 0.2889473684210527,
+      "persistence_mean_signed_log_error": 0.007138241488252135,
+      "ridge_band_coverage": 0.8070175438596491,
+      "ridge_band_coverage_exact_95_interval": [
+        0.6808902137314419,
+        0.8995277714022677
+      ],
+      "ridge_band_coverage_warning": false,
+      "ridge_band_mean_width_oar": 0.7821935511769248,
+      "ridge_calibration_slope": 0.7031226343387605,
+      "ridge_mae_log_oar": 0.25144815045504587,
+      "ridge_mae_oar": 0.249753469832995,
+      "ridge_mean_signed_log_error": -0.01629420213493117,
+      "skill_over_persistence": 0.10601157688938856
+    },
+    {
+      "expected_acceptance_quartile": 3,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.0193705517777377,
+      "n": 57,
+      "persistence_band_coverage": 0.8596491228070176,
+      "persistence_band_coverage_exact_95_interval": [
+        0.7420546161318785,
+        0.937405109882715
+      ],
+      "persistence_band_mean_width_oar": 0.8564327485380117,
+      "persistence_calibration_slope": 0.7514443774364385,
+      "persistence_mae_log_oar": 0.2269849574220054,
+      "persistence_mae_oar": 0.2349122807017544,
+      "persistence_mean_signed_log_error": 0.048106197588954534,
+      "ridge_band_coverage": 0.8771929824561403,
+      "ridge_band_coverage_exact_95_interval": [
+        0.7632050006375726,
+        0.9491710598414328
+      ],
+      "ridge_band_coverage_warning": false,
+      "ridge_band_mean_width_oar": 0.7831131045165398,
+      "ridge_calibration_slope": 0.846790662634364,
+      "ridge_mae_log_oar": 0.2076144056442677,
+      "ridge_mae_oar": 0.2074819722139677,
+      "ridge_mean_signed_log_error": 0.04557747640552254,
+      "skill_over_persistence": 0.0853384823282558
+    },
+    {
+      "expected_acceptance_quartile": 4,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.0266314984951541,
+      "n": 57,
+      "persistence_band_coverage": 0.8771929824561403,
+      "persistence_band_coverage_exact_95_interval": [
+        0.7632050006375726,
+        0.9491710598414328
+      ],
+      "persistence_band_mean_width_oar": 0.7940058479532164,
+      "persistence_calibration_slope": 0.7183608771621662,
+      "persistence_mae_log_oar": 0.21184974024000652,
+      "persistence_mae_oar": 0.19298245614035084,
+      "persistence_mean_signed_log_error": -0.07152627825511014,
+      "ridge_band_coverage": 0.8947368421052632,
+      "ridge_band_coverage_exact_95_interval": [
+        0.7848363951978966,
+        0.9603784641499192
+      ],
+      "ridge_band_coverage_warning": false,
+      "ridge_band_mean_width_oar": 0.7704322735189044,
+      "ridge_calibration_slope": 0.7911739248727042,
+      "ridge_mae_log_oar": 0.18521824174485244,
+      "ridge_mae_oar": 0.1794946250104241,
+      "ridge_mean_signed_log_error": -0.029257670414379225,
+      "skill_over_persistence": 0.12570937526278303
+    }
+  ],
+  "calibration_target_year": 2024,
+  "cohort_context": {
+    "2023": "mixed offer-acceptance monitoring context after 2023-07-27",
+    "2024": "full post-monitoring-policy cohort",
+    "2025": "full post-monitoring-policy cohort"
+  },
+  "evidence_classification": "descriptive_retrospective_product_selection",
+  "frozen_replay_evaluated": true,
+  "methodology_version_ledger": [
+    {
+      "cohort_year": 2017,
+      "context": [],
+      "kdpi_ge_60_fields_available": false,
+      "published_precision": "month",
+      "published_value": "2018-10",
+      "release_code": "1808",
+      "sheet_name": "Table B10 & Figures B7-B11"
+    },
+    {
+      "cohort_year": 2018,
+      "context": [],
+      "kdpi_ge_60_fields_available": false,
+      "published_precision": "month",
+      "published_value": "2019-07",
+      "release_code": "1905",
+      "sheet_name": "Table B10 & Figures B7-B11"
+    },
+    {
+      "cohort_year": 2019,
+      "context": [],
+      "kdpi_ge_60_fields_available": false,
+      "published_precision": "month",
+      "published_value": "2020-08",
+      "release_code": "2006",
+      "sheet_name": "Table B10 & Figures B7-B11"
+    },
+    {
+      "cohort_year": 2020,
+      "context": [
+        "COVID-19 pandemic cohort"
+      ],
+      "kdpi_ge_60_fields_available": false,
+      "published_precision": "month",
+      "published_value": "2021-07",
+      "release_code": "2105",
+      "sheet_name": "Table B10 & Figures B7-B11"
+    },
+    {
+      "cohort_year": 2021,
+      "context": [
+        "circle-based kidney allocation began 2021-03-15"
+      ],
+      "kdpi_ge_60_fields_available": false,
+      "published_precision": "month",
+      "published_value": "2022-07",
+      "release_code": "2205",
+      "sheet_name": "Table B11 & Figures B10-B14"
+    },
+    {
+      "cohort_year": 2022,
+      "context": [],
+      "kdpi_ge_60_fields_available": false,
+      "published_precision": "day",
+      "published_value": "2023-07-06",
+      "release_code": "2305",
+      "sheet_name": "Table B11 & Figures B10-B14"
+    },
+    {
+      "cohort_year": 2023,
+      "context": [
+        "mixed monitoring context after OAR metric took effect 2023-07-27"
+      ],
+      "kdpi_ge_60_fields_available": false,
+      "published_precision": "day",
+      "published_value": "2024-07-09",
+      "release_code": "2405",
+      "sheet_name": "Table B11 & Figures B10-B14"
+    },
+    {
+      "cohort_year": 2024,
+      "context": [
+        "full post-monitoring-policy cohort"
+      ],
+      "kdpi_ge_60_fields_available": true,
+      "published_precision": "day",
+      "published_value": "2025-07-08",
+      "release_code": "2505",
+      "sheet_name": "Table B11 & Figures B10-B14"
+    },
+    {
+      "cohort_year": 2025,
+      "context": [
+        "full post-monitoring-policy cohort"
+      ],
+      "kdpi_ge_60_fields_available": true,
+      "published_precision": "day",
+      "published_value": "2026-07-07",
+      "release_code": "2605",
+      "sheet_name": "Table B11 & Figures B10-B14"
+    }
+  ],
+  "missingness_and_entry_diagnostics": [
+    {
+      "available": true,
+      "mean_paired_absolute_error_difference_vs_persistence": 0.15551083744845137,
+      "n": 1,
+      "persistence_band_coverage": 1.0,
+      "persistence_band_coverage_exact_95_interval": [
+        0.025000000000000022,
+        1.0
+      ],
+      "persistence_band_mean_width_oar": 1.25,
+      "persistence_calibration_slope": null,
+      "persistence_mae_log_oar": 0.08923113372794261,
+      "persistence_mae_oar": 0.1399999999999999,
+      "persistence_mean_signed_log_error": -0.08923113372794261,
+      "ridge_band_coverage": 1.0,
+      "ridge_band_coverage_exact_95_interval": [
+        0.025000000000000022,
+        1.0
+      ],
+      "ridge_band_coverage_warning": false,
+      "ridge_band_mean_width_oar": 1.011312840742908,
+      "ridge_calibration_slope": null,
+      "ridge_mae_log_oar": 0.24474197117639399,
+      "ridge_mae_oar": 0.35603329960493646,
+      "ridge_mean_signed_log_error": -0.24474197117639399,
+      "skill_over_persistence": -1.7427867488783608,
+      "stratum": "first_observed_program"
+    },
+    {
+      "available": true,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.027851711084151125,
+      "n": 228,
+      "persistence_band_coverage": 0.7894736842105263,
+      "persistence_band_coverage_exact_95_interval": [
+        0.7307484812770086,
+        0.8405052020612267
+      ],
+      "persistence_band_mean_width_oar": 0.8723684210526316,
+      "persistence_calibration_slope": 0.6709363943059884,
+      "persistence_mae_log_oar": 0.26773107472163454,
+      "persistence_mae_oar": 0.2671491228070175,
+      "persistence_mean_signed_log_error": -0.008502308754042783,
+      "ridge_band_coverage": 0.8157894736842105,
+      "ridge_band_coverage_exact_95_interval": [
+        0.7592708229360565,
+        0.863893767698144
+      ],
+      "ridge_band_coverage_warning": false,
+      "ridge_band_mean_width_oar": 0.7860334391613055,
+      "ridge_calibration_slope": 0.7931719599341315,
+      "ridge_mae_log_oar": 0.23987936363748344,
+      "ridge_mae_oar": 0.23929095454699242,
+      "ridge_mean_signed_log_error": -0.01042837175215578,
+      "skill_over_persistence": 0.10402868293532641,
+      "stratum": "established_program"
+    },
+    {
+      "available": true,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.02270596777576152,
+      "n": 30,
+      "persistence_band_coverage": 0.6333333333333333,
+      "persistence_band_coverage_exact_95_interval": [
+        0.43855984901195755,
+        0.8007013749879655
+      ],
+      "persistence_band_mean_width_oar": 0.8922222222222221,
+      "persistence_calibration_slope": 0.6822177610019872,
+      "persistence_mae_log_oar": 0.31255943864153135,
+      "persistence_mae_oar": 0.3223333333333333,
+      "persistence_mean_signed_log_error": -0.0030669796763296655,
+      "ridge_band_coverage": 0.7333333333333333,
+      "ridge_band_coverage_exact_95_interval": [
+        0.5411063486052488,
+        0.8772051901276451
+      ],
+      "ridge_band_coverage_warning": false,
+      "ridge_band_mean_width_oar": 0.7919671783997854,
+      "ridge_calibration_slope": 1.0435603326061593,
+      "ridge_mae_log_oar": 0.2898534708657698,
+      "ridge_mae_oar": 0.30496015746997834,
+      "ridge_mean_signed_log_error": -0.01206804818207119,
+      "skill_over_persistence": 0.07264527948491295,
+      "stratum": "any_predictor_missing"
+    },
+    {
+      "available": true,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.027706031439523413,
+      "n": 199,
+      "persistence_band_coverage": 0.8140703517587939,
+      "persistence_band_coverage_exact_95_interval": [
+        0.752948387717613,
+        0.8655804955545949
+      ],
+      "persistence_band_mean_width_oar": 0.8712730318257956,
+      "persistence_calibration_slope": 0.6708281217294296,
+      "persistence_mae_log_oar": 0.2600760452814808,
+      "persistence_mae_oar": 0.2581909547738694,
+      "persistence_mean_signed_log_error": -0.00972737758472265,
+      "ridge_band_coverage": 0.8291457286432161,
+      "ridge_band_coverage_exact_95_interval": [
+        0.7695180499366124,
+        0.8786818647905814
+      ],
+      "ridge_band_coverage_warning": false,
+      "ridge_band_mean_width_oar": 0.7862709629021456,
+      "ridge_calibration_slope": 0.7812516500342626,
+      "ridge_mae_log_oar": 0.23237001384195738,
+      "ridge_mae_oar": 0.22997771965939628,
+      "ridge_mean_signed_log_error": -0.01135863962414963,
+      "skill_over_persistence": 0.10653050114452922,
+      "stratum": "no_predictor_missing"
+    }
+  ],
+  "overall": {
+    "mean_paired_absolute_error_difference_vs_persistence": -0.027051001265231463,
+    "n": 229,
+    "persistence_band_coverage": 0.7903930131004366,
+    "persistence_band_coverage_exact_95_interval": [
+      0.7318798184604159,
+      0.8412217985491689
+    ],
+    "persistence_band_mean_width_oar": 0.8740174672489083,
+    "persistence_calibration_slope": 0.6725649810198515,
+    "persistence_mae_log_oar": 0.2669515989967713,
+    "persistence_mae_oar": 0.26659388646288207,
+    "persistence_mean_signed_log_error": -0.008854836374016146,
+    "ridge_band_coverage": 0.8165938864628821,
+    "ridge_band_coverage_exact_95_interval": [
+      0.7602850903587146,
+      0.8645037086011985
+    ],
+    "ridge_band_coverage_warning": false,
+    "ridge_band_mean_width_oar": 0.78701719200664,
+    "ridge_calibration_slope": 0.7951519119111132,
+    "ridge_mae_log_oar": 0.23990059773153982,
+    "ridge_mae_oar": 0.23980074644680877,
+    "ridge_mean_signed_log_error": -0.011451575243091318,
+    "skill_over_persistence": 0.10133298083582054
+  },
+  "point_promotion": {
+    "displayed_model": "persistence",
+    "failed_criteria": [
+      "bias_not_exceed_persistence"
+    ],
+    "promoted": false,
+    "skill_over_persistence": 0.10133298083582054
+  },
+  "prospective_validation": false,
+  "provenance": {
+    "build_timestamp_utc": "2026-09-03T20:58:45.285416+00:00",
+    "calibration_target_year": 2024,
+    "dependency_lock_sha256": "9783d6fc61d5c69012494519e674b5c17c0f346ba1923a4758c38fcdc573a687",
+    "feature_columns": [
+      "current_log_overall_oar",
+      "previous_annual_log_overall_oar",
+      "one_year_change_log_overall_oar",
+      "log1p_overall_expected_acceptances",
+      "log_credible_interval_width",
+      "current_log_low_oar",
+      "current_log_medium_oar",
+      "current_log_high_oar",
+      "current_log_hard_to_place_oar",
+      "high_offers_share",
+      "hard_to_place_offers_share",
+      "missing_previous_annual_log_overall_oar",
+      "missing_one_year_change_log_overall_oar",
+      "missing_current_log_low_oar",
+      "missing_current_log_medium_oar",
+      "missing_current_log_high_oar",
+      "missing_current_log_hard_to_place_oar"
+    ],
+    "feature_schema_sha256": "32880d02c22e57cb694e4333a38a28d49096a5257560f5c230b8c83c392abc67",
+    "frozen_experiment_sha256": "7b25737b054973386379088ccf27b66bfc9d5fd325dc4969d8449c80867f1ff1",
+    "git_commit_sha": "2a5b52402875ab9d5542b38d6c2155027c09ba97",
+    "git_worktree_dirty": true,
+    "input_panel_sha256": "00e1c6e14e0afdb9330022ac773eefaf1e3132edd24212e881967a2cc5a6c174",
+    "methodology_version_ledger_sha256": "7b3fe06d565ea6a643ad870bbf956c3bd14632a1dfea54e0a486f4143c616ffd",
+    "model_parameters": {
+      "alpha": 10.0,
+      "imputation": "median",
+      "keep_empty_features": true,
+      "random_seed": 20260903,
+      "scaling": "standard",
+      "solver": "lsqr"
+    },
+    "python_version": "3.12.13",
+    "replay_target_year": 2025,
+    "source_manifest_schema_version": 2,
+    "source_manifest_sha256": "5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5",
+    "source_sha256": {
+      "1808": "2461603f825068e28d11dbc6bd1537a60a1e9e3401971df373a0ffd71626ab87",
+      "1905": "9b800b3f1ab41345902ac186cda512d748e7f0d2c1c2086b20608790a74acc3c",
+      "2006": "2b9de46096db7ded0eed0aae2a98e5d9d31d9241ea75d2d2d69083027733e1e4",
+      "2105": "36b3fd2572844f5da8017ec6558e7340f356ef0800633bb10b08b61f435b3ec9",
+      "2205": "6e87092dc56207937ff032783cd49e1b1fbb3e522f0ae1ccab5192431f7530c8",
+      "2305": "e1aa222c9a894d83379184785169252a53b70859e63b5d8fd1033c243e7f2c8d",
+      "2405": "023dcc9f7bd4e6cfee84f4707294be367e789b5430420c778d827d47e879aa49",
+      "2505": "359723874d5cdc2acaae98e0ebd3385f4a7d2f4dcc255e4dba90dba2a6036b8b",
+      "2605": "8f357b6ed7a060f395fd1930e34e9e4aee4fe508d67f10b4167073eded834184"
+    },
+    "training_target_years": [
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023
+    ]
+  },
+  "replay_target_year": 2025,
+  "selected_alpha": 10.0,
+  "sensitivities": [
+    {
+      "excluded_cohort_years": [
+        2020
+      ],
+      "mean_paired_absolute_error_difference_vs_persistence": -0.03246454592121094,
+      "n": 229,
+      "name": "exclude_transitions_touching_2020",
+      "persistence_band_coverage": 0.7903930131004366,
+      "persistence_band_coverage_exact_95_interval": [
+        0.7318798184604159,
+        0.8412217985491689
+      ],
+      "persistence_band_mean_width_oar": 0.8740174672489083,
+      "persistence_calibration_slope": 0.6725649810198515,
+      "persistence_mae_log_oar": 0.2669515989967713,
+      "persistence_mae_oar": 0.26659388646288207,
+      "persistence_mean_signed_log_error": -0.008854836374016146,
+      "ridge_band_coverage": 0.8253275109170306,
+      "ridge_band_coverage_exact_95_interval": [
+        0.7698335519188848,
+        0.8721822832973786
+      ],
+      "ridge_band_coverage_warning": false,
+      "ridge_band_mean_width_oar": 0.7707671191394088,
+      "ridge_calibration_slope": 0.8408954269942188,
+      "ridge_mae_log_oar": 0.23448705307556034,
+      "ridge_mae_oar": 0.23502443853560975,
+      "ridge_mean_signed_log_error": -0.016920739017471285,
+      "skill_over_persistence": 0.12161210512772991,
+      "training_target_years": [
+        2018,
+        2019,
+        2022,
+        2023
+      ]
+    },
+    {
+      "excluded_cohort_years": [
+        2021
+      ],
+      "mean_paired_absolute_error_difference_vs_persistence": -0.02072476788671567,
+      "n": 229,
+      "name": "exclude_transitions_touching_2021",
+      "persistence_band_coverage": 0.7903930131004366,
+      "persistence_band_coverage_exact_95_interval": [
+        0.7318798184604159,
+        0.8412217985491689
+      ],
+      "persistence_band_mean_width_oar": 0.8740174672489083,
+      "persistence_calibration_slope": 0.6725649810198515,
+      "persistence_mae_log_oar": 0.2669515989967713,
+      "persistence_mae_oar": 0.26659388646288207,
+      "persistence_mean_signed_log_error": -0.008854836374016146,
+      "ridge_band_coverage": 0.8122270742358079,
+      "ridge_band_coverage_exact_95_interval": [
+        0.7555265187762223,
+        0.8606483460665784
+      ],
+      "ridge_band_coverage_warning": false,
+      "ridge_band_mean_width_oar": 0.7982612492892136,
+      "ridge_calibration_slope": 0.7625727526510127,
+      "ridge_mae_log_oar": 0.2462268311100556,
+      "ridge_mae_oar": 0.24760472396457606,
+      "ridge_mean_signed_log_error": -0.008615237943232436,
+      "skill_over_persistence": 0.07763492694781104,
+      "training_target_years": [
+        2018,
+        2019,
+        2020,
+        2023
+      ]
+    }
+  ],
+  "training_target_years": [
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023
+  ]
+}

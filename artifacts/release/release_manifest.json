@@ -1,0 +1,190 @@
+{
+  "application_roots": {
+    "modeling": "artifacts/release/modeling",
+    "processed": "artifacts/release/processed"
+  },
+  "attribution": {
+    "code_license": "MIT",
+    "derived_artifact_notice": "Derived from public aggregate SRTR Program-Specific Report workbooks; source attribution and source-site permissions guidance remain applicable.",
+    "methods_url": "https://srtr.hrsa.gov/transplant-professionals/program-specific-report/technical-methods-for-the-program-specific-reports/",
+    "permissions_url": "https://srtr.hrsa.gov/requesting-data/citations-and-permissions/",
+    "raw_sources_redistributed": false,
+    "source_landing_page": "https://srtr.hrsa.gov/transplant-professionals/program-specific-report/program-specific-reports-psr/",
+    "source_owner": "Scientific Registry of Transplant Recipients"
+  },
+  "bundle_content_sha256": "1de89083ceebfda9afaf2d6b1c6ba3f1e6d0c1a1da16df9d09d994c4ec3581ad",
+  "bundle_name": "kidney-acceptance-signal-monitor-demo",
+  "file_count": 12,
+  "files": [
+    {
+      "bytes": 27395,
+      "canonical_path": "baseline_metrics.json",
+      "canonical_root": "modeling",
+      "path": "modeling/baseline_metrics.json",
+      "sha256": "9e4beea5d063b80f6c452f62fbd4c7aba528bce7e417d06ab45e447cab43e80a"
+    },
+    {
+      "bytes": 113415,
+      "canonical_path": "baseline_predictions.parquet",
+      "canonical_root": "modeling",
+      "path": "modeling/baseline_predictions.parquet",
+      "sha256": "cede39d8414cfaa916385c2c281f559bb4498873bf771d881231783d74d5e5ee"
+    },
+    {
+      "bytes": 814,
+      "canonical_path": "frozen-replay/7b25737b054973386379088ccf27b66bfc9d5fd325dc4969d8449c80867f1ff1_5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5/completion.json",
+      "canonical_root": "modeling",
+      "path": "modeling/frozen-replay/7b25737b054973386379088ccf27b66bfc9d5fd325dc4969d8449c80867f1ff1_5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5/completion.json",
+      "sha256": "e72a5d426550d32418a73bde54f2a3693783eeb1c8165f584a2e8ff328f7fda1"
+    },
+    {
+      "bytes": 20006,
+      "canonical_path": "frozen-replay/7b25737b054973386379088ccf27b66bfc9d5fd325dc4969d8449c80867f1ff1_5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5/replay_metrics.json",
+      "canonical_root": "modeling",
+      "path": "modeling/frozen-replay/7b25737b054973386379088ccf27b66bfc9d5fd325dc4969d8449c80867f1ff1_5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5/replay_metrics.json",
+      "sha256": "b0ff7eb63d87e083e1d6bee95f73dd50fb063d979f43bc3ca58625e6ea4efdca"
+    },
+    {
+      "bytes": 53743,
+      "canonical_path": "frozen-replay/7b25737b054973386379088ccf27b66bfc9d5fd325dc4969d8449c80867f1ff1_5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5/replay_predictions.parquet",
+      "canonical_root": "modeling",
+      "path": "modeling/frozen-replay/7b25737b054973386379088ccf27b66bfc9d5fd325dc4969d8449c80867f1ff1_5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5/replay_predictions.parquet",
+      "sha256": "f9525e7d7fe15335076282fdea3015e841540de597ecaa39643215bea5618340"
+    },
+    {
+      "bytes": 10942,
+      "canonical_path": "ridge_metrics.json",
+      "canonical_root": "modeling",
+      "path": "modeling/ridge_metrics.json",
+      "sha256": "2cc3efd9b7413fdab7a27b6125c9c471f2be6db35f2e2e4e62e77422bdbd3c18"
+    },
+    {
+      "bytes": 75460,
+      "canonical_path": "ridge_predictions.parquet",
+      "canonical_root": "modeling",
+      "path": "modeling/ridge_predictions.parquet",
+      "sha256": "6e451509cb4c681c2bd91c1a5617eb2facf178f8df8b6656f77d6db5eda5c7e8"
+    },
+    {
+      "bytes": 2579,
+      "canonical_path": "ridge_selection.json",
+      "canonical_root": "modeling",
+      "path": "modeling/ridge_selection.json",
+      "sha256": "b10d42d5ca5e38b492def2cf45a7b3e37bac6be4887ddce8357d317ae487c7cc"
+    },
+    {
+      "bytes": 1336,
+      "canonical_path": "temporal_folds.json",
+      "canonical_root": "modeling",
+      "path": "modeling/temporal_folds.json",
+      "sha256": "3e4d820b206a7423f170612d87eb9cb48ab980016f5378b3331682f47a03381c"
+    },
+    {
+      "bytes": 129427,
+      "canonical_path": "model_panel.parquet",
+      "canonical_root": "processed",
+      "path": "processed/model_panel.parquet",
+      "sha256": "00e1c6e14e0afdb9330022ac773eefaf1e3132edd24212e881967a2cc5a6c174"
+    },
+    {
+      "bytes": 134815,
+      "canonical_path": "program_signals.parquet",
+      "canonical_root": "processed",
+      "path": "processed/program_signals.parquet",
+      "sha256": "654936df1192c55d1659e0c464f8c6b277636698ccb58b29c4b99cfab5884522"
+    },
+    {
+      "bytes": 651628,
+      "canonical_path": "qa_report.json",
+      "canonical_root": "processed",
+      "path": "processed/qa_report.json",
+      "sha256": "bd007e5364c0df22b3a260cdc7f78fec3e004f1e60fd2781f476229bdd3f871c"
+    }
+  ],
+  "provenance": {
+    "build_timestamp_utc": "2026-09-03T20:58:45.285416+00:00",
+    "calibration_target_year": 2024,
+    "dependency_lock_sha256": "9783d6fc61d5c69012494519e674b5c17c0f346ba1923a4758c38fcdc573a687",
+    "experiment_config_sha256": "36db92a54184b4f17e7ee8a7a83dce6e1124573ea23fe2559e5d94be15253bce",
+    "feature_columns": [
+      "current_log_overall_oar",
+      "previous_annual_log_overall_oar",
+      "one_year_change_log_overall_oar",
+      "log1p_overall_expected_acceptances",
+      "log_credible_interval_width",
+      "current_log_low_oar",
+      "current_log_medium_oar",
+      "current_log_high_oar",
+      "current_log_hard_to_place_oar",
+      "high_offers_share",
+      "hard_to_place_offers_share",
+      "missing_previous_annual_log_overall_oar",
+      "missing_one_year_change_log_overall_oar",
+      "missing_current_log_low_oar",
+      "missing_current_log_medium_oar",
+      "missing_current_log_high_oar",
+      "missing_current_log_hard_to_place_oar"
+    ],
+    "feature_schema_sha256": "32880d02c22e57cb694e4333a38a28d49096a5257560f5c230b8c83c392abc67",
+    "frozen_experiment_sha256": "7b25737b054973386379088ccf27b66bfc9d5fd325dc4969d8449c80867f1ff1",
+    "git_commit_sha": "2a5b52402875ab9d5542b38d6c2155027c09ba97",
+    "git_worktree_dirty": true,
+    "input_panel_sha256": "00e1c6e14e0afdb9330022ac773eefaf1e3132edd24212e881967a2cc5a6c174",
+    "methodology_version_ledger_sha256": "7b3fe06d565ea6a643ad870bbf956c3bd14632a1dfea54e0a486f4143c616ffd",
+    "model_parameters": {
+      "alpha": 10.0,
+      "imputation": "median",
+      "keep_empty_features": true,
+      "random_seed": 20260903,
+      "scaling": "standard",
+      "solver": "lsqr"
+    },
+    "prediction_context": {
+      "elapsed_target_cohort_fraction_at_prediction": 0.5178082191780822,
+      "feature_cohort_year": 2024,
+      "prediction_as_of": "2025-07-08",
+      "prediction_as_of_precision": "day",
+      "target_cohort_end": "2025-12-31",
+      "target_cohort_year": 2025,
+      "truth_published_precision": "day",
+      "truth_published_value": "2026-07-07"
+    },
+    "python_version": "3.12.13",
+    "replay_target_year": 2025,
+    "source_cohort_years": [
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "source_manifest_schema_version": 2,
+    "source_manifest_sha256": "5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5",
+    "source_sha256": {
+      "1808": "2461603f825068e28d11dbc6bd1537a60a1e9e3401971df373a0ffd71626ab87",
+      "1905": "9b800b3f1ab41345902ac186cda512d748e7f0d2c1c2086b20608790a74acc3c",
+      "2006": "2b9de46096db7ded0eed0aae2a98e5d9d31d9241ea75d2d2d69083027733e1e4",
+      "2105": "36b3fd2572844f5da8017ec6558e7340f356ef0800633bb10b08b61f435b3ec9",
+      "2205": "6e87092dc56207937ff032783cd49e1b1fbb3e522f0ae1ccab5192431f7530c8",
+      "2305": "e1aa222c9a894d83379184785169252a53b70859e63b5d8fd1033c243e7f2c8d",
+      "2405": "023dcc9f7bd4e6cfee84f4707294be367e789b5430420c778d827d47e879aa49",
+      "2505": "359723874d5cdc2acaae98e0ebd3385f4a7d2f4dcc255e4dba90dba2a6036b8b",
+      "2605": "8f357b6ed7a060f395fd1930e34e9e4aee4fe508d67f10b4167073eded834184"
+    },
+    "training_target_years": [
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023
+    ],
+    "validation_target_year": 2024
+  },
+  "schema_version": 1,
+  "total_bytes": 1229848
+}

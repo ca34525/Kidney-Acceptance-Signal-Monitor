@@ -1,0 +1,286 @@
+{
+  "by_target_year": [
+    {
+      "calibration_slope": 1.016936009995376,
+      "mae_log_oar": 0.3017367107985364,
+      "mae_oar": 0.36553849208367034,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.004581059918525244,
+      "mean_signed_log_error": -0.03213977955530062,
+      "n": 230,
+      "persistence_mae_log_oar": 0.3063177707170616,
+      "skill_over_persistence": 0.0149552535192502,
+      "target_year": 2021
+    },
+    {
+      "calibration_slope": 0.6690982956706827,
+      "mae_log_oar": 0.40520410117380523,
+      "mae_oar": 0.4481829552640015,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.029582841138145737,
+      "mean_signed_log_error": 0.12726270723634545,
+      "n": 230,
+      "persistence_mae_log_oar": 0.4347869423119509,
+      "skill_over_persistence": 0.06803985644288413,
+      "target_year": 2022
+    },
+    {
+      "calibration_slope": 0.9585047462239547,
+      "mae_log_oar": 0.27155636440852904,
+      "mae_oar": 0.26747168397509224,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.011936872456375485,
+      "mean_signed_log_error": 0.0039000136439229813,
+      "n": 232,
+      "persistence_mae_log_oar": 0.2834932368649045,
+      "skill_over_persistence": 0.0421063747000916,
+      "target_year": 2023
+    },
+    {
+      "calibration_slope": 0.9280638944884405,
+      "mae_log_oar": 0.2542167266511786,
+      "mae_oar": 0.25317001222267693,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.02525579889542027,
+      "mean_signed_log_error": -0.014124895223316133,
+      "n": 229,
+      "persistence_mae_log_oar": 0.2794725255465989,
+      "skill_over_persistence": 0.09036952325107594,
+      "target_year": 2024
+    }
+  ],
+  "by_target_year_and_expected_acceptance_quartile": [
+    {
+      "calibration_slope": 0.7551032830813015,
+      "expected_acceptance_quartile": 1,
+      "mae_log_oar": 0.3496413623370626,
+      "mae_oar": 0.4796352541692883,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.028624938769887153,
+      "mean_signed_log_error": 0.006761464322653137,
+      "n": 58,
+      "persistence_mae_log_oar": 0.3782663011069498,
+      "skill_over_persistence": 0.07567403886129909,
+      "target_year": 2021
+    },
+    {
+      "calibration_slope": 1.083031442214736,
+      "expected_acceptance_quartile": 2,
+      "mae_log_oar": 0.3110261396809857,
+      "mae_oar": 0.3472974821444234,
+      "mean_paired_absolute_error_difference_vs_persistence": 0.00011910115054317696,
+      "mean_signed_log_error": 0.013437659893371503,
+      "n": 57,
+      "persistence_mae_log_oar": 0.3109070385304425,
+      "skill_over_persistence": -0.0003830764047869639,
+      "target_year": 2021
+    },
+    {
+      "calibration_slope": 1.1616794197384954,
+      "expected_acceptance_quartile": 3,
+      "mae_log_oar": 0.3014113855325923,
+      "mae_oar": 0.40703343029721767,
+      "mean_paired_absolute_error_difference_vs_persistence": 0.0045901205169990595,
+      "mean_signed_log_error": -0.09665098280589321,
+      "n": 58,
+      "persistence_mae_log_oar": 0.2968212650155932,
+      "skill_over_persistence": -0.015464257645953827,
+      "target_year": 2021
+    },
+    {
+      "calibration_slope": 1.1228285217013558,
+      "expected_acceptance_quartile": 4,
+      "mae_log_oar": 0.244033230621179,
+      "mae_oar": 0.22545812277113514,
+      "mean_paired_absolute_error_difference_vs_persistence": 0.005852401961855128,
+      "mean_signed_log_error": -0.05165796209848059,
+      "n": 57,
+      "persistence_mae_log_oar": 0.23818082865932386,
+      "skill_over_persistence": -0.024571255355845478,
+      "target_year": 2021
+    },
+    {
+      "calibration_slope": 0.6453811501483893,
+      "expected_acceptance_quartile": 1,
+      "mae_log_oar": 0.4650454747941481,
+      "mae_oar": 0.6215719457112001,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.0400884932312242,
+      "mean_signed_log_error": 0.3057967350359206,
+      "n": 58,
+      "persistence_mae_log_oar": 0.5051339680253724,
+      "skill_over_persistence": 0.07936210147960321,
+      "target_year": 2022
+    },
+    {
+      "calibration_slope": 0.6953144060568665,
+      "expected_acceptance_quartile": 2,
+      "mae_log_oar": 0.5087786311500596,
+      "mae_oar": 0.5505097108812615,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.042295212435572896,
+      "mean_signed_log_error": 0.28900298798780455,
+      "n": 57,
+      "persistence_mae_log_oar": 0.5510738435856325,
+      "skill_over_persistence": 0.07675053521026087,
+      "target_year": 2022
+    },
+    {
+      "calibration_slope": 0.7714743527684881,
+      "expected_acceptance_quartile": 3,
+      "mae_log_oar": 0.3070162027682525,
+      "mae_oar": 0.3348376877958891,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.02793019023793071,
+      "mean_signed_log_error": 0.1105358044177379,
+      "n": 58,
+      "persistence_mae_log_oar": 0.33494639300618323,
+      "skill_over_persistence": 0.08338704587099455,
+      "target_year": 2022
+    },
+    {
+      "calibration_slope": 0.7857983465226694,
+      "expected_acceptance_quartile": 4,
+      "mae_log_oar": 0.340648842031624,
+      "mae_oar": 0.28475907801889916,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.007862152837454018,
+      "mean_signed_log_error": -0.19912341998697547,
+      "n": 57,
+      "persistence_mae_log_oar": 0.348510994869078,
+      "skill_over_persistence": 0.022559267722407128,
+      "target_year": 2022
+    },
+    {
+      "calibration_slope": 1.0593039487820692,
+      "expected_acceptance_quartile": 1,
+      "mae_log_oar": 0.3474018233945375,
+      "mae_oar": 0.344942733847064,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.015117856975732686,
+      "mean_signed_log_error": 0.011871391225410696,
+      "n": 58,
+      "persistence_mae_log_oar": 0.3625196803702702,
+      "skill_over_persistence": 0.041702168997533096,
+      "target_year": 2023
+    },
+    {
+      "calibration_slope": 1.0049824156869922,
+      "expected_acceptance_quartile": 2,
+      "mae_log_oar": 0.2787177845324828,
+      "mae_oar": 0.2619849583570839,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.003234779694612544,
+      "mean_signed_log_error": 0.04926386372551812,
+      "n": 58,
+      "persistence_mae_log_oar": 0.2819525642270953,
+      "skill_over_persistence": 0.01147277983968642,
+      "target_year": 2023
+    },
+    {
+      "calibration_slope": 0.9043486957662503,
+      "expected_acceptance_quartile": 3,
+      "mae_log_oar": 0.2654354981056022,
+      "mae_oar": 0.26819197350269386,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.009646596439540333,
+      "mean_signed_log_error": -0.03219339103244921,
+      "n": 58,
+      "persistence_mae_log_oar": 0.2750820945451425,
+      "skill_over_persistence": 0.03506806379197913,
+      "target_year": 2023
+    },
+    {
+      "calibration_slope": 0.918325474413127,
+      "expected_acceptance_quartile": 4,
+      "mae_log_oar": 0.19467035160149362,
+      "mae_oar": 0.1947670701935273,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.019748256715616377,
+      "mean_signed_log_error": -0.01334180934278768,
+      "n": 58,
+      "persistence_mae_log_oar": 0.21441860831711,
+      "skill_over_persistence": 0.09210141260878857,
+      "target_year": 2023
+    },
+    {
+      "calibration_slope": 0.9734680439046409,
+      "expected_acceptance_quartile": 1,
+      "mae_log_oar": 0.28220114347337594,
+      "mae_oar": 0.3239319276299749,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.05788752325456972,
+      "mean_signed_log_error": -0.028380167213734334,
+      "n": 58,
+      "persistence_mae_log_oar": 0.3400886667279457,
+      "skill_over_persistence": 0.1702130324174458,
+      "target_year": 2024
+    },
+    {
+      "calibration_slope": 0.9833286690989982,
+      "expected_acceptance_quartile": 2,
+      "mae_log_oar": 0.2929849686310716,
+      "mae_oar": 0.2446038650247754,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.012746334928746711,
+      "mean_signed_log_error": 0.0037249609528539397,
+      "n": 57,
+      "persistence_mae_log_oar": 0.30573130355981837,
+      "skill_over_persistence": 0.041691298144263644,
+      "target_year": 2024
+    },
+    {
+      "calibration_slope": 0.9019905835122545,
+      "expected_acceptance_quartile": 3,
+      "mae_log_oar": 0.25072094522441885,
+      "mae_oar": 0.26806139282292163,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.0009280432176281263,
+      "mean_signed_log_error": -0.021379916352748617,
+      "n": 57,
+      "persistence_mae_log_oar": 0.251648988442047,
+      "skill_over_persistence": 0.0036878479956292676,
+      "target_year": 2024
+    },
+    {
+      "calibration_slope": 0.8169427637723791,
+      "expected_acceptance_quartile": 4,
+      "mae_log_oar": 0.19046889459475688,
+      "mae_oar": 0.17484142630062716,
+      "mean_paired_absolute_error_difference_vs_persistence": -0.028888807788470736,
+      "mean_signed_log_error": -0.010214365788575559,
+      "n": 57,
+      "persistence_mae_log_oar": 0.21935770238322763,
+      "skill_over_persistence": 0.13169725737736226,
+      "target_year": 2024
+    }
+  ],
+  "evaluated_target_years": [
+    2021,
+    2022,
+    2023,
+    2024
+  ],
+  "experiment_config_sha256": "36db92a54184b4f17e7ee8a7a83dce6e1124573ea23fe2559e5d94be15253bce",
+  "frozen_replay_evaluated": false,
+  "frozen_replay_target_year": 2025,
+  "input_panel_sha256": "00e1c6e14e0afdb9330022ac773eefaf1e3132edd24212e881967a2cc5a6c174",
+  "metric_definitions": {
+    "paired_difference": "ridge absolute log error minus persistence absolute log error",
+    "primary": "unweighted mean of per-target-year MAE on published log OAR",
+    "skill_over_persistence": "1 - ridge MAE / persistence MAE"
+  },
+  "model_parameters": {
+    "alpha": 10.0,
+    "imputation": "median",
+    "keep_empty_features": true,
+    "random_seed": 20260903,
+    "scaling": "standard",
+    "solver": "lsqr"
+  },
+  "pre_replay_candidate_gate": {
+    "failed_criteria": [],
+    "improved_years": 4,
+    "lowest_quartile_relative_worsening": -0.08935563828665483,
+    "maximum_single_year_relative_worsening": -0.0149552535192502,
+    "minimum_lowest_quartile_rows": 58,
+    "passed": true,
+    "skill_over_persistence": 0.054718340574624436
+  },
+  "selected_alpha": 10.0,
+  "selection_summary": {
+    "persistence_unweighted_mean_yearly_mae_log_oar": 0.326017618860129,
+    "row_pooled_mae_log_oar": 0.30815753930460066,
+    "target_years": [
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "unweighted_mean_yearly_mae_log_oar": 0.3081784757580123
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "artifact_sha256": {
+    "metrics": "b0ff7eb63d87e083e1d6bee95f73dd50fb063d979f43bc3ca58625e6ea4efdca",
+    "predictions": "f9525e7d7fe15335076282fdea3015e841540de597ecaa39643215bea5618340"
+  },
+  "artifacts": {
+    "metrics": "replay_metrics.json",
+    "predictions": "replay_predictions.parquet"
+  },
+  "completed_at_utc": "2026-09-03T20:58:45.285416+00:00",
+  "frozen_experiment_sha256": "7b25737b054973386379088ccf27b66bfc9d5fd325dc4969d8449c80867f1ff1",
+  "git_commit_sha": "2a5b52402875ab9d5542b38d6c2155027c09ba97",
+  "git_worktree_dirty": true,
+  "input_panel_sha256": "00e1c6e14e0afdb9330022ac773eefaf1e3132edd24212e881967a2cc5a6c174",
+  "prediction_rows": 229,
+  "source_manifest_sha256": "5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5",
+  "status": "complete"
+}
