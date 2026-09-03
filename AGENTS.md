@@ -1,0 +1,232 @@
+# Working Agreement
+
+This file governs implementation of the Kidney Acceptance Signal Monitor. It is intentionally stricter than a generic coding guide because methodological shortcuts can change the meaning of the result.
+
+## 1. Source of truth
+
+Before editing, read:
+
+1. `SPEC.md`
+2. `PLAN.md`
+3. `configs/data_sources.yaml`
+4. the active item in `docs/plans/`, when present
+
+Order of authority:
+
+1. `SPEC.md` for product and scientific requirements
+2. `configs/frozen_experiment.yaml` for a frozen evaluation
+3. `configs/data_sources.yaml` for source identity and provenance
+4. `PLAN.md` and the active implementation plan for work order
+5. existing code conventions
+
+If implementation requires changing scope, data meaning, target, features, splits, metrics, or promotion rules, change the specification and plan first. Record a short architectural decision in `docs/decisions/`.
+
+## 2. Plan → test → build
+
+Every change must map to a plan item and acceptance criterion.
+
+For each behavior:
+
+1. State the behavior and expected evidence in the active plan.
+2. Write the smallest failing test.
+3. Run it and confirm that it fails for the intended reason.
+4. Implement the smallest change that passes it.
+5. Refactor without changing behavior.
+6. Run the focused tests, then the relevant suite.
+7. Update the plan with completion evidence.
+
+New behavior and bug fixes require a failing test first. Exceptions are documentation-only changes and mechanical configuration changes that cannot be meaningfully exercised; record the reason in the plan.
+
+Keep changes narrow. Do not combine unrelated refactors with feature work. One behavior per commit is preferred when practical.
+
+## 3. Scientific invariants
+
+These rules are non-negotiable:
+
+- The modeling unit is a kidney transplant program-year.
+- The primary target is the next same-cadence calendar-year published `log(OAR)`.
+- The binary credible-interval status is descriptive, not the training target.
+- Modeling uses only the pinned, non-overlapping calendar-year cohorts.
+- Never use a random row split.
+- All rows for an outcome year stay in the same temporal fold.
+- Every predictor must be available in the feature cohort or earlier.
+- Imputation, scaling, and model fitting occur inside each training fold.
+- Center code, center type, name, city, state, ZIP, OPO/DSA identity, and future report availability are never predictors.
+- KDPI ≥60 is not a core model feature because it lacks adequate history.
+- Baselines are implemented and evaluated before the ridge challenger.
+- No second model family is added unless the specification is deliberately changed before the frozen replay.
+- Do not tune, select features, alter the residual-band rule, or change claims after the frozen 2025 replay.
+- The replay model is trained only through target year 2023; held-out 2024 outcomes cannot enter that fit and calibrate the band only when activation is attempted.
+- Repeated programs across years are allowed because the task concerns established programs. Label first-observed programs separately and do not expose their forecast unless a tested artifact flag explicitly permits it.
+- Published SRTR ratios and intervals are authoritative. Formula recreation is a nonblocking, rounding-range QA diagnostic only.
+- Current SRTR credible intervals and empirical forecast bands are distinct quantities and must never share a label.
+- When activation is attempted, the nominal 80% band is marginal across programs, not conditional for a center, and has a separate display gate from the point model.
+- Treat 2025 replay estimates—and bootstrap intervals when activation is attempted—as descriptive product-selection evidence, never prospective or confirmatory validation.
+- Statistical uncertainty for model comparisons is resampled by program, not by treating repeated program-year rows as independent.
+
+If code makes it possible to violate one of these rules silently, add a hard validation error and a regression test.
+
+## 4. Data rules
+
+- Treat downloaded files as immutable inputs.
+- Verify URL, status, file type, size, archive member, and SHA-256 before use.
+- Download to a temporary file and move atomically only after verification.
+- Never accept a changed hash or schema automatically.
+- Parse by machine field name, not column position.
+- Use `(CTR_CD, CTR_TY)` as program identity; never join on name.
+- Preserve identifiers and ZIP codes as strings.
+- Preserve missing and suppressed values as null; never convert them to zero.
+- A missing future program report creates a missing target, not a negative outcome.
+- Do not assume donor strata are mutually exhaustive when the source shows otherwise.
+- Keep raw downloads, archives, interim data, and large generated artifacts out of Git. Track only the approved, attributed, reproducible `<5 MB` bundle under `artifacts/release/`.
+- Tests do not access the network.
+- A manual data-refresh workflow may inspect live sources but may not update checksums without review.
+- Preserve publication precision: month-only values render as month/year and never acquire an invented day.
+- Maintain a per-release methodology ledger. If definitions cannot be reconciled, restrict the modeling era rather than silently pooling it.
+
+Every release artifact must include source hashes, configuration hashes, Git commit, dependency-lock identity, build time in UTC, cohort years, feature schema, and model parameters.
+
+## 5. Product and claim rules
+
+Use these terms:
+
+- "screening signal"
+- "published offer-acceptance ratio"
+- "next-calendar-year PSR projection"
+- "delayed-report nowcast"
+- "quality-improvement review"
+
+Do not use these claims:
+
+- poor or unsafe program
+- inappropriate or avoidable decline
+- organ should have been accepted
+- regulatory risk, noncompliance, or MPSC flag
+- real-time forecast
+- clean 12-month-ahead forecast
+- prospective or independent validation for the 2025 replay
+- formal CUSUM or control chart
+- causal driver or intervention effect
+- patient-level fairness or clinical benefit
+- reproduction of UNOS Predict or SRTR's offer-level model
+
+Do not build a national center leaderboard, composite score, or patient/organ input form. Do not display MPSC thresholds.
+
+The historical monitor is the product. Show the ridge challenger as the default only if the frozen promotion gate passes. Otherwise display persistence and document the negative result plainly.
+
+## 6. Application boundary
+
+- Streamlit is a view layer.
+- Data, statistical, and formatting logic belongs in importable modules under `src/kasm/`.
+- The web process reads trusted, precomputed Parquet and JSON artifacts.
+- The app never downloads, parses workbooks, trains models, or accepts arbitrary serialized models at request time.
+- Keep the critical user flow functional without network access.
+- Missing values display as "Not reported" or "Insufficient history," never as zero.
+- The view reads `public_forecast_eligible` from trusted artifacts and never derives eligibility ad hoc.
+- Color is not the only status cue.
+- Display source cohort, publication date, artifact version, and the nonclinical/nonregulatory banner on every analytical view.
+
+## 7. Engineering rules
+
+- Python 3.12 and `uv` with a committed `uv.lock` are the supported environment.
+- Prefer small, typed, pure functions and explicit schemas.
+- Keep side effects at CLI and I/O boundaries.
+- Use structured logging; do not log entire source rows unnecessarily.
+- Raise actionable domain errors rather than returning partially valid data.
+- Fix random seeds and record them, but do not confuse deterministic code with statistical certainty.
+- Do not add a database, API service, orchestration platform, model registry service, cloud dependency, or notebook-only production logic.
+- Docker must run as a non-root user and expose a health check.
+- Pin CI actions to commit SHAs.
+- Do not commit secrets, raw source files, large model files, local caches, or unrelated generated output.
+
+## 8. Required verification
+
+Run the smallest relevant command while developing, then the full required set before marking a plan item complete:
+
+```bash
+uv sync --frozen
+uv run ruff format --check .
+uv run ruff check .
+uv run mypy src/kasm
+uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov-branch --cov-fail-under=80
+```
+
+When the relevant components exist, also run:
+
+```bash
+uv run kasm data verify-cache
+uv run kasm data build
+uv run kasm model backtest
+uv run kasm artifacts build
+uv run streamlit run app/streamlit_app.py
+docker build -t kidney-acceptance-signal-monitor .
+```
+
+`uv run kasm data sync` is the networked preflight/maintenance path. Release reproduction starts from the immutable verified cache and does not depend on live URLs.
+
+The frozen-replay command is exceptional:
+
+```bash
+uv run kasm model evaluate-frozen-replay --confirm
+```
+
+Run it only after `configs/frozen_experiment.yaml` is committed and the plan explicitly authorizes the evaluation. Write the canonical result once to the config-hash + source-manifest-hash path with a completion marker; fail on overwrite. A rerun must use a distinct audit path. Never automate the replay in ordinary pull-request CI.
+
+## 9. Test expectations
+
+The suite must cover:
+
+- source and schema drift;
+- unsafe archive extraction and bad hashes;
+- old and new workbook sheet names;
+- two-row headers;
+- composite program identity;
+- date normalization;
+- publication-date precision;
+- null-versus-zero behavior;
+- count and interval invariants;
+- program entry and exit;
+- annual non-overlap;
+- feature availability;
+- train-only preprocessing;
+- baseline formulas;
+- deterministic folds and ridge results;
+- explicit forecast eligibility;
+- exclusion of 2024 outcomes from replay fitting;
+- write-once frozen-replay output;
+- artifact provenance;
+- offline app loading and critical user flow; and
+- non-root container startup.
+
+When `forecast_activation_attempted: true`, the suite must additionally cover promotion-gate behavior, point-versus-band promotion, 2024-only band calibration, exact-binomial coverage, bootstrap reproducibility, and band suppression.
+
+Do not write brittle tests for exact live-data model scores or chart pixels. Use small fixtures and property/invariant tests. A coverage threshold is a floor, not a substitute for testing the named risks.
+
+## 10. Definition of done
+
+A task is done only when:
+
+- its acceptance criterion is satisfied;
+- the new test failed first and now passes, or the recorded exception is justified;
+- focused and relevant full tests pass;
+- lint and type checks pass;
+- documentation and provenance are updated;
+- the active plan records evidence;
+- no scientific or claim rule has been weakened; and
+- generated output is reproducible from the documented command.
+
+## 11. Commit-message handoff
+
+After completing any repository change, include one ready-to-use commit message in the final
+response. Base it on the actual completed diff and use Conventional Commits format:
+`<type>(optional-scope): <imperative summary>`.
+
+- Keep the subject specific, lowercase after the colon, and at most 72 characters.
+- Use an imperative verb and describe the outcome rather than the work process.
+- Add a body or footer only when needed to explain rationale, migration impact, issue references,
+  or a breaking change.
+- Never claim checks passed unless they were actually run successfully.
+- Provide the message even when the changes remain uncommitted; do not create a commit unless the
+  user explicitly asks for one.
+
+Stop rather than improvise if a change would require nonpublic data, weaken temporal separation, use the frozen replay for iteration, or turn the product into clinical/regulatory advice.

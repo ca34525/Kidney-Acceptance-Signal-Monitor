@@ -1,0 +1,229 @@
+schema_version: 2
+manifest_name: kidney-acceptance-signal-monitor-srtr-annual
+verified_on: "2026-09-03"
+
+source_owner: Scientific Registry of Transplant Recipients
+source_landing_page: https://srtr.hrsa.gov/transplant-professionals/program-specific-report/program-specific-reports-psr/
+methods_url: https://srtr.hrsa.gov/transplant-professionals/program-specific-report/technical-methods-for-the-program-specific-reports/
+timeline_url: https://srtr.hrsa.gov/transplant-professionals/program-specific-report/psr-reporting-timeline/
+faq_url: https://srtr.hrsa.gov/getting-started/faqs/for-transplant-center-professionals/
+permissions_url: https://srtr.hrsa.gov/requesting-data/citations-and-permissions/
+
+organ: kidney
+known_context_events:
+  - effective_date: "2020-03"
+    precision: month
+    event: COVID-19 disruption
+    source_url: null
+    treatment: Exclude transitions touching cohort 2020 in a prespecified sensitivity only.
+  - effective_date: "2021-03-15"
+    precision: day
+    event: Circle-based kidney allocation implementation
+    source_url: https://www.hrsa.gov/optn/professionals/resources/kidney-pancreas/donation-service-area-dsa-and-optn-region-removal-faqs
+    treatment: Exclude transitions touching cohort 2021 in a prespecified sensitivity only.
+  - effective_date: "2023-07-27"
+    precision: day
+    event: OPTN offer-acceptance monitoring metric took effect
+    source_url: https://www.hrsa.gov/optn/news-events/news/new-pre-transplant-performance-metric-now-effect-offer-acceptance-rate-ratio
+    treatment: Label calendar 2023 as mixed context; do not fit a separate era model.
+
+program_key_fields:
+  - CTR_CD
+  - CTR_TY
+
+required_machine_columns:
+  - ENTIRE_NAME
+  - CTR_CD
+  - CTR_TY
+  - OAR_cohort_start
+  - OAR_cohort_end
+  - OA_OVERALL_OFFERS_CENTER
+  - OA_OVERALL_ACCEPTS_CENTER
+  - OA_OVERALL_EXP_ACCEPTS_CENTER
+  - OA_OVERALL_HR_MN_CENTER
+  - OA_OVERALL_HR_LB_CENTER
+  - OA_OVERALL_HR_UB_CENTER
+  - OA_LOWRISK_OFFERS_CENTER
+  - OA_LOWRISK_ACCEPTS_CENTER
+  - OA_LOWRISK_EXP_ACCEPTS_CENTER
+  - OA_LOWRISK_HR_MN_CENTER
+  - OA_LOWRISK_HR_LB_CENTER
+  - OA_LOWRISK_HR_UB_CENTER
+  - OA_MEDIUMRISK_OFFERS_CENTER
+  - OA_MEDIUMRISK_ACCEPTS_CENTER
+  - OA_MEDIUMRISK_EXP_ACCEPTS_CENTER
+  - OA_MEDIUMRISK_HR_MN_CENTER
+  - OA_MEDIUMRISK_HR_LB_CENTER
+  - OA_MEDIUMRISK_HR_UB_CENTER
+  - OA_HIGHRISK_OFFERS_CENTER
+  - OA_HIGHRISK_ACCEPTS_CENTER
+  - OA_HIGHRISK_EXP_ACCEPTS_CENTER
+  - OA_HIGHRISK_HR_MN_CENTER
+  - OA_HIGHRISK_HR_LB_CENTER
+  - OA_HIGHRISK_HR_UB_CENTER
+  - OA_HARDTOPLACE100_OFFERS_CENTER
+  - OA_HARDTOPLACE100_ACCEPTS_CENTER
+  - OA_HARDTOPLACE100_EXP_ACCEPTS_CENTER
+  - OA_HARDTOPLACE100_HR_MN_CENTER
+  - OA_HARDTOPLACE100_HR_LB_CENTER
+  - OA_HARDTOPLACE100_HR_UB_CENTER
+
+optional_recent_machine_columns:
+  - OA_KDPI_GTE_60_OFFERS_CENTER
+  - OA_KDPI_GTE_60_ACCEPTS_CENTER
+  - OA_KDPI_GTE_60_EXP_ACCEPTS_CENTER
+  - OA_KDPI_GTE_60_HR_MN_CENTER
+  - OA_KDPI_GTE_60_HR_LB_CENTER
+  - OA_KDPI_GTE_60_HR_UB_CENTER
+
+sources:
+  - release_code: "1808"
+    release_label: October 2018
+    release_date_value: "2018-10"
+    release_date_precision: month
+    cohort_year: 2017
+    expected_rows: 238
+    expected_columns: 125
+    sheet_name: Table B10 & Figures B7-B11
+    transport: zip
+    url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_1808all.zip
+    download_bytes: 9620315
+    download_sha256: 2461603f825068e28d11dbc6bd1537a60a1e9e3401971df373a0ffd71626ab87
+    member_path: csrs_final_tables_1808_KI.xls
+    member_bytes: 14159872
+    member_sha256: d252fa8e2acf99dfc99475d8ca7288532d2622cbcaa4373b7069910c83832e7f
+
+  - release_code: "1905"
+    release_label: July 2019
+    release_date_value: "2019-07"
+    release_date_precision: month
+    cohort_year: 2018
+    expected_rows: 240
+    expected_columns: 125
+    sheet_name: Table B10 & Figures B7-B11
+    transport: zip
+    url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_1905all.zip
+    download_bytes: 8760776
+    download_sha256: 9b800b3f1ab41345902ac186cda512d748e7f0d2c1c2086b20608790a74acc3c
+    member_path: csrs_final_tables_1905_KI.xls
+    member_bytes: 12342784
+    member_sha256: 34efbb289c353f2e95dd836479a18e5fd89d64fb7becf8405c89406d8e07ad52
+
+  - release_code: "2006"
+    release_label: August 2020
+    release_date_value: "2020-08"
+    release_date_precision: month
+    cohort_year: 2019
+    expected_rows: 234
+    expected_columns: 125
+    sheet_name: Table B10 & Figures B7-B11
+    transport: zip
+    url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2006all.zip
+    download_bytes: 10081869
+    download_sha256: 2b9de46096db7ded0eed0aae2a98e5d9d31d9241ea75d2d2d69083027733e1e4
+    member_path: csrs_final_tables_2006_KI.xls
+    member_bytes: 14217216
+    member_sha256: a0c19933c6d8b5559c7fc58f4450b2d21cc5388843066116447730a94a673f6e
+
+  - release_code: "2105"
+    release_label: July 2021
+    release_date_value: "2021-07"
+    release_date_precision: month
+    cohort_year: 2020
+    expected_rows: 233
+    expected_columns: 125
+    sheet_name: Table B10 & Figures B7-B11
+    transport: zip
+    url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2105all.zip
+    download_bytes: 10318336
+    download_sha256: 36b3fd2572844f5da8017ec6558e7340f356ef0800633bb10b08b61f435b3ec9
+    member_path: csrs_final_tables_2105all/csrs_final_tables_2105_KI.xls
+    member_bytes: 14561280
+    member_sha256: 78115c191cb33c3a9ae2ffbcf97b183ae8d95813ffcd03906c49cc9b74ac923f
+
+  - release_code: "2205"
+    release_label: July 2022
+    release_date_value: "2022-07"
+    release_date_precision: month
+    cohort_year: 2021
+    expected_rows: 232
+    expected_columns: 125
+    sheet_name: Table B11 & Figures B10-B14
+    transport: zip
+    url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2205all.zip
+    download_bytes: 11207477
+    download_sha256: 6e87092dc56207937ff032783cd49e1b1fbb3e522f0ae1ccab5192431f7530c8
+    member_path: csrs_final_tables_2205_KI.xls
+    member_bytes: 15189504
+    member_sha256: 73fa1729ee2d34f8d4d5873767fd5aca080acb0ad10436c10ab2ca5fdabd26e6
+
+  - release_code: "2305"
+    release_label: July 2023
+    release_date_value: "2023-07-06"
+    release_date_precision: day
+    cohort_year: 2022
+    expected_rows: 234
+    expected_columns: 125
+    sheet_name: Table B11 & Figures B10-B14
+    transport: zip
+    url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2305all.zip
+    download_bytes: 11662940
+    download_sha256: e1aa222c9a894d83379184785169252a53b70859e63b5d8fd1033c243e7f2c8d
+    member_path: csrs_final_tables_2305_KI.xls
+    member_bytes: 15909376
+    member_sha256: 63d5f0222fa6a92c9e58d2b11eb40082b8bf2490eb6ee67c34749bafadf74fe2
+
+  - release_code: "2405"
+    release_label: July 2024
+    release_date_value: "2024-07-09"
+    release_date_precision: day
+    cohort_year: 2023
+    expected_rows: 232
+    expected_columns: 125
+    sheet_name: Table B11 & Figures B10-B14
+    transport: zip
+    url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2405all.zip
+    download_bytes: 11719488
+    download_sha256: 023dcc9f7bd4e6cfee84f4707294be367e789b5430420c778d827d47e879aa49
+    member_path: csrs_final_tables_2405_KI.xls
+    member_bytes: 15863808
+    member_sha256: b81cce9009b339c6718a9fecfb916a6458e363973c7132aea8566d8f219f2799
+
+  - release_code: "2505"
+    release_label: July 2025
+    release_date_value: "2025-07-08"
+    release_date_precision: day
+    cohort_year: 2024
+    expected_rows: 230
+    expected_columns: 143
+    sheet_name: Table B11 & Figures B10-B14
+    transport: zip
+    url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2505all.zip
+    download_bytes: 11762144
+    download_sha256: 359723874d5cdc2acaae98e0ebd3385f4a7d2f4dcc255e4dba90dba2a6036b8b
+    member_path: csrs_final_tables_2505_KI.xls
+    member_bytes: 15887360
+    member_sha256: 032584a0a1fe3df70c1f4cc9806f9a2756f8d378795534dae38a47d441422ac5
+
+  - release_code: "2605"
+    release_label: July 2026
+    release_date_value: "2026-07-07"
+    release_date_precision: day
+    cohort_year: 2025
+    expected_rows: 230
+    expected_columns: 143
+    sheet_name: Table B11 & Figures B10-B14
+    transport: xls
+    url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables/csrs_final_tables_2605_KI.xls
+    download_bytes: 13520384
+    download_sha256: 8f357b6ed7a060f395fd1930e34e9e4aee4fe508d67f10b4167073eded834184
+    member_path: null
+    member_bytes: null
+    member_sha256: null
+
+notes:
+  - Expected row counts exclude the workbook's descriptive-label row.
+  - Release dates with month precision come from the SRTR archive label and must be displayed as month and year, not as an invented day.
+  - The 2505 and 2605 workbooks add eighteen KDPI-greater-than-or-equal-to-60 columns; those fields are optional and display-only.
+  - The workbook's published ratio is authoritative because public expected acceptances are rounded.
+  - Raw date cells can contain non-midnight components or historic one-day offsets; normalize against the manifest cohort year and retain the raw value in QA output.

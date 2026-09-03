@@ -1,0 +1,19 @@
+.venv/
+.uv-cache/
+.git-bootstrap/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+__pycache__/
+*.py[cod]
+
+# Immutable source cache and generated data stay local.
+data/
+
+# Only the approved small release bundle may eventually be tracked here.
+artifacts/*
+!artifacts/release/
+!artifacts/release/.gitkeep

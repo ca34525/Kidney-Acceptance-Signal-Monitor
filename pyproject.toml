@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kidney-acceptance-signal-monitor"
+version = "0.1.0"
+description = "Public-data kidney transplant program offer-acceptance signal monitor"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "PyYAML>=6.0.2,<7",
+]
+
+[project.scripts]
+kasm = "kasm.cli:entrypoint"
+
+[dependency-groups]
+dev = [
+  "mypy>=1.17,<2",
+  "pre-commit>=4.3,<5",
+  "pytest>=8.4,<9",
+  "pytest-cov>=6.2,<7",
+  "ruff>=0.12,<0.13",
+  "types-PyYAML>=6.0.12,<7",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kasm"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+extend-exclude = [".git-bootstrap", ".uv-cache"]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src/kasm"]
+
+[tool.coverage.run]
+branch = true
+source = ["src/kasm"]
+
+[tool.coverage.report]
+show_missing = true
