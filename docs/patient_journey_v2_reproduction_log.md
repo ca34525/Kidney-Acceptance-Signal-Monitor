@@ -68,6 +68,13 @@ The final command evidence for this plan is recorded in
 program selection, missing-value text, target and safety timing, provenance, and the explicit
 no-promotion/no-future-forecast state.
 
+Canonical publication was committed and pushed as `0353f99`. GitHub Actions run
+[33926762819](https://github.com/ca34525/Kidney-Acceptance-Signal-Monitor/actions/runs/33926762819)
+passed both quality and container jobs. Local verification passed 236 tests at 83.93% core
+branch coverage, locked dependency checks, formatting, lint, strict mypy, both application
+health endpoints, and non-root Docker startup. Exporting the staged checkout with Windows
+line-ending conversion enabled preserved every V2 bundle byte and passed the offline AppTest.
+
 The published bundle was regenerated from a clean isolated checkout of `cdea5c4`. The three
 Parquet payloads have identical analytical values to the prior development build, and
 `evaluation.json` is byte-identical. Only build provenance and the dependent content identities

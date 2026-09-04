@@ -62,7 +62,7 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 | M10 | V2 methodology ledger and source parser | done | Plan 0016: typed/source-cited ledger, fixture-first parser, nine-release cache audit, 169 tests, and required quality gates pass |
 | M11 | V2 temporal design and canonical panel | done | Plan 0017: four non-overlapping pairs, strict-vintage folds, deterministic 966-row in-memory panel, 181 tests, and required quality gates pass |
 | M12 | V2 canonical artifact publication | done | Plan 0018: config-owned processed bundle, source-derived QA evidence, provenance contract, trusted validation, and isolated offline build command; 214 tests pass and the real cache build publishes 966 rows |
-| M13 | V2 exploratory study and optional product | done | Plan 0019: frozen one-fold study, four-family safety context, generation-bound 679 KB offline bundle, separate V2 app, 235-test/83.93% suite, and V1 isolation checks pass; no model promoted |
+| M13 | V2 exploratory study and optional product | done | Plan 0019: canonical 679 KB bundle built from clean `cdea5c4` and published at `0353f99`; 236-test/83.93% suite, offline V2 flow, V1 isolation, and both remote CI jobs pass; no model promoted |
 
 ## 5. Day-by-day execution
 

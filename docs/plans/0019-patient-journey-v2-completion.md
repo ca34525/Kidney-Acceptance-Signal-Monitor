@@ -1,7 +1,7 @@
 # Plan 0019 — Patient-journey v2 completion
 
 **Milestone:** M13 patient-journey v2 exploratory study and optional product
-**Status:** implementation complete; canonical publication in progress
+**Status:** complete, including canonical publication
 **Started:** 2026-09-04
 
 ## Scope and acceptance evidence
@@ -141,7 +141,15 @@ results are viewed.
   offline dependency sync lacked a cached SciPy wheel, so generation used the already
   locked project environment and verified imports from the isolated source via
   `PYTHONPATH`, without downloading or changing dependencies.
-- Commit/push and remote quality/container evidence remain pending.
+- Publication commit `0353f9924b61441dac52e11b71326e6310603e25` was pushed to
+  `codex/patient-journey-v2`. GitHub Actions run
+  [33926762819](https://github.com/ca34525/Kidney-Acceptance-Signal-Monitor/actions/runs/33926762819)
+  passed both quality and container jobs, including the previously failing V2 AppTest.
+  The branch matched its remote and the worktree was clean after the publication push.
+  Canonical publication is complete; the bundle continues to identify `cdea5c4` as its
+  source build commit.
+
+### Original implementation verification (development bundle)
 
 - Source-contract replay: initial safety parsing failed on the real 2105 tables because SFL uses
   `MM/DD/YYYY` dates and its safety roster includes a program absent from the same-release Tiers
