@@ -1,0 +1,18 @@
+schema_version: 1
+analysis_id: kidney_patient_journey_v2
+
+target:
+  column: SAL_TOTFTX_C18
+  canonical_scale: proportion
+  officially_risk_adjusted: false
+
+paths:
+  processed_dir: data/patient_journey_v2/processed
+  modeling_dir: data/patient_journey_v2/modeling
+  release_dir: artifacts/patient_journey_v2
+
+# These roots are repeated for review visibility, but the loader owns and verifies the exact list.
+protected_v1_roots:
+  - data/processed
+  - data/modeling
+  - artifacts/release
