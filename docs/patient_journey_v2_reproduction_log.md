@@ -6,8 +6,9 @@
 - Dependency lock SHA-256:
   `9783d6fc61d5c69012494519e674b5c17c0f346ba1923a4758c38fcdc573a687`
 - Git commit recorded by the artifacts:
-  `9357a33f96a19b4024d222a526e696b297740738`
-- Worktree state recorded by the artifacts: dirty; build classified noncanonical
+  `cdea5c40302de1797d83698566d2ebb51de16938`
+- Worktree state recorded by the artifacts: clean; `canonical_build: true`
+- Model/release build time: `2026-09-04T22:40:05.364170Z`
 - Source manifest SHA-256:
   `5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5`
 - Experiment freeze SHA-256:
@@ -36,9 +37,9 @@ processed, modeling, release, frozen-configuration, or default-app assets.
 
 | Stage | Evidence |
 |---|---|
-| Processed | 966 panel rows, 5,678 safety rows, artifact-set SHA-256 `dc5f96040d5a3f3dd0ec644c72f9d011c12aeb162e03f43ae878e9715eb98ba8` |
-| Modeling | 3,685 historical prediction rows, artifact-set SHA-256 `ac579a8891d01d71b6a52a83c90c19874da9a6594fab33940b2e646983dbdf68` |
-| Release | Four payload files, 679,407 bytes, content SHA-256 `6542fc61968b4cda95a33dcb5057b41b37d6fc3ba5ad40397ee8e7a1ed2cc205` |
+| Processed | 966 panel rows, 5,678 safety rows, artifact-set SHA-256 `66602b3775675bceb8dd57061bcb8b98520b3f9029c0fca222127d3a5f844409` |
+| Modeling | 3,685 historical prediction rows, artifact-set SHA-256 `6e6ebacbbb63f14382f2cb9e0521e03995594ff9d497bc009b3ab89e93f60775` |
+| Release | Four payload files, 679,407 bytes, content SHA-256 `ce2844edbcec92c09d0053720d5331dd37ed43ab75de7aa4dd1de431c79a9eee` |
 
 The release payload is exactly:
 
@@ -67,8 +68,24 @@ The final command evidence for this plan is recorded in
 program selection, missing-value text, target and safety timing, provenance, and the explicit
 no-promotion/no-future-forecast state.
 
-The workspace artifact is a development reproduction because the requested work remains
-uncommitted.
-After an explicit commit, a clean rebuild will record a new Git commit, build time, and canonical
-status and can therefore have a different artifact-set identity even when analytical content is
-unchanged.
+The published bundle was regenerated from a clean isolated checkout of `cdea5c4`. The three
+Parquet payloads have identical analytical values to the prior development build, and
+`evaluation.json` is byte-identical. Only build provenance and the dependent content identities
+changed. All embedded processed and modeling provenance records were checked for the same source
+commit, clean worktree, and canonical status before publication.
+
+The isolated source checkout used `core.autocrlf=false` to preserve the pinned configuration and
+lock bytes and `core.longpaths=true` for the V1 hash-addressed paths on Windows. Its builds used
+the already synchronized Python 3.12.13 environment with `PYTHONPATH` pointing to that checkout's
+`src` directory (the imported package location was verified), and the data build received the
+original verified cache through `--cache-dir`. The source checkout was clean before both data
+and model generation; publishing the release directory was the final generation step.
+
+For a later canonical rebuild, use a clean source checkout and move any previously generated
+untracked release bundle outside it before running the three V2 build commands. Commit the
+resulting bundle only after generation and validation. A new build timestamp changes artifact
+identities even when the analytical content is unchanged. The bundle's Git SHA identifies the
+source build commit, not the subsequent commit that adds its generated files.
+
+Both approved release roots are required by the repository tests. V2 release files are marked
+binary in `.gitattributes`, as V1 already was, to preserve their exact hashes across checkouts.

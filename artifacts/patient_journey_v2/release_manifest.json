@@ -1,0 +1,68 @@
+{
+  "artifacts": {
+    "evaluation": {
+      "bytes": 67541,
+      "path": "evaluation.json",
+      "sha256": "13e7f23b1705d04ae5dc06b27f6af8076dee87e7332201532e8982237372910c"
+    },
+    "panel": {
+      "bytes": 192678,
+      "path": "patient_journey_panel.parquet",
+      "sha256": "2418617dbdd100b5d11833f737041571d3703cd0c3627625f18808517a1f53df"
+    },
+    "predictions": {
+      "bytes": 136709,
+      "path": "predictions.parquet",
+      "sha256": "33891519a33bfcc0e508ed9e69da86df5f7ecdb9d2199c7fedc69f40bf3267a7"
+    },
+    "safety": {
+      "bytes": 282479,
+      "path": "safety_measures.parquet",
+      "sha256": "1c637e4a0982bfe1d7815e539b2ac63a86e5dc5e8de76df13f087d4eacea69cf"
+    }
+  },
+  "bundle_content_sha256": "ce2844edbcec92c09d0053720d5331dd37ed43ab75de7aa4dd1de431c79a9eee",
+  "display_contract": {
+    "default_v1_app_unchanged": true,
+    "future_forecast_available": false,
+    "national_leaderboard_allowed": false,
+    "patient_or_organ_input_allowed": false,
+    "safety_context_separate_from_patient_journey_outcome": true,
+    "target_officially_risk_adjusted": false
+  },
+  "file_count": 4,
+  "provenance": {
+    "analysis_id": "kidney_patient_journey_v2",
+    "build_timestamp_utc": "2026-09-04T22:40:05.364170Z",
+    "canonical_build": true,
+    "dependency_lock_sha256": "9783d6fc61d5c69012494519e674b5c17c0f346ba1923a4758c38fcdc573a687",
+    "evidence_status": "retrospective_exploratory_feasibility",
+    "experiment_config_sha256": "ab8c01453c36039b293a8e7453b17b2b326faf734a081a4b67f8bfe132b1de79",
+    "git_commit_sha": "cdea5c40302de1797d83698566d2ebb51de16938",
+    "git_worktree_dirty": false,
+    "methodology_config_sha256": "ba254a7cecb346618b863ce9a248e12ae5ed552bcd88a1e0cf1a6f2b0a9e8620",
+    "modeling_artifact_set_sha256": "6e6ebacbbb63f14382f2cb9e0521e03995594ff9d497bc009b3ab89e93f60775",
+    "processed_artifact_set_sha256": "66602b3775675bceb8dd57061bcb8b98520b3f9029c0fca222127d3a5f844409",
+    "processed_manifest_sha256": "e300ea008dd2f1478f4a61718115be1c1dc489e799c579477fb493d40d50b818",
+    "processed_panel_sha256": "2418617dbdd100b5d11833f737041571d3703cd0c3627625f18808517a1f53df",
+    "processed_safety_sha256": "1c637e4a0982bfe1d7815e539b2ac63a86e5dc5e8de76df13f087d4eacea69cf",
+    "promoted_model": null,
+    "promotion_allowed": false,
+    "python_version": "3.12.13",
+    "source_manifest_sha256": "5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5",
+    "source_sha256": {
+      "1808": "2461603f825068e28d11dbc6bd1537a60a1e9e3401971df373a0ffd71626ab87",
+      "1905": "9b800b3f1ab41345902ac186cda512d748e7f0d2c1c2086b20608790a74acc3c",
+      "2006": "2b9de46096db7ded0eed0aae2a98e5d9d31d9241ea75d2d2d69083027733e1e4",
+      "2105": "36b3fd2572844f5da8017ec6558e7340f356ef0800633bb10b08b61f435b3ec9",
+      "2205": "6e87092dc56207937ff032783cd49e1b1fbb3e522f0ae1ccab5192431f7530c8",
+      "2305": "e1aa222c9a894d83379184785169252a53b70859e63b5d8fd1033c243e7f2c8d",
+      "2405": "023dcc9f7bd4e6cfee84f4707294be367e789b5430420c778d827d47e879aa49",
+      "2505": "359723874d5cdc2acaae98e0ebd3385f4a7d2f4dcc255e4dba90dba2a6036b8b",
+      "2605": "8f357b6ed7a060f395fd1930e34e9e4aee4fe508d67f10b4167073eded834184"
+    }
+  },
+  "schema_version": 1,
+  "status": "complete",
+  "total_bytes": 679407
+}

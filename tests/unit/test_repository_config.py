@@ -6,6 +6,7 @@ import subprocess
 import tomllib
 from pathlib import Path
 
+from kasm.patient_journey.release import validate_patient_journey_release_directory
 from kasm.reporting.artifacts import validate_release_bundle
 
 PROJECT_ROOT = Path(__file__).parents[2]
@@ -38,6 +39,7 @@ def test_no_disallowed_large_files_tracked() -> None:
     tracked_paths = [Path(value) for value in tracked if value]
 
     assert Path("artifacts/release/release_manifest.json") in tracked_paths
+    assert Path("artifacts/patient_journey_v2/release_manifest.json") in tracked_paths
     assert not any(path.parts[0] == "data" for path in tracked_paths)
     assert not any(
         path.suffix.casefold() in {".xls", ".xlsx", ".zip", ".pkl", ".joblib"}
@@ -49,12 +51,22 @@ def test_no_disallowed_large_files_tracked() -> None:
     release_roots = {
         path.parts[:2] for path in tracked_paths if path.parts and path.parts[0] == "artifacts"
     }
-    assert release_roots == {("artifacts", "release")}
+    assert release_roots == {("artifacts", "release"), ("artifacts", "patient_journey_v2")}
 
 
 def test_tracked_release_bundle_is_valid_and_under_five_megabytes() -> None:
     summary = validate_release_bundle(PROJECT_ROOT / "artifacts" / "release")
     assert summary.total_bytes < 5 * 1024 * 1024
+
+
+def test_tracked_v2_release_is_canonical_and_under_five_megabytes() -> None:
+    release_dir = PROJECT_ROOT / "artifacts" / "patient_journey_v2"
+    summary = validate_patient_journey_release_directory(release_dir)
+    manifest = json.loads(summary.manifest_path.read_text(encoding="utf-8"))
+
+    assert summary.total_bytes < 5 * 1024 * 1024
+    assert manifest["provenance"]["canonical_build"] is True
+    assert manifest["provenance"]["git_worktree_dirty"] is False
 
 
 def test_container_process_is_nonroot() -> None:
@@ -140,3 +152,4 @@ def test_static_analysis_includes_ai_assisted_change_guardrails() -> None:
 def test_release_artifact_bytes_are_checkout_stable() -> None:
     attributes = (PROJECT_ROOT / ".gitattributes").read_text(encoding="utf-8")
     assert "artifacts/release/** binary" in attributes
+    assert "artifacts/patient_journey_v2/** binary" in attributes

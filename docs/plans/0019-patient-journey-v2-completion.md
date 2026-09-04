@@ -1,7 +1,7 @@
 # Plan 0019 — Patient-journey v2 completion
 
 **Milestone:** M13 patient-journey v2 exploratory study and optional product
-**Status:** complete
+**Status:** implementation complete; canonical publication in progress
 **Started:** 2026-09-04
 
 ## Scope and acceptance evidence
@@ -85,6 +85,63 @@ results are viewed.
   copy against the tracked bundle.
 
 ## Completion evidence
+
+### Canonical publication follow-up (2026-09-04)
+
+- GitHub Actions run `33925931229` at `cdea5c4` failed only in the V2 offline
+  AppTest (`KeyError: program_selector`; 234 tests passed). The required V2 release
+  directory was untracked, so a clean checkout could not load the program selector.
+- Acceptance: reproduce the missing-bundle failure, rebuild all V2 generations from a
+  clean checkout of committed source `cdea5c4`, and publish the approved bundle with
+  that source SHA, `git_worktree_dirty: false`, and `canonical_build: true`.
+- Acceptance: the tracked-artifact guard must require both approved release roots,
+  validate the V2 bundle and canonical provenance, and continue rejecting unrelated
+  artifacts, raw files, and oversized files. Git must preserve V2 payload bytes across
+  checkouts so content hashes remain valid with Windows line-ending conversion enabled.
+- Expected evidence: failing existing AppTest without the local bundle; failing
+  publication/checkout regression assertions; passing focused and required full checks;
+  verified clean-checkout offline loading; successful remote quality/container jobs;
+  a committed and pushed release with an updated reproduction record.
+- The scientific specification already approves this separate bundle. This follow-up
+  changes packaging and publication checks only; no model, feature, metric, source hash,
+  or V1 behavior changes. Documentation and Git attributes are mechanical changes;
+  behavioral evidence comes from the bundle validation and offline app tests.
+- Test-first evidence: hiding the untracked development bundle reproduced the exact
+  `KeyError: program_selector`. The new repository assertions separately failed because
+  V2 was untracked, its canonical flag was false, and its binary Git attribute was absent.
+- The clean isolated `cdea5c40302de1797d83698566d2ebb51de16938` build verified all nine
+  cached sources and produced 966 panel rows, 5,678 safety rows, and 3,685 prediction rows.
+  Processed identity: `66602b3775675bceb8dd57061bcb8b98520b3f9029c0fca222127d3a5f844409`;
+  modeling identity: `6e6ebacbbb63f14382f2cb9e0521e03995594ff9d497bc009b3ab89e93f60775`;
+  release identity: `ce2844edbcec92c09d0053720d5331dd37ed43ab75de7aa4dd1de431c79a9eee`.
+  The four payloads total 679,407 bytes. All embedded generations and the release
+  manifest record the source commit, clean worktree, and canonical status.
+- Analytical invariance: all three rebuilt Parquet tables equal the development tables
+  after excluding metadata; `evaluation.json` is byte-identical. All source, experiment,
+  methodology, and dependency-lock hashes remain fixed.
+- Local gates: locked sync, lock check, dependency compatibility, Ruff format/check,
+  and strict mypy passed. The complete suite passed 236 tests with 83.93% core branch
+  coverage. The focused publication/AppTest subset passed 14 tests before staging;
+  the full suite includes the tracked-artifact guard after staging.
+- Checkout evidence: `git -c core.longpaths=true -c core.autocrlf=true checkout-index
+  --all --prefix=.git-bootstrap/v2checkout/` exported only staged files. Every V2
+  release byte matches the source bundle, trusted loading succeeds with no raw-data
+  directory, and the exported V2 AppTest passed.
+- V1 isolated command verification passed: data build (10,515 signals; 2,103 panel
+  rows), model backtest (2,763 baseline; 921 Ridge predictions), and release build
+  (12 files; 1,229,848 bytes; unchanged content identity
+  `1de89083ceebfda9afaf2d6b1c6ba3f1e6d0c1a1da16df9d09d994c4ec3581ad`).
+  No frozen replay was run. The protected V1 paths have no diff.
+- Docker build passed. A temporary container reported user `kasm`, runtime UID 10001,
+  healthy status, and HTTP 200 `ok`; it was removed after verification.
+- Both Streamlit entry points passed process smoke checks on temporary ports 8520/8521
+  with HTTP 200 `ok`; the temporary processes were stopped afterward.
+- Environment notes: the initial nested clone checkout hit Windows path length limits;
+  enabling `core.longpaths` in that isolated clone restored a clean checkout. An isolated
+  offline dependency sync lacked a cached SciPy wheel, so generation used the already
+  locked project environment and verified imports from the isolated source via
+  `PYTHONPATH`, without downloading or changing dependencies.
+- Commit/push and remote quality/container evidence remain pending.
 
 - Source-contract replay: initial safety parsing failed on the real 2105 tables because SFL uses
   `MM/DD/YYYY` dates and its safety roster includes a program absent from the same-release Tiers
