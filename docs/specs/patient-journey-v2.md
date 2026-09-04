@@ -120,6 +120,14 @@ The initial candidate feature-to-target release pairs to verify are `1905→2205
 `2105→2405`, `2205→2505`, and `2305→2605`. The `1808→2105` pair remains excluded unless the ledger
 proves that the feature release preceded the target listing-cohort start.
 
+The release-level methodology audit found a target-cadence discontinuity that must remain explicit:
+`2505` covers candidates listed from 2022-07-01 through 2023-06-30, while `2605` covers calendar year
+2023. Those target cohorts overlap from 2023-01-01 through 2023-06-30. The parser may retain both
+published cohorts, but a modeling workflow may not treat them as independent consecutive temporal
+folds. Before panel construction or modeling, a separate plan and decision must either restrict the
+evaluation era or define a scientifically justified non-overlapping design. The `2305→2605` pair is
+therefore a source-valid candidate, not an approved additional evaluation fold.
+
 ## 6. Canonical panel and eligibility
 
 The separate v2 model panel includes at least:
