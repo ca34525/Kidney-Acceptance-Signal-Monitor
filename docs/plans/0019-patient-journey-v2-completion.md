@@ -120,9 +120,10 @@ results are viewed.
   coverage.
 - V2 process smoke: `streamlit run app/patient_journey_v2.py --server.headless true
   --server.port 8513` started successfully and `/_stcore/health` returned HTTP 200 with `ok`.
-- Container caveat: a local `docker build` was attempted but could not run because the Docker CLI
-  is not installed on this host. V2 does not alter the V1 Dockerfile or default V1 app; the existing
-  non-root/container contract tests passed in the full suite.
+- Container verification: `docker build -t kidney-acceptance-signal-monitor .` succeeded with
+  Docker client/server 29.7.2. A temporary container started successfully, reported configured user
+  `kasm`, reached Docker health status `healthy`, and returned HTTP 200 with `ok` from
+  `/_stcore/health`; it was then stopped and removed.
 - Offline command smoke: nine sources verified; isolated V1 data build produced 10,515 signal and
   2,103 panel rows; isolated V1 backtest produced 2,763 baseline and 921 Ridge predictions; a
   short-path isolated V1 release reproduced its 12-file, 1,229,848-byte bundle with content identity
