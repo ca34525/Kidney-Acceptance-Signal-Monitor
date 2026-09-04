@@ -8,7 +8,12 @@ import pytest
 
 from kasm.config import SourceRecord
 from kasm.data.parse import WorkbookSheet
-from kasm.patient_journey.ledger import MetricMethodology, ReleaseMethodology, SheetContract
+from kasm.patient_journey.ledger import (
+    MetricMethodology,
+    ReleaseMethodology,
+    SafetyMethodology,
+    SheetContract,
+)
 from kasm.patient_journey.parse import PatientJourneyParseError, parse_patient_journey_workbook
 
 
@@ -255,3 +260,111 @@ def test_access_dates_accept_excel_serials_and_normalize_to_ledger() -> None:
 
     assert parsed.transplant_rates[0].measurement_start == date(2023, 1, 1)
     assert parsed.transplant_rates[0].measurement_end == date(2024, 12, 31)
+
+
+def _waiting_list_safety() -> SafetyMethodology:
+    fields = (
+        "center",
+        "RELEASE_DATE",
+        "wl_org",
+        "begdate",
+        "enddate",
+        "TMR_DthPy_c",
+        "TMR_DthN_c",
+        "TMR_DthR_c",
+        "TMR_DthER_c",
+        "WLM_RR",
+        "WLM_RR_CREDLO",
+        "WLM_RR_CREDHI",
+    )
+    return SafetyMethodology(
+        family="waiting_list_mortality",
+        sheet=SheetContract(
+            name="Safety WLM",
+            expected_rows=1,
+            expected_columns=len(fields),
+            required_fields=fields,
+        ),
+        measurement_start=date(2023, 1, 1),
+        measurement_end=date(2024, 12, 31),
+        included_segments=((date(2023, 1, 1), date(2024, 12, 31)),),
+        follow_up_end=date(2024, 12, 31),
+        timing_source_url="https://example.test/wlm",
+        population="kidney_candidates_after_listing",
+        event="death_before_transplant_or_removal_for_other_reasons",
+        denominator="candidate_person_years",
+        direction="lower_ratio_is_better",
+        interval_kind="bayesian_credible_interval",
+        interval_level=0.95,
+        definition_notes=("Published waiting-list mortality ratio.",),
+    )
+
+
+def _safety_sheet(
+    *,
+    center: str = "ABCDTX1",
+    ratio: object = "0.84",
+    lower: object = "0.62",
+    upper: object = "1.11",
+) -> WorkbookSheet:
+    metric = _waiting_list_safety()
+    release_date = datetime(2025, 7, 8, 19)
+    return _sheet(
+        metric.sheet.name,
+        metric.sheet.required_fields,
+        (
+            center,
+            release_date,
+            "KI",
+            "01/01/2023",
+            "12/31/2024",
+            287.5,
+            7,
+            2.43,
+            2.89,
+            ratio,
+            lower,
+            upper,
+        ),
+    )
+
+
+def test_parser_keeps_published_safety_ratio_interval_and_denominator_distinct() -> None:
+    methodology = replace(_methodology(), safety_metrics=(_waiting_list_safety(),))
+
+    parsed = parse_patient_journey_workbook(_source(), methodology, (*_sheets(), _safety_sheet()))
+
+    safety = parsed.safety_measures[0]
+    assert safety.program_key == "ABCD:TX1"
+    assert safety.family == "waiting_list_mortality"
+    assert safety.denominator_name == "candidate_person_years"
+    assert safety.denominator_value == 287.5
+    assert safety.observed_events == 7
+    assert safety.ratio == 0.84
+    assert safety.lower == 0.62
+    assert safety.upper == 1.11
+    assert safety.direction == "lower_ratio_is_better"
+    assert safety.included_segments == ((date(2023, 1, 1), date(2024, 12, 31)),)
+
+
+def test_parser_rejects_partially_reported_safety_interval() -> None:
+    methodology = replace(_methodology(), safety_metrics=(_waiting_list_safety(),))
+
+    with pytest.raises(PatientJourneyParseError, match="jointly reported"):
+        parse_patient_journey_workbook(
+            _source(),
+            methodology,
+            (*_sheets(), _safety_sheet(lower=None)),
+        )
+
+
+def test_safety_roster_can_include_program_absent_from_same_release_directory() -> None:
+    methodology = replace(_methodology(), safety_metrics=(_waiting_list_safety(),))
+
+    parsed = parse_patient_journey_workbook(
+        _source(),
+        methodology,
+        (*_sheets(), _safety_sheet(center="WXYZTX1")),
+    )
+
+    assert parsed.safety_measures[0].program_key == "WXYZ:TX1"

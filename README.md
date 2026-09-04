@@ -124,18 +124,28 @@ publishes the directory atomically. The checked-in bundle content identity is
 ### Optional patient-journey v2 research build
 
 The separate v2 study is governed by `docs/specs/patient-journey-v2.md` and does not change the v1
-application or frozen evaluation. From the same verified source cache, build its canonical processed
-panel offline with:
+application or frozen evaluation. From the same verified source cache, reproduce the complete V2
+evidence and offline bundle with:
 
 ```powershell
 uv run kasm patient-journey data build
+uv run kasm patient-journey model evaluate
+uv run kasm patient-journey artifacts build
+uv run streamlit run app/patient_journey_v2.py
 ```
 
-The command writes only to the v2-owned processed root declared in
-`configs/patient_journey_v2/experiment.yaml`. It atomically publishes the Parquet panel, QA report,
-and build manifest; validates their exact schemas and hashes; and records source, configuration,
-methodology, dependency-lock, cohort-timing, and Git provenance. A dirty-worktree build is explicitly
-marked noncanonical. This phase fits no model and publishes no v2 product bundle.
+The commands write only to V2-owned roots declared in
+`configs/patient_journey_v2/experiment.yaml`. They atomically publish and validate the processed
+panel and safety table, the prespecified retrospective evaluation, and the self-contained
+bundle under `artifacts/patient_journey_v2/`. A dirty-worktree build is explicitly marked
+noncanonical.
+
+The V2 app is a separate research entry point. It does not replace `app/streamlit_app.py`, generate
+a future forecast, rank programs, or promote a model. Ridge evidence is limited to one
+strict-publication-vintage fold and remains permanently nonpromotional. See
+`docs/patient_journey_v2_data_card.md`, `docs/patient_journey_v2_model_card.md`, and
+`docs/patient_journey_v2_reproduction_log.md` for the exact data contract, results, and build
+identities.
 
 ## Verification
 

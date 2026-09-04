@@ -170,9 +170,11 @@ def test_patient_journey_build_command_uses_configured_v2_root_and_reports_count
         return PatientJourneyArtifactResult(
             output_directory=output_dir,
             panel_path=output_dir / "patient_journey_panel.parquet",
+            safety_path=output_dir / "safety_measures.parquet",
             qa_report_path=output_dir / "qa_report.json",
             manifest_path=output_dir / "build_manifest.json",
             panel_rows=966,
+            safety_rows=1234,
             artifact_set_sha256="b" * 64,
         )
 

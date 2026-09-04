@@ -30,6 +30,146 @@ eligibility:
   primary_min_target_n: 10
   sensitivity_min_target_n: [20, 30]
 
+model_design:
+  baselines: [persistence, available_cohort_reference, historical_mean]
+  preprocessing:
+    imputation: median
+    keep_empty_features: true
+    scaling: standard
+    fit_scope: training_fold_only
+  ridge:
+    target_scale: empirical_logit
+    alpha: 1.0
+    solver: lsqr
+    tolerance: 1.0e-8
+    max_iterations: 10000
+    inverse_link: logistic
+    promotion_allowed: false
+    evaluation_pair: ["2205", "2505"]
+    training_pairs:
+      - ["1905", "2205"]
+  feature_groups:
+    - name: history
+      features:
+        - prior_target_logit
+        - historical_mean_target_proportion
+        - log1p_prior_target_n
+        - historical_target_count
+    - name: history_acceptance
+      features:
+        - prior_target_logit
+        - historical_mean_target_proportion
+        - log1p_prior_target_n
+        - historical_target_count
+        - log1p_acceptance_overall_expected_acceptances
+        - log_acceptance_overall_oar
+        - acceptance_interval_log_width
+        - log_acceptance_low_oar
+        - log_acceptance_medium_oar
+        - log_acceptance_high_oar
+        - log_acceptance_hard_to_place_oar
+        - missing_acceptance_expected_acceptances
+        - missing_acceptance_overall_oar
+        - missing_acceptance_interval
+        - missing_acceptance_low_oar
+        - missing_acceptance_medium_oar
+        - missing_acceptance_high_oar
+        - missing_acceptance_hard_to_place_oar
+    - name: history_access
+      features:
+        - prior_target_logit
+        - historical_mean_target_proportion
+        - log1p_prior_target_n
+        - historical_target_count
+        - log_transplant_rate_ratio
+        - log1p_transplant_rate_person_years
+        - log1p_wait_time_months_25th_percentile
+        - missing_transplant_rate_ratio
+        - missing_transplant_rate_person_years
+        - missing_wait_time
+    - name: history_access_acceptance
+      features:
+        - prior_target_logit
+        - historical_mean_target_proportion
+        - log1p_prior_target_n
+        - historical_target_count
+        - log_transplant_rate_ratio
+        - log1p_transplant_rate_person_years
+        - log1p_wait_time_months_25th_percentile
+        - missing_transplant_rate_ratio
+        - missing_transplant_rate_person_years
+        - missing_wait_time
+        - log1p_acceptance_overall_expected_acceptances
+        - log_acceptance_overall_oar
+        - acceptance_interval_log_width
+        - log_acceptance_low_oar
+        - log_acceptance_medium_oar
+        - log_acceptance_high_oar
+        - log_acceptance_hard_to_place_oar
+        - missing_acceptance_expected_acceptances
+        - missing_acceptance_overall_oar
+        - missing_acceptance_interval
+        - missing_acceptance_low_oar
+        - missing_acceptance_medium_oar
+        - missing_acceptance_high_oar
+        - missing_acceptance_hard_to_place_oar
+    - name: history_access_acceptance_safety
+      features:
+        - prior_target_logit
+        - historical_mean_target_proportion
+        - log1p_prior_target_n
+        - historical_target_count
+        - log_transplant_rate_ratio
+        - log1p_transplant_rate_person_years
+        - log1p_wait_time_months_25th_percentile
+        - missing_transplant_rate_ratio
+        - missing_transplant_rate_person_years
+        - missing_wait_time
+        - log1p_acceptance_overall_expected_acceptances
+        - log_acceptance_overall_oar
+        - acceptance_interval_log_width
+        - log_acceptance_low_oar
+        - log_acceptance_medium_oar
+        - log_acceptance_high_oar
+        - log_acceptance_hard_to_place_oar
+        - missing_acceptance_expected_acceptances
+        - missing_acceptance_overall_oar
+        - missing_acceptance_interval
+        - missing_acceptance_low_oar
+        - missing_acceptance_medium_oar
+        - missing_acceptance_high_oar
+        - missing_acceptance_hard_to_place_oar
+        - log_waiting_list_mortality_ratio
+        - waiting_list_mortality_interval_log_width
+        - missing_waiting_list_mortality_ratio
+        - missing_waiting_list_mortality_interval
+  metrics:
+    error_scale: percentage_points
+    signed_error: prediction_minus_observed
+    primary_aggregation: unweighted_mean_target_release_mae
+    calibration_equation: observed_percentage_points=intercept+slope*predicted_percentage_points
+    combined_release_weighting: equal_total_weight_per_target_release
+    secondary:
+      - candidate_volume_weighted_mae
+      - median_absolute_error
+  volume_strata:
+    method: within_release_sorted_quartiles
+    tie_breaker: program_key
+    labels: [q1_lowest, q2, q3, q4_highest]
+  bootstrap:
+    resamples: 2000
+    seed: 20260904
+    cluster: program_key
+    percentiles: [2.5, 97.5]
+    quantile_method: linear
+    contrast: challenger_minus_comparator_balanced_mae
+  contrasts:
+    - [history_access, history]
+    - [history_acceptance, history]
+    - [history_access_acceptance, history_access]
+    - [history_access_acceptance, history_acceptance]
+    - [history_access_acceptance_safety, history_access_acceptance]
+
 paths:
   processed_dir: data/patient_journey_v2/processed
   modeling_dir: data/patient_journey_v2/modeling

@@ -107,6 +107,48 @@ def test_project_config_fixes_nonoverlapping_primary_pairs_and_exclusions() -> N
     assert config.eligibility.sensitivity_min_target_n == (20, 30)
 
 
+def test_v2_model_config_freezes_baselines_features_metrics_bootstrap_and_nonpromotion() -> None:
+    config = load_patient_journey_config(
+        PROJECT_ROOT / "configs" / "patient_journey_v2" / "experiment.yaml",
+        repository_root=PROJECT_ROOT,
+    )
+
+    design = config.model_design
+    assert design.baselines == (
+        "persistence",
+        "available_cohort_reference",
+        "historical_mean",
+    )
+    assert design.ridge.alpha == 1.0
+    assert design.ridge.solver == "lsqr"
+    assert design.ridge.tolerance == 1e-8
+    assert design.ridge.max_iterations == 10_000
+    assert design.ridge.promotion_allowed is False
+    assert design.ridge.evaluation_pair == ("2205", "2505")
+    assert design.ridge.training_pairs == (("1905", "2205"),)
+    assert tuple(group.name for group in design.feature_groups) == (
+        "history",
+        "history_acceptance",
+        "history_access",
+        "history_access_acceptance",
+        "history_access_acceptance_safety",
+    )
+    assert design.metrics.error_scale == "percentage_points"
+    assert design.metrics.signed_error == "prediction_minus_observed"
+    assert design.metrics.primary_aggregation == "unweighted_mean_target_release_mae"
+    assert design.metrics.calibration_equation == (
+        "observed_percentage_points=intercept+slope*predicted_percentage_points"
+    )
+    assert design.volume_strata.method == "within_release_sorted_quartiles"
+    assert design.volume_strata.tie_breaker == "program_key"
+    assert design.bootstrap.resamples == 2_000
+    assert design.bootstrap.seed == 20_260_904
+    assert design.bootstrap.cluster == "program_key"
+    assert design.bootstrap.percentiles == (2.5, 97.5)
+    assert design.bootstrap.quantile_method == "linear"
+    assert design.bootstrap.contrast == "challenger_minus_comparator_balanced_mae"
+
+
 @pytest.mark.parametrize(
     "release_dir",
     [

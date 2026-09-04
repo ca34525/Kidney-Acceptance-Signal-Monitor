@@ -169,8 +169,9 @@ Required baselines are:
 
 1. persistence using the latest published 18-month functioning-transplant percentage available at
    the prediction origin;
-2. a national/cohort value available before the target cohort, never the future target-release
-   national value; and
+2. the candidate-volume-weighted aggregate of reconstructed outcomes in the feature release,
+   available at the prediction origin and labeled the **available-cohort reference**, never a
+   published national statistic or the future target-release value; and
 3. the program's historical mean using only outcomes public by the prediction origin.
 
 The only P0 challenger family is Ridge with fold-local median imputation, explicit missingness
@@ -190,6 +191,53 @@ The latest target releases and feature combinations were inspected during feasib
 Therefore every current v2 result is retrospective and exploratory, never an independent holdout,
 prospective validation, or confirmatory result. Future prospective evaluation requires a locked
 configuration before a new same-cadence release becomes available.
+
+### Current retrospective evaluation freeze
+
+The current study fixes the following analytical contract before target-comparison results are
+computed:
+
+- Baselines are evaluated on every primary pair's `primary_analytic_eligible` rows. Ridge is
+  evaluated only for `2205→2505`, using only `1905→2205` eligible rows for fitting. A Ridge runner
+  must fail for an evaluation pair without a strict-vintage training pair.
+- All Ridge feature groups use identical training and evaluation populations. Missing predictors
+  are retained and handled inside the training-fold pipeline; complete-case filtering is
+  prohibited.
+- The history group contains prior empirical logit, the historical-mean proportion on its native
+  bounded scale, `log1p` prior target N, and historical target count.
+- The access group contains log transplant-rate ratio, `log1p` transplant-rate person-years,
+  `log1p` 25th-percentile wait time, and their source missingness indicators.
+- The acceptance group contains `log1p` expected acceptances; log overall, low-, medium-, high-,
+  and hard-to-place OAR; log credible-interval width; and their source missingness indicators.
+- The safety group contains only lagged safety fields whose source ledger proves availability at
+  both the training and evaluation prediction origins and whose measurement/follow-up period ends
+  before the associated target listing cohort. With the current sources, the model-eligible safety
+  family is limited to the published waiting-list mortality ratio and its log interval width;
+  later safety families remain separate descriptive context.
+- Every logarithmic transform requires a finite positive input except `log1p`, which requires a
+  finite nonnegative input. A reported zero or nonpositive ratio is a hard source/model-input error;
+  suppression remains null and receives an explicit indicator.
+- The only challenger is Ridge on the empirical-logit target with median imputation and empty-
+  feature retention, standardization, and `alpha=1.0`, `solver=lsqr`, `tol=1e-8`, and
+  `max_iter=10000`. Predictions are inverse-logit transformed and therefore bounded to `[0, 1]`.
+- Errors are in published percentage points with signed error defined as `prediction - observed`.
+  The primary summary is the unweighted mean of target-release MAEs. Named-scale calibration fits
+  `observed percentage points = intercept + slope × predicted percentage points`; combined-release
+  fits give every release equal total weight, and a zero-variance prediction reports calibration as
+  unavailable with a reason.
+- Secondary summaries include candidate-volume-weighted MAE, median absolute error, results by
+  target release, deterministic within-release target-N quartiles, N≥20 and N≥30 sensitivities,
+  first-observed/established status, and prespecified missingness strata. Quartiles are assigned by
+  sorting on target N and then program key and dividing rows into four groups whose sizes differ by
+  at most one.
+- Paired uncertainty uses 2,000 program-clustered bootstrap resamples with seed `20260904` and the
+  linear 2.5th/97.5th percentiles. Every sampled program contributes all of its repeated rows and
+  the estimand is challenger minus comparator target-release-balanced MAE. Input row order may not
+  change the result.
+- Fixed incremental contrasts are history+access versus history, history+acceptance versus history,
+  full versus history+access, full versus history+acceptance, and full+safety versus full.
+- `promotion_allowed` is false. No current Ridge result may activate a program-level forecast or
+  replace the V1 product.
 
 ## 8. Risk adjustment and safety outcomes
 

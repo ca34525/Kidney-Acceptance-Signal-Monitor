@@ -16,6 +16,10 @@ from kasm.patient_journey.ledger import (
     MethodologyLedger,
     MetricMethodology,
     ReleaseMethodology,
+    SafetyDirection,
+    SafetyFamily,
+    SafetyIntervalKind,
+    SafetyMethodology,
     SheetContract,
 )
 
@@ -109,6 +113,38 @@ class WaitTime:
 
 
 @dataclass(frozen=True)
+class PublishedSafetyMeasure:
+    """One published safety measure with its own population, timing, and denominator."""
+
+    program_key: str
+    release_code: str
+    published_value: str
+    published_precision: PublishedPrecision
+    family: SafetyFamily
+    measurement_start: date
+    measurement_end: date
+    included_segments: tuple[tuple[date, date], ...]
+    follow_up_end: date
+    population: str
+    event: str
+    denominator_name: str
+    denominator_value: float | None
+    population_count: int | None
+    observed_events: int | None
+    expected_events: float | None
+    observed_rate: float | None
+    expected_rate: float | None
+    ratio: float | None
+    lower: float | None
+    upper: float | None
+    direction: SafetyDirection
+    interval_kind: SafetyIntervalKind
+    interval_level: float
+    source_url: str
+    source_sha256: str
+
+
+@dataclass(frozen=True)
 class ParsedPatientJourneyRelease:
     """Validated v2 source metrics for one immutable workbook release."""
 
@@ -117,6 +153,7 @@ class ParsedPatientJourneyRelease:
     outcomes: tuple[PatientJourneyOutcome, ...]
     transplant_rates: tuple[TransplantRate, ...]
     wait_times: tuple[WaitTime, ...]
+    safety_measures: tuple[PublishedSafetyMeasure, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -128,6 +165,7 @@ class PatientJourneyInventoryEntry:
     outcome_rows: int
     transplant_rate_rows: int
     wait_time_rows: int
+    safety_rows: int = 0
 
 
 def _context(source: SourceRecord, sheet_name: str, row_number: int | None = None) -> str:
@@ -280,10 +318,14 @@ def _date_value(value: object, *, field: str, context: str) -> date:
     if isinstance(value, int | float):
         return _excel_date(value)
     if isinstance(value, str):
+        stripped = value.strip()
         try:
-            return datetime.fromisoformat(value.strip()).date()
-        except ValueError as error:
-            raise PatientJourneyParseError(f"{context}: {field} must be a date.") from error
+            return datetime.fromisoformat(stripped).date()
+        except ValueError:
+            try:
+                return datetime.strptime(stripped, "%m/%d/%Y").date()
+            except ValueError as exc:
+                raise PatientJourneyParseError(f"{context}: {field} must be a date.") from exc
     raise PatientJourneyParseError(f"{context}: {field} must be a date.")
 
 
@@ -628,6 +670,204 @@ def _parse_wait_times(
     return tuple(wait_times)
 
 
+def _safety_key(
+    row: tuple[object, ...],
+    positions: Mapping[str, int],
+    *,
+    family: SafetyFamily,
+    context: str,
+) -> str:
+    if family == "waiting_list_mortality":
+        if _text(_row_value(row, positions, "wl_org"), field="wl_org", context=context) != "KI":
+            raise PatientJourneyParseError(f"{context}: wl_org must be 'KI'.")
+        return _combined_key(_row_value(row, positions, "center"), context=context)
+    _, _, key = _program_key(
+        _row_value(row, positions, "CTR_CD"),
+        _row_value(row, positions, "CTR_TY"),
+        context=context,
+    )
+    return key
+
+
+def _safety_ratio_interval(
+    row: tuple[object, ...],
+    positions: Mapping[str, int],
+    *,
+    fields: tuple[str, str, str],
+    context: str,
+) -> tuple[float | None, float | None, float | None]:
+    values = tuple(
+        _nonnegative_number(_row_value(row, positions, field), field=field, context=context)
+        for field in fields
+    )
+    if all(value is None for value in values):
+        return None, None, None
+    if any(value is None for value in values):
+        raise PatientJourneyParseError(
+            f"{context}: safety ratio and credible-interval bounds must be jointly reported."
+        )
+    ratio, lower, upper = cast(tuple[float, float, float], values)
+    if ratio <= 0 or lower <= 0 or upper <= 0:
+        raise PatientJourneyParseError(
+            f"{context}: safety ratio and credible-interval bounds must be positive."
+        )
+    if lower > ratio or ratio > upper:
+        raise PatientJourneyParseError(
+            f"{context}: safety credible interval must contain the published ratio."
+        )
+    return ratio, lower, upper
+
+
+def _parse_safety_metric(
+    source: SourceRecord,
+    metric: SafetyMethodology,
+    sheets: tuple[WorkbookSheet, ...],
+) -> tuple[PublishedSafetyMeasure, ...]:
+    positions, rows = _validated_sheet_rows(source, metric.sheet, sheets)
+    measures: list[PublishedSafetyMeasure] = []
+    seen: set[str] = set()
+    for row_index, row in enumerate(rows, start=1):
+        context = _context(source, metric.sheet.name, row_index)
+        key = _safety_key(row, positions, family=metric.family, context=context)
+        if key in seen:
+            raise PatientJourneyParseError(
+                f"{context}: duplicate {metric.family!r} safety row {key!r}."
+            )
+        seen.add(key)
+        if "RELEASE_DATE" in positions:
+            _validate_publication_date(
+                _row_value(row, positions, "RELEASE_DATE"),
+                source=source,
+                field="RELEASE_DATE",
+                context=context,
+            )
+        if "begdate" in positions:
+            _normalized_metric_date(
+                _row_value(row, positions, "begdate"),
+                metric.measurement_start,
+                field="begdate",
+                context=context,
+            )
+            _normalized_metric_date(
+                _row_value(row, positions, "enddate"),
+                metric.measurement_end,
+                field="enddate",
+                context=context,
+            )
+
+        if metric.family == "waiting_list_mortality":
+            denominator_field = "TMR_DthPy_c"
+            population_count_field = None
+            observed_field = "TMR_DthN_c"
+            expected_events_field = None
+            observed_rate_field = "TMR_DthR_c"
+            expected_rate_field = "TMR_DthER_c"
+            ratio_fields = ("WLM_RR", "WLM_RR_CREDLO", "WLM_RR_CREDHI")
+        elif metric.family == "mortality_after_listing":
+            denominator_field = "sfl_all_py_c"
+            population_count_field = "sfl_all_n_c"
+            observed_field = "sfl_all_obs_c"
+            expected_events_field = "sfl_all_exp_c"
+            observed_rate_field = "sfl_all_obs_rate_c"
+            expected_rate_field = "sfl_all_exp_rate_c"
+            ratio_fields = ("sfl_all_hr_c", "sfl_all_hr_lb_c", "sfl_all_hr_ub_c")
+        elif metric.family == "graft_failure_90_day":
+            denominator_field = "GSR_AD_N_C90D"
+            population_count_field = None
+            observed_field = "GSR_AD_OBS_C90D"
+            expected_events_field = "GSR_AD_EXP_C90D"
+            observed_rate_field = None
+            expected_rate_field = None
+            ratio_fields = ("GSR_AD_HR_C90D", "GSR_AD_CREDLO_C90D", "GSR_AD_CREDHI_C90D")
+        else:
+            denominator_field = "GSR_AD_N_C1YC"
+            population_count_field = None
+            observed_field = "GSR_AD_OBS_C1YC"
+            expected_events_field = "GSR_AD_EXP_C1YC"
+            observed_rate_field = None
+            expected_rate_field = None
+            ratio_fields = ("GSR_AD_HR_C1YC", "GSR_AD_CREDLO_C1YC", "GSR_AD_CREDHI_C1YC")
+
+        ratio, lower, upper = _safety_ratio_interval(
+            row,
+            positions,
+            fields=ratio_fields,
+            context=context,
+        )
+        measures.append(
+            PublishedSafetyMeasure(
+                program_key=key,
+                release_code=source.release_code,
+                published_value=source.published_value,
+                published_precision=source.published_precision,
+                family=metric.family,
+                measurement_start=metric.measurement_start,
+                measurement_end=metric.measurement_end,
+                included_segments=metric.included_segments,
+                follow_up_end=metric.follow_up_end,
+                population=metric.population,
+                event=metric.event,
+                denominator_name=metric.denominator,
+                denominator_value=_nonnegative_number(
+                    _row_value(row, positions, denominator_field),
+                    field=denominator_field,
+                    context=context,
+                ),
+                population_count=(
+                    _count(
+                        _row_value(row, positions, population_count_field),
+                        field=population_count_field,
+                        context=context,
+                    )
+                    if population_count_field is not None
+                    else None
+                ),
+                observed_events=_count(
+                    _row_value(row, positions, observed_field),
+                    field=observed_field,
+                    context=context,
+                ),
+                expected_events=(
+                    _nonnegative_number(
+                        _row_value(row, positions, expected_events_field),
+                        field=expected_events_field,
+                        context=context,
+                    )
+                    if expected_events_field is not None
+                    else None
+                ),
+                observed_rate=(
+                    _nonnegative_number(
+                        _row_value(row, positions, observed_rate_field),
+                        field=observed_rate_field,
+                        context=context,
+                    )
+                    if observed_rate_field is not None
+                    else None
+                ),
+                expected_rate=(
+                    _nonnegative_number(
+                        _row_value(row, positions, expected_rate_field),
+                        field=expected_rate_field,
+                        context=context,
+                    )
+                    if expected_rate_field is not None
+                    else None
+                ),
+                ratio=ratio,
+                lower=lower,
+                upper=upper,
+                direction=metric.direction,
+                interval_kind=metric.interval_kind,
+                interval_level=metric.interval_level,
+                source_url=source.url,
+                source_sha256=source.download_sha256,
+            )
+        )
+    measures.sort(key=lambda measure: measure.program_key)
+    return tuple(measures)
+
+
 def parse_patient_journey_workbook(
     source: SourceRecord,
     methodology: ReleaseMethodology,
@@ -651,6 +891,11 @@ def parse_patient_journey_workbook(
             source, methodology.metric("transplant_rate"), sheets, registry
         ),
         wait_times=_parse_wait_times(source, methodology.metric("wait_time"), sheets, registry),
+        safety_measures=tuple(
+            measure
+            for metric in methodology.safety_metrics
+            for measure in _parse_safety_metric(source, metric, sheets)
+        ),
     )
 
 
@@ -682,6 +927,7 @@ def inspect_patient_journey_cache(
                 outcome_rows=len(parsed.outcomes),
                 transplant_rate_rows=len(parsed.transplant_rates),
                 wait_time_rows=len(parsed.wait_times),
+                safety_rows=len(parsed.safety_measures),
             )
         )
     return tuple(entries)

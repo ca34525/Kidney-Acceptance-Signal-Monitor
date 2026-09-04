@@ -36,6 +36,7 @@ from kasm.patient_journey.ledger import (
     MethodologyLedgerError,
     MetricMethodology,
     ReleaseMethodology,
+    SafetyMethodology,
     SheetContract,
     load_methodology_ledger,
 )
@@ -52,6 +53,7 @@ from kasm.patient_journey.parse import (
     ParsedPatientJourneyRelease,
     PatientJourneyOutcome,
     ProgramIdentity,
+    PublishedSafetyMeasure,
     TransplantRate,
     WaitTime,
 )
@@ -115,6 +117,47 @@ def _release_method(
     outcome_follow_up: date,
 ) -> ReleaseMethodology:
     feature_end = date(source.cohort_year, 12, 31)
+    safety_families = {
+        "1905": ("waiting_list_mortality",),
+        "2205": (
+            "waiting_list_mortality",
+            "mortality_after_listing",
+            "graft_failure_90_day",
+            "graft_failure_1_year_conditional",
+        ),
+    }.get(source.release_code, ())
+    safety_metrics = tuple(
+        SafetyMethodology(
+            family=family,  # type: ignore[arg-type]
+            sheet=SheetContract(
+                name=family,
+                expected_rows=5,
+                expected_columns=12,
+                required_fields=("field",),
+            ),
+            measurement_start=date(source.cohort_year - 1, 1, 1),
+            measurement_end=feature_end,
+            included_segments=((date(source.cohort_year - 1, 1, 1), feature_end),),
+            follow_up_end=feature_end,
+            timing_source_url="https://example.test/safety-timing",
+            population="fixture_kidney_population",
+            event="fixture_event",
+            denominator=(
+                "adult_recipients_with_functioning_graft_at_day_90"
+                if family == "graft_failure_1_year_conditional"
+                else "candidate_person_years"
+                if family == "waiting_list_mortality"
+                else "listed_candidate_person_years"
+                if family == "mortality_after_listing"
+                else "adult_kidney_transplants"
+            ),
+            direction="lower_ratio_is_better",
+            interval_kind="bayesian_credible_interval",
+            interval_level=0.95,
+            definition_notes=("Fixture safety definition.",),
+        )
+        for family in safety_families
+    )
     return ReleaseMethodology(
         release_code=source.release_code,
         published_value=source.published_value,
@@ -147,6 +190,7 @@ def _release_method(
                 follow_up_end=feature_end,
             ),
         ),
+        safety_metrics=safety_metrics,
     )
 
 
@@ -317,6 +361,10 @@ def _fixture() -> tuple[
             primary_min_target_n=10,
             sensitivity_min_target_n=(20, 30),
         ),
+        model_design=load_patient_journey_config(
+            PROJECT_ROOT / "configs" / "patient_journey_v2" / "experiment.yaml",
+            repository_root=PROJECT_ROOT,
+        ).model_design,
     )
     keys = ("ABCD:TX1", "BCD1:TX1", "BCD2:TX1", "BCD3:TX1", "EFGH:TX1")
     earlier_release = _patient_release(
@@ -493,6 +541,8 @@ def test_primary_and_sensitivity_threshold_boundaries_are_fixed() -> None:
 def test_history_uses_only_outcomes_public_by_prediction_origin() -> None:
     row = next(row for row in _build_fixture().rows if row.program_key == "ABCD:TX1")
 
+    assert row.center_name == "Program ABCD"
+    assert row.state == "MA"
     assert row.prediction_origin_value == "2019-07"
     assert row.prediction_origin_precision == "month"
     assert row.prediction_origin_month_offset_from_target_start == 0
@@ -509,6 +559,89 @@ def test_suppressed_wait_time_stays_null_with_missing_indicator() -> None:
     assert row.wait_time_months_25th_percentile is None
     assert row.wait_time_raw_value == ">72"
     assert row.missing_wait_time is True
+
+
+def test_waiting_list_safety_uses_feature_release_only_with_missing_flags() -> None:
+    config, ledger, sources, patient_releases, acceptance = _fixture()
+    feature_source = sources[1]
+    safety_method = SafetyMethodology(
+        family="waiting_list_mortality",
+        sheet=SheetContract(
+            name="waiting_list_mortality",
+            expected_rows=1,
+            expected_columns=12,
+            required_fields=("field",),
+        ),
+        measurement_start=date(2017, 1, 1),
+        measurement_end=date(2018, 12, 31),
+        included_segments=((date(2017, 1, 1), date(2018, 12, 31)),),
+        follow_up_end=date(2018, 12, 31),
+        timing_source_url="https://example.test/wlm",
+        population="kidney_candidates_after_listing",
+        event="death_before_transplant_or_removal_for_other_reasons",
+        denominator="candidate_person_years",
+        direction="lower_ratio_is_better",
+        interval_kind="bayesian_credible_interval",
+        interval_level=0.95,
+        definition_notes=("Fixture waiting-list mortality.",),
+    )
+    changed_methods = (
+        ledger.releases[0],
+        replace(ledger.releases[1], safety_metrics=(safety_method,)),
+        ledger.releases[2],
+    )
+    safety = PublishedSafetyMeasure(
+        program_key="ABCD:TX1",
+        release_code="1905",
+        published_value=feature_source.published_value,
+        published_precision=feature_source.published_precision,
+        family="waiting_list_mortality",
+        measurement_start=safety_method.measurement_start,
+        measurement_end=safety_method.measurement_end,
+        included_segments=safety_method.included_segments,
+        follow_up_end=safety_method.follow_up_end,
+        population=safety_method.population,
+        event=safety_method.event,
+        denominator_name=safety_method.denominator,
+        denominator_value=125.5,
+        population_count=None,
+        observed_events=4,
+        expected_events=None,
+        observed_rate=3.2,
+        expected_rate=4.0,
+        ratio=0.8,
+        lower=0.6,
+        upper=1.05,
+        direction=safety_method.direction,
+        interval_kind=safety_method.interval_kind,
+        interval_level=safety_method.interval_level,
+        source_url=feature_source.url,
+        source_sha256=feature_source.download_sha256,
+    )
+    changed_releases = (
+        patient_releases[0],
+        replace(patient_releases[1], safety_measures=(safety,)),
+        patient_releases[2],
+    )
+
+    panel = build_patient_journey_panel(
+        patient_releases=changed_releases,
+        acceptance_releases=acceptance,
+        config=config,
+        ledger=replace(ledger, releases=changed_methods),
+        sources=sources,
+    )
+    rows = {row.program_key: row for row in panel.rows}
+
+    assert rows["ABCD:TX1"].waiting_list_mortality_ratio == 0.8
+    assert rows["ABCD:TX1"].waiting_list_mortality_interval_log_width == pytest.approx(
+        math.log(1.05) - math.log(0.6)
+    )
+    assert rows["ABCD:TX1"].missing_waiting_list_mortality_ratio is False
+    assert rows["ABCD:TX1"].missing_waiting_list_mortality_interval is False
+    assert rows["BCD1:TX1"].waiting_list_mortality_ratio is None
+    assert rows["BCD1:TX1"].missing_waiting_list_mortality_ratio is True
+    assert rows["BCD1:TX1"].missing_waiting_list_mortality_interval is True
 
 
 def test_acceptance_join_uses_composite_identity_and_feature_release_only() -> None:
@@ -647,6 +780,29 @@ def _methodology_config(ledger: MethodologyLedger) -> dict[str, object]:
                     "policy_context": list(metric.policy_context),
                 }
             )
+        safety_metrics = []
+        for metric in release.safety_metrics:
+            safety_metrics.append(
+                {
+                    "family": metric.family,
+                    **_sheet_config(metric.sheet),
+                    "measurement_start": metric.measurement_start.isoformat(),
+                    "measurement_end": metric.measurement_end.isoformat(),
+                    "included_segments": [
+                        {"start": start.isoformat(), "end": end.isoformat()}
+                        for start, end in metric.included_segments
+                    ],
+                    "follow_up_end": metric.follow_up_end.isoformat(),
+                    "timing_source_url": metric.timing_source_url,
+                    "population": metric.population,
+                    "event": metric.event,
+                    "denominator": metric.denominator,
+                    "direction": metric.direction,
+                    "interval_kind": metric.interval_kind,
+                    "interval_level": metric.interval_level,
+                    "definition_notes": list(metric.definition_notes),
+                }
+            )
         releases.append(
             {
                 "release_code": release.release_code,
@@ -656,6 +812,7 @@ def _methodology_config(ledger: MethodologyLedger) -> dict[str, object]:
                 "source_sha256": release.source_sha256,
                 "identity": _sheet_config(release.identity_sheet),
                 "metrics": metrics,
+                "safety_metrics": safety_metrics,
             }
         )
     return {
@@ -747,6 +904,11 @@ def _artifact_paths(
                     "primary_min_target_n": config.eligibility.primary_min_target_n,
                     "sensitivity_min_target_n": list(config.eligibility.sensitivity_min_target_n),
                 },
+                "model_design": yaml.safe_load(
+                    (PROJECT_ROOT / "configs" / "patient_journey_v2" / "experiment.yaml").read_text(
+                        encoding="utf-8"
+                    )
+                )["model_design"],
                 "paths": {
                     "processed_dir": processed_relative.as_posix(),
                     "modeling_dir": "data/patient_journey_v2/modeling",
@@ -825,11 +987,13 @@ def test_patient_journey_writer_publishes_exact_manifest_bound_artifacts(
         "build_manifest.json",
         "patient_journey_panel.parquet",
         "qa_report.json",
+        "safety_measures.parquet",
     }
     assert result.panel_rows == 5
     assert result.output_directory == output_dir
     table = pq.read_table(result.panel_path)
     assert table.schema.remove_metadata() == PATIENT_JOURNEY_PANEL_SCHEMA
+    assert result.safety_path.exists()
     assert table.schema.metadata is not None
     provenance = json.loads(table.schema.metadata[b"kasm_provenance"])
     assert provenance["analysis_id"] == "kidney_patient_journey_v2"
@@ -903,6 +1067,7 @@ def test_patient_journey_writer_failure_leaves_prior_bundle_unchanged(
         "build_manifest.json",
         "patient_journey_panel.parquet",
         "qa_report.json",
+        "safety_measures.parquet",
     }
 
 

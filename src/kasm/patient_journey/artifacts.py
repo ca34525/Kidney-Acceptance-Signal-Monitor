@@ -12,7 +12,7 @@ import sys
 import tempfile
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from hashlib import sha256
 from pathlib import Path
 from typing import Any, cast
@@ -28,6 +28,7 @@ from kasm.patient_journey.config import (
 from kasm.patient_journey.ledger import MethodologyLedger, load_methodology_ledger
 from kasm.patient_journey.panel import (
     PATIENT_JOURNEY_PANEL_SCHEMA,
+    PATIENT_JOURNEY_SAFETY_SCHEMA,
     PatientJourneyPairSummary,
     PatientJourneyPanel,
     PatientJourneyPanelError,
@@ -35,14 +36,18 @@ from kasm.patient_journey.panel import (
     build_cached_patient_journey_panel,
     methodology_ledger_identity,
     patient_journey_panel_table,
+    patient_journey_safety_table,
     strict_vintage_folds,
     validate_patient_journey_panel_rows,
+    validate_patient_journey_safety_measures,
 )
+from kasm.patient_journey.parse import PublishedSafetyMeasure
 
 PANEL_NAME = "patient_journey_panel.parquet"
+SAFETY_NAME = "safety_measures.parquet"
 QA_NAME = "qa_report.json"
 MANIFEST_NAME = "build_manifest.json"
-_ARTIFACT_NAMES = frozenset((PANEL_NAME, QA_NAME, MANIFEST_NAME))
+_ARTIFACT_NAMES = frozenset((PANEL_NAME, SAFETY_NAME, QA_NAME, MANIFEST_NAME))
 _SHA256_PATTERN = re.compile(r"^[0-9a-f]{64}$")
 _GIT_SHA_PATTERN = re.compile(r"^[0-9a-f]{40,64}$")
 _PROGRAM_KEY_PATTERN = re.compile(r"^[A-Z0-9]{4}:[A-Za-z0-9]+$")
@@ -70,9 +75,11 @@ class PatientJourneyArtifactResult:
 
     output_directory: Path
     panel_path: Path
+    safety_path: Path
     qa_report_path: Path
     manifest_path: Path
     panel_rows: int
+    safety_rows: int
     artifact_set_sha256: str
 
 
@@ -825,19 +832,23 @@ def _artifact_record(path: Path) -> JsonObject:
 
 def _manifest(
     panel_path: Path,
+    safety_path: Path,
     qa_path: Path,
     *,
     panel_rows: int,
+    safety_rows: int,
     provenance: JsonObject,
 ) -> JsonObject:
     records = {
         "panel": _artifact_record(panel_path),
+        "safety": _artifact_record(safety_path),
         "qa_report": _artifact_record(qa_path),
     }
     return {
-        "schema_version": 1,
+        "schema_version": 2,
         "status": "complete",
         "panel_rows": panel_rows,
+        "safety_rows": safety_rows,
         "artifacts": records,
         "artifact_set_sha256": _artifact_set_identity(records),
         "provenance": provenance,
@@ -898,12 +909,16 @@ def _validate_input_identity(
 
 def _validate_artifact_records(output_dir: Path, build_manifest: Mapping[str, object]) -> str:
     records = _mapping(build_manifest.get("artifacts"), "artifacts")
-    if set(records) != {"panel", "qa_report"}:
+    if set(records) != {"panel", "safety", "qa_report"}:
         raise PatientJourneyArtifactError(
-            "Artifact manifest must bind exactly the panel and QA report."
+            "Artifact manifest must bind exactly the panel, safety context, and QA report."
         )
     typed_records: dict[str, Mapping[str, object]] = {}
-    for key, expected_name in (("panel", PANEL_NAME), ("qa_report", QA_NAME)):
+    for key, expected_name in (
+        ("panel", PANEL_NAME),
+        ("safety", SAFETY_NAME),
+        ("qa_report", QA_NAME),
+    ):
         record = _mapping(records[key], f"artifacts.{key}")
         if _text(record.get("path"), f"artifacts.{key}.path") != expected_name:
             raise PatientJourneyArtifactError(f"Artifact path for {key!r} disagrees.")
@@ -960,6 +975,67 @@ def _validate_panel_payload(
     if provenance.get("cohort_timing") != _cohort_timing(rows, inputs.config):
         raise PatientJourneyArtifactError("Panel cohort-timing provenance disagrees.")
     return panel_rows, rows
+
+
+def _safety_segments(value: object) -> tuple[tuple[date, date], ...]:
+    if not isinstance(value, str):
+        raise PatientJourneyArtifactError("Safety included-segment metadata must be JSON text.")
+    try:
+        raw: object = json.loads(value)
+    except json.JSONDecodeError as exc:
+        raise PatientJourneyArtifactError("Safety included-segment metadata is invalid.") from exc
+    if not isinstance(raw, list) or not raw:
+        raise PatientJourneyArtifactError("Safety included-segment metadata must be non-empty.")
+    segments: list[tuple[date, date]] = []
+    for item in raw:
+        values = _mapping(item, "included_segments")
+        try:
+            start = date.fromisoformat(_text(values.get("start"), "included_segments.start"))
+            end = date.fromisoformat(_text(values.get("end"), "included_segments.end"))
+        except ValueError as exc:
+            raise PatientJourneyArtifactError("Safety included-segment dates are invalid.") from exc
+        segments.append((start, end))
+    return tuple(segments)
+
+
+def _validate_safety_payload(
+    safety_path: Path,
+    *,
+    build_manifest: Mapping[str, object],
+    provenance: Mapping[str, object],
+    inputs: _BoundInputs,
+) -> tuple[int, tuple[PublishedSafetyMeasure, ...]]:
+    try:
+        table = pq.read_table(safety_path)
+    except (OSError, ValueError) as exc:
+        raise PatientJourneyArtifactError("Patient-journey safety Parquet is unreadable.") from exc
+    if table.schema.remove_metadata() != PATIENT_JOURNEY_SAFETY_SCHEMA:
+        raise PatientJourneyArtifactError("Patient-journey safety schema disagrees.")
+    metadata = table.schema.metadata or {}
+    try:
+        safety_provenance: object = json.loads(metadata[b"kasm_provenance"])
+    except (KeyError, UnicodeError, json.JSONDecodeError) as exc:
+        raise PatientJourneyArtifactError("Patient-journey safety provenance is invalid.") from exc
+    if safety_provenance != provenance:
+        raise PatientJourneyArtifactError("Safety and manifest provenance disagree.")
+    safety_rows = _integer(build_manifest.get("safety_rows"), "safety_rows")
+    if table.num_rows != safety_rows:
+        raise PatientJourneyArtifactError("Patient-journey safety row count disagrees.")
+    constructor = cast(Any, PublishedSafetyMeasure)
+    measures: list[PublishedSafetyMeasure] = []
+    for raw_row in table.to_pylist():
+        row = dict(raw_row)
+        segments = _safety_segments(row.pop("included_segments_json"))
+        measures.append(constructor(**row, included_segments=segments))
+    try:
+        validate_patient_journey_safety_measures(
+            tuple(measures),
+            ledger=inputs.ledger,
+            sources=inputs.manifest.sources,
+        )
+    except PatientJourneyPanelError as exc:
+        raise PatientJourneyArtifactError(f"Safety scientific validation failed: {exc}") from exc
+    return safety_rows, tuple(measures)
 
 
 def _validate_qa_pair_summaries(
@@ -1055,10 +1131,11 @@ def _validate_artifact_directory(
             f"Patient-journey artifact file set must be exactly {sorted(_ARTIFACT_NAMES)!r}."
         )
     panel_path = output_dir / PANEL_NAME
+    safety_path = output_dir / SAFETY_NAME
     qa_path = output_dir / QA_NAME
     manifest_path = output_dir / MANIFEST_NAME
     build_manifest = _read_json(manifest_path)
-    if _integer(build_manifest.get("schema_version"), "schema_version") != 1:
+    if _integer(build_manifest.get("schema_version"), "schema_version") != 2:
         raise PatientJourneyArtifactError("Unsupported patient-journey artifact schema version.")
     if _text(build_manifest.get("status"), "status") != "complete":
         raise PatientJourneyArtifactError("Patient-journey artifact generation is incomplete.")
@@ -1067,6 +1144,12 @@ def _validate_artifact_directory(
     artifact_set_sha256 = _validate_artifact_records(output_dir, build_manifest)
     panel_rows, rows = _validate_panel_payload(
         panel_path,
+        build_manifest=build_manifest,
+        provenance=provenance,
+        inputs=inputs,
+    )
+    safety_rows, _ = _validate_safety_payload(
+        safety_path,
         build_manifest=build_manifest,
         provenance=provenance,
         inputs=inputs,
@@ -1081,9 +1164,11 @@ def _validate_artifact_directory(
     return PatientJourneyArtifactResult(
         output_directory=output_dir,
         panel_path=panel_path,
+        safety_path=safety_path,
         qa_report_path=qa_path,
         manifest_path=manifest_path,
         panel_rows=panel_rows,
+        safety_rows=safety_rows,
         artifact_set_sha256=artifact_set_sha256,
     )
 
@@ -1174,14 +1259,26 @@ def _write_patient_journey_artifacts(
         )
     except PatientJourneyPanelError as exc:
         raise PatientJourneyArtifactError(f"Panel scientific validation failed: {exc}") from exc
+    try:
+        validate_patient_journey_safety_measures(
+            panel.safety_measures,
+            ledger=inputs.ledger,
+            sources=inputs.manifest.sources,
+        )
+    except PatientJourneyPanelError as exc:
+        raise PatientJourneyArtifactError(f"Safety scientific validation failed: {exc}") from exc
     _validate_panel_evidence(panel, config=inputs.config, ledger=inputs.ledger)
     table = patient_journey_panel_table(panel.rows)
+    safety_table = patient_journey_safety_table(panel.safety_measures)
     provenance = _provenance(
         panel,
         inputs=inputs,
         build_context=build_context,
     )
     table = table.replace_schema_metadata(
+        {b"kasm_provenance": json.dumps(provenance, sort_keys=True).encode()}
+    )
+    safety_table = safety_table.replace_schema_metadata(
         {b"kasm_provenance": json.dumps(provenance, sort_keys=True).encode()}
     )
     qa = _qa_report(
@@ -1196,6 +1293,7 @@ def _write_patient_journey_artifacts(
     published = False
     try:
         panel_path = staging / PANEL_NAME
+        safety_path = staging / SAFETY_NAME
         qa_path = staging / QA_NAME
         manifest_path = staging / MANIFEST_NAME
         pq.write_table(
@@ -1205,11 +1303,20 @@ def _write_patient_journey_artifacts(
             use_dictionary=True,
             write_statistics=True,
         )
+        pq.write_table(
+            safety_table,
+            safety_path,
+            compression="zstd",
+            use_dictionary=True,
+            write_statistics=True,
+        )
         _write_json(qa_path, qa)
         build_manifest = _manifest(
             panel_path,
+            safety_path,
             qa_path,
             panel_rows=table.num_rows,
+            safety_rows=safety_table.num_rows,
             provenance=provenance,
         )
         _write_json(manifest_path, build_manifest)

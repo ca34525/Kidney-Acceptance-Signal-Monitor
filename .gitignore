@@ -19,3 +19,5 @@ __pycache__/
 artifacts/*
 !artifacts/release/
 !artifacts/release/**
+!artifacts/patient_journey_v2/
+!artifacts/patient_journey_v2/**

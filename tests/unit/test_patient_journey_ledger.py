@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -104,6 +105,40 @@ def test_project_ledger_covers_manifest_and_exposes_latest_cohort_overlap() -> N
     assert ledger.release("2205").metric("wait_time").sheet.name == "Table B10"
     assert "TX_RR" not in ledger.release("1808").metric("transplant_rate").sheet.required_fields
     assert ledger.overlapping_outcome_cohorts() == (("2505", "2605"),)
+
+
+def test_project_ledger_records_separately_timed_safety_families() -> None:
+    manifest = load_data_source_manifest(PROJECT_ROOT / "configs" / "data_sources.yaml")
+    ledger = load_methodology_ledger(
+        PROJECT_ROOT / "configs" / "patient_journey_v2" / "methodology.yaml",
+        manifest=manifest,
+    )
+
+    assert ledger.release("1808").safety_metrics == ()
+    waiting_list = ledger.release("1905").safety_metric("waiting_list_mortality")
+    assert waiting_list.sheet.name == "Tbls B4-B5 & Fig B1-B6 - All"
+    assert waiting_list.denominator == "candidate_person_years"
+    assert waiting_list.direction == "lower_ratio_is_better"
+    assert waiting_list.interval_kind == "bayesian_credible_interval"
+    assert waiting_list.included_segments == ((date(2017, 1, 1), date(2018, 12, 31)),)
+
+    assert ledger.release("2006").safety_metrics[0].family == "waiting_list_mortality"
+    assert {metric.family for metric in ledger.release("2105").safety_metrics} == {
+        "waiting_list_mortality",
+        "mortality_after_listing",
+    }
+    covid_modified = ledger.release("2105").safety_metric("waiting_list_mortality")
+    assert covid_modified.measurement_end == date(2020, 12, 31)
+    assert covid_modified.included_segments[-1][1] == date(2020, 3, 12)
+    assert {metric.family for metric in ledger.release("2205").safety_metrics} == {
+        "waiting_list_mortality",
+        "mortality_after_listing",
+        "graft_failure_90_day",
+        "graft_failure_1_year_conditional",
+    }
+    graft = ledger.release("2505").safety_metric("graft_failure_1_year_conditional")
+    assert graft.denominator == "adult_recipients_with_functioning_graft_at_day_90"
+    assert graft.follow_up_end == date(2024, 12, 31)
 
 
 def test_ledger_rejects_release_omitted_from_manifest(tmp_path: Path) -> None:

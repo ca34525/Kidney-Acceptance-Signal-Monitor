@@ -10,7 +10,7 @@ from dataclasses import asdict, dataclass
 from datetime import date
 from pathlib import Path
 from statistics import fmean
-from typing import Literal, TypeGuard
+from typing import Literal, TypeGuard, cast
 
 import pyarrow as pa  # type: ignore[import-untyped]
 
@@ -31,12 +31,16 @@ from kasm.patient_journey.config import (
 from kasm.patient_journey.ledger import (
     MethodologyLedger,
     MethodologyLedgerError,
+    MetricMethodology,
     ReleaseMethodology,
+    SafetyFamily,
+    SafetyMethodology,
 )
 from kasm.patient_journey.parse import (
     ParsedPatientJourneyRelease,
     PatientJourneyOutcome,
     ProgramIdentity,
+    PublishedSafetyMeasure,
     TransplantRate,
     WaitTime,
     parse_patient_journey_workbook,
@@ -60,6 +64,7 @@ _ACCEPTANCE_GROUPS: tuple[OfferGroup, ...] = (
 _CATEGORY = pa.dictionary(pa.int8(), pa.string())
 _CENTER_CODE = re.compile(r"^[A-Z0-9]{4}$")
 _CENTER_TYPE = re.compile(r"^[A-Za-z0-9]+$")
+_PROGRAM_KEY = re.compile(r"^[A-Z0-9]{4}:[A-Za-z0-9]+$")
 
 
 class PatientJourneyPanelError(ValueError):
@@ -81,6 +86,10 @@ class PatientJourneyPanelRow:
     program_key: str
     center_code: str
     center_type: str
+    center_name: str
+    city: str | None
+    state: str | None
+    zip_code: str | None
     feature_release_code: str
     target_release_code: str
     prediction_origin_value: str
@@ -150,6 +159,20 @@ class PatientJourneyPanelRow:
     feature_source_sha256: str
     target_source_url: str
     target_source_sha256: str
+    waiting_list_mortality_measurement_start: date | None = None
+    waiting_list_mortality_measurement_end: date | None = None
+    waiting_list_mortality_follow_up_end: date | None = None
+    waiting_list_mortality_denominator_name: str | None = None
+    waiting_list_mortality_person_years: float | None = None
+    waiting_list_mortality_observed_events: int | None = None
+    waiting_list_mortality_observed_rate: float | None = None
+    waiting_list_mortality_expected_rate: float | None = None
+    waiting_list_mortality_ratio: float | None = None
+    waiting_list_mortality_lower: float | None = None
+    waiting_list_mortality_upper: float | None = None
+    waiting_list_mortality_interval_log_width: float | None = None
+    missing_waiting_list_mortality_ratio: bool = True
+    missing_waiting_list_mortality_interval: bool = True
 
 
 @dataclass(frozen=True)
@@ -193,6 +216,7 @@ class PatientJourneyPanel:
     strict_vintage_folds: tuple[StrictVintageFold, ...]
     excluded_candidates: tuple[PatientJourneyExcludedPair, ...]
     methodology_ledger_identity: str
+    safety_measures: tuple[PublishedSafetyMeasure, ...] = ()
 
 
 PATIENT_JOURNEY_PANEL_SCHEMA = pa.schema(
@@ -200,6 +224,10 @@ PATIENT_JOURNEY_PANEL_SCHEMA = pa.schema(
         pa.field("program_key", pa.string(), nullable=False),
         pa.field("center_code", pa.string(), nullable=False),
         pa.field("center_type", pa.string(), nullable=False),
+        pa.field("center_name", pa.string(), nullable=False),
+        pa.field("city", pa.string()),
+        pa.field("state", pa.string()),
+        pa.field("zip_code", pa.string()),
         pa.field("feature_release_code", pa.string(), nullable=False),
         pa.field("target_release_code", pa.string(), nullable=False),
         pa.field("prediction_origin_value", pa.string(), nullable=False),
@@ -273,6 +301,51 @@ PATIENT_JOURNEY_PANEL_SCHEMA = pa.schema(
         pa.field("feature_source_sha256", pa.string(), nullable=False),
         pa.field("target_source_url", pa.string(), nullable=False),
         pa.field("target_source_sha256", pa.string(), nullable=False),
+        pa.field("waiting_list_mortality_measurement_start", pa.date32()),
+        pa.field("waiting_list_mortality_measurement_end", pa.date32()),
+        pa.field("waiting_list_mortality_follow_up_end", pa.date32()),
+        pa.field("waiting_list_mortality_denominator_name", pa.string()),
+        pa.field("waiting_list_mortality_person_years", pa.float64()),
+        pa.field("waiting_list_mortality_observed_events", pa.int64()),
+        pa.field("waiting_list_mortality_observed_rate", pa.float64()),
+        pa.field("waiting_list_mortality_expected_rate", pa.float64()),
+        pa.field("waiting_list_mortality_ratio", pa.float64()),
+        pa.field("waiting_list_mortality_lower", pa.float64()),
+        pa.field("waiting_list_mortality_upper", pa.float64()),
+        pa.field("waiting_list_mortality_interval_log_width", pa.float64()),
+        pa.field("missing_waiting_list_mortality_ratio", pa.bool_(), nullable=False),
+        pa.field("missing_waiting_list_mortality_interval", pa.bool_(), nullable=False),
+    ]
+)
+
+PATIENT_JOURNEY_SAFETY_SCHEMA = pa.schema(
+    [
+        pa.field("program_key", pa.string(), nullable=False),
+        pa.field("release_code", pa.string(), nullable=False),
+        pa.field("published_value", pa.string(), nullable=False),
+        pa.field("published_precision", _CATEGORY, nullable=False),
+        pa.field("family", _CATEGORY, nullable=False),
+        pa.field("measurement_start", pa.date32(), nullable=False),
+        pa.field("measurement_end", pa.date32(), nullable=False),
+        pa.field("included_segments_json", pa.string(), nullable=False),
+        pa.field("follow_up_end", pa.date32(), nullable=False),
+        pa.field("population", pa.string(), nullable=False),
+        pa.field("event", pa.string(), nullable=False),
+        pa.field("denominator_name", pa.string(), nullable=False),
+        pa.field("denominator_value", pa.float64()),
+        pa.field("population_count", pa.int64()),
+        pa.field("observed_events", pa.int64()),
+        pa.field("expected_events", pa.float64()),
+        pa.field("observed_rate", pa.float64()),
+        pa.field("expected_rate", pa.float64()),
+        pa.field("ratio", pa.float64()),
+        pa.field("lower", pa.float64()),
+        pa.field("upper", pa.float64()),
+        pa.field("direction", _CATEGORY, nullable=False),
+        pa.field("interval_kind", _CATEGORY, nullable=False),
+        pa.field("interval_level", pa.float64(), nullable=False),
+        pa.field("source_url", pa.string(), nullable=False),
+        pa.field("source_sha256", pa.string(), nullable=False),
     ]
 )
 
@@ -316,51 +389,73 @@ def _prediction_origin_month_offset(source: SourceRecord, target_start: date) ->
     return (published_year - target_start.year) * 12 + published_month - target_start.month
 
 
-def validate_temporal_design(
-    config: PatientJourneyConfig,
-    ledger: MethodologyLedger,
-    sources: tuple[SourceRecord, ...],
+def _validate_metrics_before_target(
+    metrics: tuple[MetricMethodology | SafetyMethodology, ...],
+    *,
+    pair: PatientJourneyPair,
+    target_start: date,
+    safety: bool,
 ) -> None:
-    """Reject unknown, leaky, or overlapping primary release pairs."""
-    order, releases, source_by_code = _release_maps(ledger, sources)
-    target_cohorts: list[tuple[PatientJourneyPair, tuple[date, date]]] = []
-    for pair in config.temporal_design.primary_pairs:
-        if pair.feature_release_code not in order or pair.target_release_code not in order:
-            raise PatientJourneyPanelError(f"Unknown primary temporal pair {pair!r}.")
-        if order[pair.feature_release_code] >= order[pair.target_release_code]:
+    qualifier = " safety" if safety else ""
+    for metric in metrics:
+        if metric.measurement_end >= target_start:
             raise PatientJourneyPanelError(
-                f"Primary pair {pair!r} must place the feature release before the target release."
+                f"Primary pair {pair!r} has {metric.family}{qualifier} measurement overlap "
+                "with target."
             )
-        feature_method = releases[pair.feature_release_code]
-        target_method = releases[pair.target_release_code].metric("patient_outcome")
-        origin_offset = _prediction_origin_month_offset(
-            source_by_code[pair.feature_release_code], target_method.measurement_start
-        )
-        max_offset = config.temporal_design.max_prediction_origin_month_offset
-        if origin_offset > max_offset:
+        if metric.follow_up_end >= target_start:
             raise PatientJourneyPanelError(
-                f"Primary pair {pair!r} prediction-origin offset {origin_offset} months "
-                f"exceeds the configured maximum of {max_offset}."
+                f"Primary pair {pair!r} has {metric.family}{qualifier} follow-up overlap "
+                "with target."
             )
-        for metric in feature_method.metrics:
-            if metric.measurement_end >= target_method.measurement_start:
-                raise PatientJourneyPanelError(
-                    f"Primary pair {pair!r} has {metric.family} measurement overlap with target."
-                )
-            if metric.follow_up_end >= target_method.measurement_start:
-                raise PatientJourneyPanelError(
-                    f"Primary pair {pair!r} has {metric.family} follow-up overlap with target."
-                )
-        source = source_by_code[pair.feature_release_code]
-        acceptance_end = date(source.cohort_year, 12, 31)
-        if acceptance_end >= target_method.measurement_start:
-            raise PatientJourneyPanelError(
-                f"Primary pair {pair!r} has acceptance measurement overlap with target."
-            )
-        target_cohorts.append(
-            (pair, (target_method.measurement_start, target_method.measurement_end))
-        )
 
+
+def _validate_primary_pair(
+    pair: PatientJourneyPair,
+    *,
+    order: dict[str, int],
+    releases: dict[str, ReleaseMethodology],
+    source_by_code: dict[str, SourceRecord],
+    max_origin_offset: int,
+) -> tuple[date, date]:
+    if pair.feature_release_code not in order or pair.target_release_code not in order:
+        raise PatientJourneyPanelError(f"Unknown primary temporal pair {pair!r}.")
+    if order[pair.feature_release_code] >= order[pair.target_release_code]:
+        raise PatientJourneyPanelError(
+            f"Primary pair {pair!r} must place the feature release before the target release."
+        )
+    feature_method = releases[pair.feature_release_code]
+    target_method = releases[pair.target_release_code].metric("patient_outcome")
+    source = source_by_code[pair.feature_release_code]
+    origin_offset = _prediction_origin_month_offset(source, target_method.measurement_start)
+    if origin_offset > max_origin_offset:
+        raise PatientJourneyPanelError(
+            f"Primary pair {pair!r} prediction-origin offset {origin_offset} months "
+            f"exceeds the configured maximum of {max_origin_offset}."
+        )
+    _validate_metrics_before_target(
+        feature_method.metrics,
+        pair=pair,
+        target_start=target_method.measurement_start,
+        safety=False,
+    )
+    _validate_metrics_before_target(
+        feature_method.safety_metrics,
+        pair=pair,
+        target_start=target_method.measurement_start,
+        safety=True,
+    )
+    acceptance_end = date(source.cohort_year, 12, 31)
+    if acceptance_end >= target_method.measurement_start:
+        raise PatientJourneyPanelError(
+            f"Primary pair {pair!r} has acceptance measurement overlap with target."
+        )
+    return target_method.measurement_start, target_method.measurement_end
+
+
+def _validate_primary_target_nonoverlap(
+    target_cohorts: list[tuple[PatientJourneyPair, tuple[date, date]]],
+) -> None:
     for index, (pair, cohort) in enumerate(target_cohorts):
         for other_pair, other_cohort in target_cohorts[index + 1 :]:
             if _cohorts_overlap(cohort, other_cohort):
@@ -368,6 +463,10 @@ def validate_temporal_design(
                     f"Primary target cohorts for {pair!r} and {other_pair!r} overlap."
                 )
 
+
+def _validate_overlapping_release_exclusions(
+    config: PatientJourneyConfig, ledger: MethodologyLedger
+) -> None:
     excluded_overlap_targets = {
         pair.target_release_code
         for pair in config.temporal_design.excluded_candidates
@@ -383,6 +482,30 @@ def validate_temporal_design(
             raise PatientJourneyPanelError(
                 f"Overlapping outcome release {overlapping_release!r} lacks an explicit exclusion."
             )
+
+
+def validate_temporal_design(
+    config: PatientJourneyConfig,
+    ledger: MethodologyLedger,
+    sources: tuple[SourceRecord, ...],
+) -> None:
+    """Reject unknown, leaky, or overlapping primary release pairs."""
+    order, releases, source_by_code = _release_maps(ledger, sources)
+    target_cohorts = [
+        (
+            pair,
+            _validate_primary_pair(
+                pair,
+                order=order,
+                releases=releases,
+                source_by_code=source_by_code,
+                max_origin_offset=(config.temporal_design.max_prediction_origin_month_offset),
+            ),
+        )
+        for pair in config.temporal_design.primary_pairs
+    ]
+    _validate_primary_target_nonoverlap(target_cohorts)
+    _validate_overlapping_release_exclusions(config, ledger)
 
 
 def strict_vintage_folds(
@@ -504,6 +627,7 @@ def _validate_row_identity_and_timing(
         _CENTER_CODE.fullmatch(row.center_code) is None
         or _CENTER_TYPE.fullmatch(row.center_type) is None
         or row.program_key != f"{row.center_code}:{row.center_type}"
+        or not row.center_name
     ):
         raise PatientJourneyPanelError("Panel row has an invalid composite program identity.")
     feature_source = sources[row.feature_release_code]
@@ -512,6 +636,14 @@ def _validate_row_identity_and_timing(
     target_timing = ledger.release(row.target_release_code).metric("patient_outcome")
     rate_timing = feature_method.metric("transplant_rate")
     wait_timing = feature_method.metric("wait_time")
+    waiting_list_timing = next(
+        (
+            metric
+            for metric in feature_method.safety_metrics
+            if metric.family == "waiting_list_mortality"
+        ),
+        None,
+    )
     expected = (
         feature_source.published_value,
         feature_source.published_precision,
@@ -528,6 +660,10 @@ def _validate_row_identity_and_timing(
         wait_timing.follow_up_end,
         date(feature_source.cohort_year, 1, 1),
         date(feature_source.cohort_year, 12, 31),
+        waiting_list_timing.measurement_start if waiting_list_timing else None,
+        waiting_list_timing.measurement_end if waiting_list_timing else None,
+        waiting_list_timing.follow_up_end if waiting_list_timing else None,
+        waiting_list_timing.denominator if waiting_list_timing else None,
         methodology_identity,
         feature_source.url,
         feature_source.download_sha256,
@@ -550,6 +686,10 @@ def _validate_row_identity_and_timing(
         row.wait_time_follow_up_end,
         row.acceptance_cohort_start,
         row.acceptance_cohort_end,
+        row.waiting_list_mortality_measurement_start,
+        row.waiting_list_mortality_measurement_end,
+        row.waiting_list_mortality_follow_up_end,
+        row.waiting_list_mortality_denominator_name,
         row.methodology_ledger_identity,
         row.feature_source_url,
         row.feature_source_sha256,
@@ -640,6 +780,55 @@ def _validate_row_targets(
         )
 
 
+def _validate_acceptance_interval(row: PatientJourneyPanelRow) -> None:
+    bounds = (row.acceptance_overall_oar_lower, row.acceptance_overall_oar_upper)
+    if (bounds[0] is None) != (bounds[1] is None):
+        raise PatientJourneyPanelError(
+            "Acceptance interval bounds must be jointly present or null."
+        )
+    if bounds[0] is not None and bounds[1] is not None and bounds[0] > bounds[1]:
+        raise PatientJourneyPanelError("Acceptance interval bounds are reversed.")
+    if (
+        row.acceptance_overall_oar is not None
+        and bounds[0] is not None
+        and bounds[1] is not None
+        and not bounds[0] <= row.acceptance_overall_oar <= bounds[1]
+    ):
+        raise PatientJourneyPanelError("Acceptance interval must contain its published OAR.")
+
+
+def _validate_waiting_list_interval(row: PatientJourneyPanelRow) -> None:
+    values = (
+        row.waiting_list_mortality_ratio,
+        row.waiting_list_mortality_lower,
+        row.waiting_list_mortality_upper,
+    )
+    if any(value is None for value in values) and not all(value is None for value in values):
+        raise PatientJourneyPanelError(
+            "Waiting-list mortality ratio and interval must be jointly present or null."
+        )
+    if all(value is not None for value in values):
+        ratio, lower, upper = cast(tuple[float, float, float], values)
+        if lower > ratio or ratio > upper:
+            raise PatientJourneyPanelError(
+                "Waiting-list mortality interval must contain its published ratio."
+            )
+        expected_width = math.log(upper) - math.log(lower)
+        if row.waiting_list_mortality_interval_log_width is None or not math.isclose(
+            row.waiting_list_mortality_interval_log_width,
+            expected_width,
+            rel_tol=0,
+            abs_tol=1e-12,
+        ):
+            raise PatientJourneyPanelError(
+                "Waiting-list mortality interval log width disagrees with its bounds."
+            )
+    elif row.waiting_list_mortality_interval_log_width is not None:
+        raise PatientJourneyPanelError(
+            "Missing waiting-list mortality bounds cannot retain an interval log width."
+        )
+
+
 def _validate_row_feature_values(row: PatientJourneyPanelRow) -> None:
     missing_pairs = (
         (row.transplant_rate_person_years, row.missing_transplant_rate_person_years),
@@ -654,6 +843,7 @@ def _validate_row_feature_values(row: PatientJourneyPanelRow) -> None:
         (row.acceptance_medium_oar, row.missing_acceptance_medium_oar),
         (row.acceptance_high_oar, row.missing_acceptance_high_oar),
         (row.acceptance_hard_to_place_oar, row.missing_acceptance_hard_to_place_oar),
+        (row.waiting_list_mortality_ratio, row.missing_waiting_list_mortality_ratio),
     )
     if any((value is None) != missing for value, missing in missing_pairs):
         raise PatientJourneyPanelError(
@@ -664,12 +854,26 @@ def _validate_row_feature_values(row: PatientJourneyPanelRow) -> None:
     )
     if interval_missing != row.missing_acceptance_interval:
         raise PatientJourneyPanelError("Acceptance-interval missingness indicator disagrees.")
+    waiting_list_interval_missing = (
+        row.waiting_list_mortality_lower is None or row.waiting_list_mortality_upper is None
+    )
+    if waiting_list_interval_missing != row.missing_waiting_list_mortality_interval:
+        raise PatientJourneyPanelError(
+            "Waiting-list mortality interval missingness indicator disagrees."
+        )
     numeric_values = (
         row.historical_mean_target_proportion,
         row.available_cohort_target_proportion,
         *(value for value, _ in missing_pairs),
         row.acceptance_overall_oar_lower,
         row.acceptance_overall_oar_upper,
+        row.waiting_list_mortality_person_years,
+        row.waiting_list_mortality_observed_events,
+        row.waiting_list_mortality_observed_rate,
+        row.waiting_list_mortality_expected_rate,
+        row.waiting_list_mortality_lower,
+        row.waiting_list_mortality_upper,
+        row.waiting_list_mortality_interval_log_width,
     )
     if any(value is not None and not math.isfinite(value) for value in numeric_values):
         raise PatientJourneyPanelError("Panel feature values must be finite or null.")
@@ -685,6 +889,16 @@ def _validate_row_feature_values(row: PatientJourneyPanelRow) -> None:
         "medium OAR": row.acceptance_medium_oar,
         "high OAR": row.acceptance_high_oar,
         "hard-to-place OAR": row.acceptance_hard_to_place_oar,
+        "waiting-list mortality person-years": row.waiting_list_mortality_person_years,
+        "waiting-list mortality observed events": row.waiting_list_mortality_observed_events,
+        "waiting-list mortality observed rate": row.waiting_list_mortality_observed_rate,
+        "waiting-list mortality expected rate": row.waiting_list_mortality_expected_rate,
+        "waiting-list mortality ratio": row.waiting_list_mortality_ratio,
+        "waiting-list mortality lower interval": row.waiting_list_mortality_lower,
+        "waiting-list mortality upper interval": row.waiting_list_mortality_upper,
+        "waiting-list mortality interval log width": (
+            row.waiting_list_mortality_interval_log_width
+        ),
     }
     for label, value in nonnegative_values.items():
         if value is not None and value < 0:
@@ -692,27 +906,8 @@ def _validate_row_feature_values(row: PatientJourneyPanelRow) -> None:
     for value in (row.historical_mean_target_proportion, row.available_cohort_target_proportion):
         if value is not None and not 0 <= value <= 1:
             raise PatientJourneyPanelError("Historical/cohort target proportions must be bounded.")
-    if (row.acceptance_overall_oar_lower is None) != (row.acceptance_overall_oar_upper is None):
-        raise PatientJourneyPanelError(
-            "Acceptance interval bounds must be jointly present or null."
-        )
-    if (
-        row.acceptance_overall_oar_lower is not None
-        and row.acceptance_overall_oar_upper is not None
-        and row.acceptance_overall_oar_lower > row.acceptance_overall_oar_upper
-    ):
-        raise PatientJourneyPanelError("Acceptance interval bounds are reversed.")
-    if (
-        row.acceptance_overall_oar is not None
-        and row.acceptance_overall_oar_lower is not None
-        and row.acceptance_overall_oar_upper is not None
-        and not (
-            row.acceptance_overall_oar_lower
-            <= row.acceptance_overall_oar
-            <= row.acceptance_overall_oar_upper
-        )
-    ):
-        raise PatientJourneyPanelError("Acceptance interval must contain its published OAR.")
+    _validate_acceptance_interval(row)
+    _validate_waiting_list_interval(row)
 
 
 def _validate_row_history(row: PatientJourneyPanelRow) -> None:
@@ -806,12 +1001,73 @@ def validate_patient_journey_panel_rows(
         seen_programs.add(row.program_key)
 
 
+def validate_patient_journey_safety_measures(
+    measures: tuple[PublishedSafetyMeasure, ...],
+    *,
+    ledger: MethodologyLedger,
+    sources: tuple[SourceRecord, ...],
+) -> None:
+    """Revalidate published safety meaning, provenance, and numeric invariants."""
+    source_by_code = {source.release_code: source for source in sources}
+    keys = [(row.release_code, row.family, row.program_key) for row in measures]
+    if len(keys) != len(set(keys)):
+        raise PatientJourneyPanelError("Published safety program-family keys must be unique.")
+    grouped: dict[str, dict[tuple[str, SafetyFamily], PublishedSafetyMeasure]] = {}
+    for row in measures:
+        if _PROGRAM_KEY.fullmatch(row.program_key) is None:
+            raise PatientJourneyPanelError(
+                f"Published safety row has invalid program key {row.program_key!r}."
+            )
+        if row.release_code not in source_by_code:
+            raise PatientJourneyPanelError(
+                f"Published safety row has unknown release {row.release_code!r}."
+            )
+        numeric = (
+            row.denominator_value,
+            row.population_count,
+            row.observed_events,
+            row.expected_events,
+            row.observed_rate,
+            row.expected_rate,
+            row.ratio,
+            row.lower,
+            row.upper,
+            row.interval_level,
+        )
+        if any(value is not None and (not math.isfinite(value) or value < 0) for value in numeric):
+            raise PatientJourneyPanelError(
+                "Published safety numeric values must be finite and nonnegative."
+            )
+        interval = (row.ratio, row.lower, row.upper)
+        if any(value is None for value in interval) and not all(
+            value is None for value in interval
+        ):
+            raise PatientJourneyPanelError(
+                "Published safety ratio and interval must be jointly present or null."
+            )
+        if all(value is not None for value in interval):
+            ratio, lower, upper = cast(tuple[float, float, float], interval)
+            if ratio <= 0 or lower <= 0 or upper <= 0 or not lower <= ratio <= upper:
+                raise PatientJourneyPanelError(
+                    "Published safety interval must be positive and contain its ratio."
+                )
+        grouped.setdefault(row.release_code, {})[(row.program_key, row.family)] = row
+    for release_code, release_measures in grouped.items():
+        _validate_safety_rows(
+            release_code,
+            release_measures,
+            ledger.release(release_code),
+            source_by_code[release_code],
+        )
+
+
 @dataclass(frozen=True)
 class _PatientReleaseIndex:
     identities: dict[str, ProgramIdentity]
     outcomes: dict[str, PatientJourneyOutcome]
     transplant_rates: dict[str, TransplantRate]
     wait_times: dict[str, WaitTime]
+    safety_measures: dict[tuple[str, SafetyFamily], PublishedSafetyMeasure]
 
 
 def _validate_identity_rows(
@@ -895,6 +1151,46 @@ def _validate_wait_rows(
             )
 
 
+def _validate_safety_rows(
+    release_code: str,
+    measures: dict[tuple[str, SafetyFamily], PublishedSafetyMeasure],
+    methodology: ReleaseMethodology,
+    source: SourceRecord,
+) -> None:
+    method_by_family = {metric.family: metric for metric in methodology.safety_metrics}
+    for measure in measures.values():
+        method = method_by_family.get(measure.family)
+        if method is None:
+            raise PatientJourneyPanelError(
+                f"{release_code} safety row has an unledgered family {measure.family!r}."
+            )
+        if (
+            measure.release_code != release_code
+            or measure.published_value != source.published_value
+            or measure.published_precision != source.published_precision
+            or measure.source_url != source.url
+            or measure.source_sha256 != source.download_sha256
+        ):
+            raise PatientJourneyPanelError(
+                f"{release_code} safety row publication or source provenance disagrees."
+            )
+        if (
+            measure.measurement_start != method.measurement_start
+            or measure.measurement_end != method.measurement_end
+            or measure.included_segments != method.included_segments
+            or measure.follow_up_end != method.follow_up_end
+            or measure.population != method.population
+            or measure.event != method.event
+            or measure.denominator_name != method.denominator
+            or measure.direction != method.direction
+            or measure.interval_kind != method.interval_kind
+            or measure.interval_level != method.interval_level
+        ):
+            raise PatientJourneyPanelError(
+                f"{release_code} safety row meaning or timing disagrees with methodology."
+            )
+
+
 def _index_patient_release(
     release: ParsedPatientJourneyRelease,
     methodology: ReleaseMethodology,
@@ -912,6 +1208,7 @@ def _index_patient_release(
     outcomes = {row.program_key: row for row in release.outcomes}
     rates = {row.program_key: row for row in release.transplant_rates}
     wait_times = {row.program_key: row for row in release.wait_times}
+    safety_measures = {(row.program_key, row.family): row for row in release.safety_measures}
     collections = (("outcomes", outcomes), ("transplant rates", rates), ("wait times", wait_times))
     for label, values in collections:
         expected_length = {
@@ -933,11 +1230,17 @@ def _index_patient_release(
     _validate_outcome_rows(release.release_code, outcomes, methodology, source)
     _validate_rate_rows(release.release_code, rates, methodology)
     _validate_wait_rows(release.release_code, wait_times, methodology)
+    if len(safety_measures) != len(release.safety_measures):
+        raise PatientJourneyPanelError(
+            f"{release.release_code} safety measures contain duplicate program-family rows."
+        )
+    _validate_safety_rows(release.release_code, safety_measures, methodology, source)
     return _PatientReleaseIndex(
         identities=identities,
         outcomes=outcomes,
         transplant_rates=rates,
         wait_times=wait_times,
+        safety_measures=safety_measures,
     )
 
 
@@ -1113,6 +1416,7 @@ def _row_for_program(
     target = target_index.outcomes.get(identity.program_key)
     rate = feature.transplant_rates.get(identity.program_key)
     wait_time = feature.wait_times.get(identity.program_key)
+    waiting_list = feature.safety_measures.get((identity.program_key, "waiting_list_mortality"))
     groups: dict[OfferGroup, ProgramSignal | None] = {
         group: acceptance.get((identity.program_key, group)) for group in _ACCEPTANCE_GROUPS
     }
@@ -1121,6 +1425,14 @@ def _row_for_program(
     target_timing = target_method.metric("patient_outcome")
     rate_timing = feature_method.metric("transplant_rate")
     wait_timing = feature_method.metric("wait_time")
+    waiting_list_timing = next(
+        (
+            metric
+            for metric in feature_method.safety_metrics
+            if metric.family == "waiting_list_mortality"
+        ),
+        None,
+    )
     history_values = tuple(
         outcome.target_proportion for outcome in history if outcome.target_proportion is not None
     )
@@ -1128,6 +1440,10 @@ def _row_for_program(
         program_key=identity.program_key,
         center_code=identity.center_code,
         center_type=identity.center_type,
+        center_name=identity.center_name,
+        city=identity.city,
+        state=identity.state,
+        zip_code=identity.zip_code,
         feature_release_code=pair.feature_release_code,
         target_release_code=pair.target_release_code,
         prediction_origin_value=feature_source.published_value,
@@ -1214,6 +1530,38 @@ def _row_for_program(
         feature_source_sha256=feature_source.download_sha256,
         target_source_url=target_source.url,
         target_source_sha256=target_source.download_sha256,
+        waiting_list_mortality_measurement_start=(
+            waiting_list_timing.measurement_start if waiting_list_timing else None
+        ),
+        waiting_list_mortality_measurement_end=(
+            waiting_list_timing.measurement_end if waiting_list_timing else None
+        ),
+        waiting_list_mortality_follow_up_end=(
+            waiting_list_timing.follow_up_end if waiting_list_timing else None
+        ),
+        waiting_list_mortality_denominator_name=(
+            waiting_list_timing.denominator if waiting_list_timing else None
+        ),
+        waiting_list_mortality_person_years=(
+            waiting_list.denominator_value if waiting_list else None
+        ),
+        waiting_list_mortality_observed_events=(
+            waiting_list.observed_events if waiting_list else None
+        ),
+        waiting_list_mortality_observed_rate=(waiting_list.observed_rate if waiting_list else None),
+        waiting_list_mortality_expected_rate=(waiting_list.expected_rate if waiting_list else None),
+        waiting_list_mortality_ratio=(waiting_list.ratio if waiting_list else None),
+        waiting_list_mortality_lower=(waiting_list.lower if waiting_list else None),
+        waiting_list_mortality_upper=(waiting_list.upper if waiting_list else None),
+        waiting_list_mortality_interval_log_width=(
+            math.log(waiting_list.upper) - math.log(waiting_list.lower)
+            if waiting_list and waiting_list.lower is not None and waiting_list.upper is not None
+            else None
+        ),
+        missing_waiting_list_mortality_ratio=(waiting_list is None or waiting_list.ratio is None),
+        missing_waiting_list_mortality_interval=(
+            waiting_list is None or waiting_list.lower is None or waiting_list.upper is None
+        ),
     )
 
 
@@ -1348,6 +1696,16 @@ def build_patient_journey_panel(
         strict_vintage_folds=strict_vintage_folds(config, ledger),
         excluded_candidates=config.temporal_design.excluded_candidates,
         methodology_ledger_identity=methodology_identity,
+        safety_measures=tuple(
+            sorted(
+                (measure for release in patient_releases for measure in release.safety_measures),
+                key=lambda measure: (
+                    measure.release_code,
+                    measure.family,
+                    measure.program_key,
+                ),
+            )
+        ),
     )
 
 
@@ -1397,3 +1755,37 @@ def patient_journey_panel_table(rows: tuple[PatientJourneyPanelRow, ...]) -> pa.
         for field in PATIENT_JOURNEY_PANEL_SCHEMA
     ]
     return pa.Table.from_arrays(arrays, schema=PATIENT_JOURNEY_PANEL_SCHEMA)
+
+
+def patient_journey_safety_table(
+    measures: tuple[PublishedSafetyMeasure, ...],
+) -> pa.Table:
+    """Return all ledgered safety measures without collapsing their distinct meanings."""
+    keys = [(row.release_code, row.family, row.program_key) for row in measures]
+    if len(keys) != len(set(keys)):
+        raise PatientJourneyPanelError("Published safety program-family keys must be unique.")
+    ordered = tuple(
+        sorted(
+            measures,
+            key=lambda row: (row.release_code, row.family, row.program_key),
+        )
+    )
+    columns: dict[str, list[object]] = {field.name: [] for field in PATIENT_JOURNEY_SAFETY_SCHEMA}
+    for row in ordered:
+        for field in PATIENT_JOURNEY_SAFETY_SCHEMA:
+            if field.name == "included_segments_json":
+                value: object = json.dumps(
+                    [
+                        {"start": start.isoformat(), "end": end.isoformat()}
+                        for start, end in row.included_segments
+                    ],
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+            else:
+                value = getattr(row, field.name)
+            columns[field.name].append(value)
+    arrays = [
+        pa.array(columns[field.name], type=field.type) for field in PATIENT_JOURNEY_SAFETY_SCHEMA
+    ]
+    return pa.Table.from_arrays(arrays, schema=PATIENT_JOURNEY_SAFETY_SCHEMA)
