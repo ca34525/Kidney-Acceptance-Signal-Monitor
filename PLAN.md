@@ -60,6 +60,7 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 | M8 | AI-generated code and context hardening | done | Plan 0014: research-backed audit, HTTPS boundary regression, Ruff security/complexity/pytest gates, focused context guidance, 143 tests at 83.93% branch coverage, and reproducible 12-file release bundle |
 | M9 | Patient-journey v2 foundation | done | Plan 0015: v2 scientific spec and decision accepted; typed configuration isolates all v2 outputs from protected v1 roots; 151 tests and required quality gates pass |
 | M10 | V2 methodology ledger and source parser | done | Plan 0016: typed/source-cited ledger, fixture-first parser, nine-release cache audit, 169 tests, and required quality gates pass |
+| M11 | V2 temporal design and canonical panel | done | Plan 0017: four non-overlapping pairs, strict-vintage folds, deterministic 966-row in-memory panel, 181 tests, and required quality gates pass |
 
 ## 5. Day-by-day execution
 

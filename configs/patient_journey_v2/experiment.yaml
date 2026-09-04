@@ -1,10 +1,34 @@
-schema_version: 1
+schema_version: 2
 analysis_id: kidney_patient_journey_v2
 
 target:
   column: SAL_TOTFTX_C18
   canonical_scale: proportion
   officially_risk_adjusted: false
+
+temporal_design:
+  evaluation_mode: strict_vintage
+  max_prediction_origin_month_offset: 1
+  primary_pairs:
+    - feature_release_code: "1905"
+      target_release_code: "2205"
+    - feature_release_code: "2006"
+      target_release_code: "2305"
+    - feature_release_code: "2105"
+      target_release_code: "2405"
+    - feature_release_code: "2205"
+      target_release_code: "2505"
+  excluded_candidates:
+    - feature_release_code: "1808"
+      target_release_code: "2105"
+      reason: prediction_origin_more_than_one_month_after_target_start
+    - feature_release_code: "2305"
+      target_release_code: "2605"
+      reason: overlapping_target_cohort
+
+eligibility:
+  primary_min_target_n: 10
+  sensitivity_min_target_n: [20, 30]
 
 paths:
   processed_dir: data/patient_journey_v2/processed

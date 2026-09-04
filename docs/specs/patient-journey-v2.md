@@ -1,6 +1,6 @@
 # Kidney Patient-Journey Forecast — v2 Scientific Specification
 
-**Specification version:** 0.1
+**Specification version:** 0.2
 **Status:** Approved for phased implementation
 **Specification date:** 2026-09-04
 **Primary audience:** Transplant-program quality and performance staff
@@ -124,9 +124,23 @@ The release-level methodology audit found a target-cadence discontinuity that mu
 `2505` covers candidates listed from 2022-07-01 through 2023-06-30, while `2605` covers calendar year
 2023. Those target cohorts overlap from 2023-01-01 through 2023-06-30. The parser may retain both
 published cohorts, but a modeling workflow may not treat them as independent consecutive temporal
-folds. Before panel construction or modeling, a separate plan and decision must either restrict the
-evaluation era or define a scientifically justified non-overlapping design. The `2305→2605` pair is
-therefore a source-valid candidate, not an approved additional evaluation fold.
+folds. The primary panel is therefore restricted to the four contiguous, non-overlapping July–June
+target cohorts represented by `1905→2205`, `2006→2305`, `2105→2405`, and `2205→2505`. The
+`2305→2605` pair remains source-valid but excluded from the primary panel because its target overlaps
+the preceding fold. Prediction origins may be in the target cohort's starting month or, for the
+COVID-delayed `2006` release, at most one calendar month later. This month-offset rule uses the exact
+published year/month and never invents a day for month-precision releases. Each panel row records the
+offset. The `1808→2105` pair remains excluded because its October feature release is three calendar
+months after the July target-cohort start. Both exclusions remain machine-readable in the v2
+experiment configuration and QA evidence.
+
+Evaluation also follows a strict publication-vintage rule: a training outcome may enter a fold only
+when its target release was already public at that fold's prediction origin. With the currently pinned
+sources, only the `2205→2505` evaluation origin has an earlier configured target (`2205`, from the
+`1905→2205` pair) available for model fitting. Earlier pairs remain useful for panel construction,
+baseline history, and descriptive audits, but they cannot become anachronistic model-training folds.
+This one-fold limitation must be reported as feasibility evidence and cannot support promotion or a
+claim of stable temporal validation.
 
 ## 6. Canonical panel and eligibility
 
@@ -138,6 +152,11 @@ The separate v2 model panel includes at least:
 - `target_n`, published percentage, canonical proportion, and empirical-logit target;
 - explicit analytic eligibility and missingness indicators; and
 - source URL/hash and method-ledger identities for joined metric families.
+
+The prediction universe is defined from programs present in each feature release, before future
+target availability is known. Programs absent from the later outcome table retain a null target and
+are ineligible; they are never dropped before QA or converted to a negative outcome. Target-release-
+only programs are reported as additions but are not backfilled into an earlier prediction universe.
 
 Primary analytic eligibility requires a valid composite program identity, proven temporal
 availability, a target in `[0, 1]`, `target_n >= 10`, and an available prior target for persistence.
@@ -158,7 +177,9 @@ The only P0 challenger family is Ridge with fold-local median imputation, explic
 indicators, fold-local standardization, fixed regularization, and inverse-logit predictions bounded
 to `[0, 1]`. Required feature-group comparisons are history only; history plus acceptance; history
 plus access; history plus access plus acceptance; and a secondary full model adding eligible lagged
-safety measures. No model zoo or post-result feature selection is allowed.
+safety measures. No model zoo or post-result feature selection is allowed. A Ridge comparison may run
+only for a strict-vintage fold with at least one earlier labeled training cohort; the current one-fold
+design is exploratory feasibility evidence and cannot promote a model into the product.
 
 Primary reporting includes target-release-balanced MAE in percentage points, mean signed error in
 percentage points, and named-scale calibration intercept/slope. Secondary reporting includes

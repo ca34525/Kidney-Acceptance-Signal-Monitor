@@ -19,12 +19,34 @@ def _config_text(
 ) -> str:
     risk_adjusted_yaml = str(risk_adjusted).lower()
     return f"""
-schema_version: 1
+schema_version: 2
 analysis_id: kidney_patient_journey_v2
 target:
   column: SAL_TOTFTX_C18
   canonical_scale: proportion
   officially_risk_adjusted: {risk_adjusted_yaml}
+temporal_design:
+  evaluation_mode: strict_vintage
+  max_prediction_origin_month_offset: 1
+  primary_pairs:
+    - feature_release_code: "1905"
+      target_release_code: "2205"
+    - feature_release_code: "2006"
+      target_release_code: "2305"
+    - feature_release_code: "2105"
+      target_release_code: "2405"
+    - feature_release_code: "2205"
+      target_release_code: "2505"
+  excluded_candidates:
+    - feature_release_code: "1808"
+      target_release_code: "2105"
+      reason: prediction_origin_more_than_one_month_after_target_start
+    - feature_release_code: "2305"
+      target_release_code: "2605"
+      reason: overlapping_target_cohort
+eligibility:
+  primary_min_target_n: 10
+  sensitivity_min_target_n: [20, 30]
 paths:
   processed_dir: {processed_dir}
   modeling_dir: {modeling_dir}
@@ -55,6 +77,34 @@ def test_project_patient_journey_config_uses_isolated_roots() -> None:
     assert config.paths.processed_dir == PROJECT_ROOT / "data/patient_journey_v2/processed"
     assert config.paths.modeling_dir == PROJECT_ROOT / "data/patient_journey_v2/modeling"
     assert config.paths.release_dir == PROJECT_ROOT / "artifacts/patient_journey_v2"
+
+
+def test_project_config_fixes_nonoverlapping_primary_pairs_and_exclusions() -> None:
+    config = load_patient_journey_config(
+        PROJECT_ROOT / "configs" / "patient_journey_v2" / "experiment.yaml",
+        repository_root=PROJECT_ROOT,
+    )
+
+    assert tuple(
+        (pair.feature_release_code, pair.target_release_code)
+        for pair in config.temporal_design.primary_pairs
+    ) == (
+        ("1905", "2205"),
+        ("2006", "2305"),
+        ("2105", "2405"),
+        ("2205", "2505"),
+    )
+    assert tuple(
+        (pair.feature_release_code, pair.target_release_code, pair.reason)
+        for pair in config.temporal_design.excluded_candidates
+    ) == (
+        ("1808", "2105", "prediction_origin_more_than_one_month_after_target_start"),
+        ("2305", "2605", "overlapping_target_cohort"),
+    )
+    assert config.temporal_design.evaluation_mode == "strict_vintage"
+    assert config.temporal_design.max_prediction_origin_month_offset == 1
+    assert config.eligibility.primary_min_target_n == 10
+    assert config.eligibility.sensitivity_min_target_n == (20, 30)
 
 
 @pytest.mark.parametrize(
