@@ -57,6 +57,7 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 | M5 | Offline Streamlit product | done | Plan 0011: complete offline program flow, persistence projection, model evaluation, explicit non-promotion/band suppression, provenance, AppTest, and process health smoke |
 | M6 | Reproducibility, documentation, and container | done | Plan 0012: 1.23 MB tracked bundle, clean-checkout/full reproduction, docs, local Docker non-root/health smoke, and 2/2 remote CI checks pass at `2c815688` |
 | M7 | Interview presentation release | in_progress | Plan 0013: verified eight-slide deck, offline backup demo, and 3:55 rehearsal package committed at `dc34b3a`; release tag awaits explicit user authorization |
+| M8 | AI-generated code and context hardening | done | Plan 0014: research-backed audit, HTTPS boundary regression, Ruff security/complexity/pytest gates, focused context guidance, 143 tests at 83.93% branch coverage, and reproducible 12-file release bundle |
 
 ## 5. Day-by-day execution
 

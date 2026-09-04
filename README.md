@@ -137,6 +137,10 @@ docker run --rm -p 8501:8501 kidney-acceptance-signal-monitor
 The image declares user `kasm` (UID 10001), reads the tracked bundle by default, and checks
 `/_stcore/health` without requiring an external utility.
 
+The [AI-generated code and context audit](docs/ai-code-and-context-audit.md) records the
+research basis, repository findings, implemented guardrails, and residual risks for AI-assisted
+maintenance.
+
 ## Data, attribution, and licensing boundary
 
 SRTR is the authoritative source for the Program-Specific Report materials. Its

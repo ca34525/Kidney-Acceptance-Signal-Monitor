@@ -6,6 +6,8 @@ from io import BytesIO
 from pathlib import Path
 from urllib.request import Request
 
+import pytest
+
 from kasm.config import DataSourceManifest, SourceRecord
 from kasm.data.download import sync_cache
 
@@ -18,7 +20,12 @@ class FakeResponse(BytesIO):
         self.status = status
 
 
-def _manifest_for(payload: bytes, *, digest: str | None = None) -> DataSourceManifest:
+def _manifest_for(
+    payload: bytes,
+    *,
+    digest: str | None = None,
+    url: str = "https://example.test/source.xls",
+) -> DataSourceManifest:
     return DataSourceManifest(
         schema_version=2,
         sources=(
@@ -26,7 +33,7 @@ def _manifest_for(payload: bytes, *, digest: str | None = None) -> DataSourceMan
                 release_code="test",
                 cohort_year=2025,
                 transport="xls",
-                url="https://example.test/source.xls",
+                url=url,
                 download_bytes=len(payload),
                 download_sha256=digest or sha256(payload).hexdigest(),
             ),
@@ -111,4 +118,25 @@ def test_download_rejects_http_failure_without_partial_file(tmp_path: Path) -> N
     assert not result.ok
     assert "http status 503" in result.issues[0].message.lower()
     assert not (tmp_path / "source.xls").exists()
+    assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.parametrize(
+    "url",
+    [pytest.param("http://example.test/source.xls"), pytest.param("file:///tmp/source.xls")],
+)
+def test_sync_rejects_non_https_source_before_opening_url(tmp_path: Path, url: str) -> None:
+    payload = XLS_MAGIC + b"fixture"
+
+    def unexpected_network(request: Request, *, timeout: float) -> FakeResponse:
+        raise AssertionError(f"Unsafe URL was opened: {request.full_url} after {timeout}")
+
+    result = sync_cache(
+        _manifest_for(payload, url=url),
+        tmp_path,
+        open_url=unexpected_network,
+    )
+
+    assert not result.ok
+    assert "https" in result.issues[0].message.casefold()
     assert list(tmp_path.iterdir()) == []

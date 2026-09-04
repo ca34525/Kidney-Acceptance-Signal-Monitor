@@ -11,7 +11,7 @@ from typing import Protocol, cast
 from urllib.error import URLError
 from urllib.request import Request, urlopen
 
-from kasm.config import DataSourceManifest, SourceRecord
+from kasm.config import DataSourceManifest, SourceRecord, is_https_file_url
 from kasm.data.cache import CacheIssue, verify_source_file
 
 _CHUNK_BYTES = 1024 * 1024
@@ -56,7 +56,8 @@ class CacheSync:
 
 
 def _default_open_url(request: Request, *, timeout: float) -> DownloadResponse:
-    return cast(DownloadResponse, urlopen(request, timeout=timeout))
+    # `_sync_source` validates the scheme before this boundary is reachable.
+    return cast(DownloadResponse, urlopen(request, timeout=timeout))  # noqa: S310
 
 
 def _download_to_temporary_file(
@@ -65,7 +66,7 @@ def _download_to_temporary_file(
     open_url: OpenUrl,
     timeout_seconds: float,
 ) -> tuple[Path | None, CacheIssue | None]:
-    request = Request(
+    request = Request(  # noqa: S310 - `_sync_source` permits absolute HTTPS URLs only
         source.url,
         headers={
             "Accept": "application/octet-stream,application/zip,*/*;q=0.1",
@@ -74,7 +75,8 @@ def _download_to_temporary_file(
     )
     temporary_path: Path | None = None
     try:
-        with open_url(request, timeout=timeout_seconds) as response:
+        # The injected opener is useful for offline tests; `_sync_source` still validates HTTPS.
+        with open_url(request, timeout=timeout_seconds) as response:  # noqa: S310
             if response.status != 200:
                 return None, CacheIssue(
                     source.release_code,
@@ -124,6 +126,13 @@ def _sync_source(
     open_url: OpenUrl,
     timeout_seconds: float,
 ) -> tuple[str, tuple[CacheIssue, ...]]:
+    if not is_https_file_url(source.url):
+        return "failed", (
+            CacheIssue(
+                source.release_code,
+                f"Source URL must be an HTTPS file URL and was not opened: {source.url}.",
+            ),
+        )
     target_path = cache_dir / source.cache_filename
     if target_path.exists():
         existing_issues = verify_source_file(target_path, source)

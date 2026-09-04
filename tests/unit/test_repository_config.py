@@ -129,6 +129,14 @@ def test_ci_enforces_release_and_container_gates() -> None:
         assert required in workflow
 
 
+def test_static_analysis_includes_ai_assisted_change_guardrails() -> None:
+    config = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    selected_rules = set(config["tool"]["ruff"]["lint"]["select"])
+
+    assert {"C90", "PT", "S"} <= selected_rules
+    assert config["tool"]["ruff"]["lint"]["mccabe"]["max-complexity"] <= 15
+
+
 def test_release_artifact_bytes_are_checkout_stable() -> None:
     attributes = (PROJECT_ROOT / ".gitattributes").read_text(encoding="utf-8")
     assert "artifacts/release/** binary" in attributes

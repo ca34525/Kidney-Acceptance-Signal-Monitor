@@ -21,6 +21,12 @@ Order of authority:
 
 If implementation requires changing scope, data meaning, target, features, splits, metrics, or promotion rules, change the specification and plan first. Record a short architectural decision in `docs/decisions/`.
 
+After those mandatory reads, load implementation context just in time:
+
+- use symbol and call-site search to select the production module, its direct consumers, and its tests;
+- do not preload archived plans, raw artifacts, generated outputs, or unrelated modules; and
+- leave decisions, unresolved risks, and command evidence in the active plan rather than relying on a chat transcript.
+
 ## 2. Plan → test → build
 
 Every change must map to a plan item and acceptance criterion.
@@ -130,7 +136,11 @@ The historical monitor is the product. Show the ridge challenger as the default 
 
 - Python 3.12 and `uv` with a committed `uv.lock` are the supported environment.
 - Prefer small, typed, pure functions and explicit schemas.
+- Treat AI-generated code, tests, dependency names, and factual claims as untrusted until verified.
+- Search for existing definitions and call sites before adding a helper. Prefer direct reuse, and do not add speculative abstractions, compatibility layers, placeholders, or unrelated cleanup.
+- A new dependency needs a concrete requirement in the active plan, verification against its official package registry or upstream source, and an updated `uv.lock` reviewed in the diff.
 - Keep side effects at CLI and I/O boundaries.
+- Give external-input, filesystem, archive, network, and subprocess boundaries negative tests and security-focused static analysis. Keep any suppression narrow and explain why the boundary is safe.
 - Use structured logging; do not log entire source rows unnecessarily.
 - Raise actionable domain errors rather than returning partially valid data.
 - Fix random seeds and record them, but do not confuse deterministic code with statistical certainty.
@@ -201,6 +211,8 @@ The suite must cover:
 When `forecast_activation_attempted: true`, the suite must additionally cover promotion-gate behavior, point-versus-band promotion, 2024-only band calibration, exact-binomial coverage, bootstrap reproducibility, and band suppression.
 
 Do not write brittle tests for exact live-data model scores or chart pixels. Use small fixtures and property/invariant tests. A coverage threshold is a floor, not a substitute for testing the named risks.
+
+Prefer assertions on observable domain behavior over assertions that repeat the implementation. For a defect or safety boundary, preserve the smallest case that failed before the fix and include malformed, missing, or boundary inputs when they can change the meaning of the result.
 
 ## 10. Definition of done
 

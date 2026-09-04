@@ -353,13 +353,17 @@ def _parse_program(
     row_number: int,
 ) -> tuple[ProgramSignal, ...]:
     context = _context(source, row_number)
-    center_code = _text(_value(row, positions, "CTR_CD"), field="center code", context=context)
-    assert center_code is not None
+    center_code = cast(
+        str,
+        _text(_value(row, positions, "CTR_CD"), field="center code", context=context),
+    )
     center_code = center_code.upper()
     if _CENTER_CODE.fullmatch(center_code) is None:
         raise ParseError(f"{context}: center code must match [A-Z0-9]{{4}}.")
-    center_type = _text(_value(row, positions, "CTR_TY"), field="center type", context=context)
-    assert center_type is not None
+    center_type = cast(
+        str,
+        _text(_value(row, positions, "CTR_TY"), field="center type", context=context),
+    )
     center_name = (
         _text(
             _value(row, positions, "ENTIRE_NAME"),

@@ -12,7 +12,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from math import log, log1p
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pyarrow as pa  # type: ignore[import-untyped]
 import pyarrow.parquet as pq  # type: ignore[import-untyped]
@@ -252,13 +252,18 @@ def parse_current_directory(
         )
         if organ is None or organ.casefold() != "kidney":
             continue
-        center_code = _directory_text(
-            _directory_value(row, positions, "CTR_CD"), required=True, field="CTR_CD"
+        center_code = cast(
+            str,
+            _directory_text(
+                _directory_value(row, positions, "CTR_CD"), required=True, field="CTR_CD"
+            ),
         )
-        center_type = _directory_text(
-            _directory_value(row, positions, "CTR_TY"), required=True, field="CTR_TY"
+        center_type = cast(
+            str,
+            _directory_text(
+                _directory_value(row, positions, "CTR_TY"), required=True, field="CTR_TY"
+            ),
         )
-        assert center_code is not None and center_type is not None
         center_code = center_code.upper()
         if _CENTER_CODE.fullmatch(center_code) is None:
             raise BuildError(
@@ -417,29 +422,36 @@ def build_model_panel(
         source = sources_by_year.get(feature_year)
         if source is None:
             raise BuildError(f"No source metadata exists for feature cohort {feature_year}.")
-        current_log = _positive_log(
-            current.oar_mean,
-            context=f"{program_key} {feature_year} current overall OAR",
-            required=True,
+        current_log = cast(
+            float,
+            _positive_log(
+                current.oar_mean,
+                context=f"{program_key} {feature_year} current overall OAR",
+                required=True,
+            ),
         )
-        assert current_log is not None
         if current.expected_acceptances is None:
             raise BuildError(
                 f"{program_key} {feature_year} overall expected acceptances are required."
             )
         if current.oar_lower is None or current.oar_upper is None:
             raise BuildError(f"{program_key} {feature_year} overall interval is required.")
-        lower_log = _positive_log(
-            current.oar_lower,
-            context=f"{program_key} {feature_year} overall lower bound",
-            required=True,
+        lower_log = cast(
+            float,
+            _positive_log(
+                current.oar_lower,
+                context=f"{program_key} {feature_year} overall lower bound",
+                required=True,
+            ),
         )
-        upper_log = _positive_log(
-            current.oar_upper,
-            context=f"{program_key} {feature_year} overall upper bound",
-            required=True,
+        upper_log = cast(
+            float,
+            _positive_log(
+                current.oar_upper,
+                context=f"{program_key} {feature_year} overall upper bound",
+                required=True,
+            ),
         )
-        assert lower_log is not None and upper_log is not None
         if current.offers is None or current.offers <= 0:
             raise BuildError(f"{program_key} {feature_year} overall offers must be positive.")
 
@@ -463,11 +475,10 @@ def build_model_panel(
                 f"{program_key} {feature_year} is missing canonical offer groups: "
                 f"{', '.join(missing_groups)}."
             )
-        low = groups["low"]
-        medium = groups["medium"]
-        high = groups["high"]
-        hard = groups["hard-to-place"]
-        assert low is not None and medium is not None and high is not None and hard is not None
+        low = cast(CanonicalSignal, groups["low"])
+        medium = cast(CanonicalSignal, groups["medium"])
+        high = cast(CanonicalSignal, groups["high"])
+        hard = cast(CanonicalSignal, groups["hard-to-place"])
         low_log = _positive_log(
             low.oar_mean, context=f"{program_key} {feature_year} low OAR", required=False
         )

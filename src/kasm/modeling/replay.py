@@ -650,8 +650,8 @@ def canonical_replay_directory(
 
 
 def _run_git(repository_root: Path, arguments: Sequence[str]) -> subprocess.CompletedProcess[bytes]:
-    return subprocess.run(
-        ["git", *arguments],
+    return subprocess.run(  # noqa: S603 - fixed executable, no shell, internal arguments only
+        ["git", *arguments],  # noqa: S607 - Git is an explicit repository prerequisite
         cwd=repository_root,
         check=False,
         capture_output=True,

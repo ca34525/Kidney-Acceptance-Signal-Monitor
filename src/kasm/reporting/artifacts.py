@@ -204,23 +204,13 @@ def _canonical_files(
     return tuple(files)
 
 
-def _verify_input_identity(
-    *,
-    processed_dir: Path,
-    modeling_dir: Path,
+def _verified_replay_completion(
     replay_dir: Path,
-    source_manifest_path: Path,
-    experiment_config_path: Path,
-    frozen_experiment_path: Path,
-    lock_path: Path,
-) -> tuple[JsonObject, JsonObject, DataSourceManifest, str]:
-    source_manifest = load_data_source_manifest(source_manifest_path)
-    source_manifest_hash = _file_sha256(source_manifest_path)
-    frozen_hash = _file_sha256(frozen_experiment_path)
-    experiment_hash = _file_sha256(experiment_config_path)
-    lock_hash = _file_sha256(lock_path)
-    panel_hash = _file_sha256(processed_dir / "model_panel.parquet")
-
+    *,
+    frozen_hash: str,
+    source_manifest_hash: str,
+    panel_hash: str,
+) -> JsonObject:
     completion = _read_json(replay_dir / "completion.json")
     if completion.get("status") != "complete":
         raise ReleaseBundleError("Canonical frozen replay completion ledger is not complete.")
@@ -247,7 +237,18 @@ def _verify_input_identity(
             replay_checksums.get(key), f"completion.artifact_sha256.{key}"
         ) != _file_sha256(replay_dir / expected_name):
             raise ReleaseBundleError(f"Canonical replay {key} checksum disagrees with its ledger.")
+    return completion
 
+
+def _verified_replay_provenance(
+    replay_dir: Path,
+    *,
+    lock_hash: str,
+    frozen_hash: str,
+    source_manifest_hash: str,
+    panel_hash: str,
+    source_manifest: DataSourceManifest,
+) -> JsonObject:
     replay_metrics = _read_json(replay_dir / "replay_metrics.json")
     if replay_metrics.get("frozen_replay_evaluated") is not True:
         raise ReleaseBundleError("Replay metrics must be frozen replay evidence.")
@@ -289,7 +290,12 @@ def _verify_input_identity(
     _integer(provenance.get("calibration_target_year"), "provenance.calibration_target_year")
     _integer(provenance.get("replay_target_year"), "provenance.replay_target_year")
     _array(replay_metrics.get("methodology_version_ledger"), "methodology_version_ledger")
+    return provenance
 
+
+def _verify_pre_replay_input_identity(
+    modeling_dir: Path, *, panel_hash: str, experiment_hash: str
+) -> None:
     for name in (
         "baseline_metrics.json",
         "ridge_metrics.json",
@@ -313,6 +319,42 @@ def _verify_input_identity(
         if _read_json(modeling_dir / name).get("frozen_replay_evaluated") is not False:
             raise ReleaseBundleError(f"Canonical {name} must remain pre-replay evidence.")
 
+
+def _verify_input_identity(
+    *,
+    processed_dir: Path,
+    modeling_dir: Path,
+    replay_dir: Path,
+    source_manifest_path: Path,
+    experiment_config_path: Path,
+    frozen_experiment_path: Path,
+    lock_path: Path,
+) -> tuple[JsonObject, JsonObject, DataSourceManifest, str]:
+    source_manifest = load_data_source_manifest(source_manifest_path)
+    source_manifest_hash = _file_sha256(source_manifest_path)
+    frozen_hash = _file_sha256(frozen_experiment_path)
+    experiment_hash = _file_sha256(experiment_config_path)
+    lock_hash = _file_sha256(lock_path)
+    panel_hash = _file_sha256(processed_dir / "model_panel.parquet")
+    completion = _verified_replay_completion(
+        replay_dir,
+        frozen_hash=frozen_hash,
+        source_manifest_hash=source_manifest_hash,
+        panel_hash=panel_hash,
+    )
+    provenance = _verified_replay_provenance(
+        replay_dir,
+        lock_hash=lock_hash,
+        frozen_hash=frozen_hash,
+        source_manifest_hash=source_manifest_hash,
+        panel_hash=panel_hash,
+        source_manifest=source_manifest,
+    )
+    _verify_pre_replay_input_identity(
+        modeling_dir,
+        panel_hash=panel_hash,
+        experiment_hash=experiment_hash,
+    )
     return completion, provenance, source_manifest, experiment_hash
 
 
@@ -504,12 +546,7 @@ def build_release_bundle(
             shutil.rmtree(staging, ignore_errors=True)
 
 
-def validate_release_bundle(
-    bundle_dir: Path, *, max_bytes: int = MAX_RELEASE_BYTES
-) -> ReleaseBundleResult:
-    """Validate the tracked bundle's exact files, sizes, checksums, and provenance envelope."""
-    manifest_path = bundle_dir / RELEASE_MANIFEST_NAME
-    manifest = _read_json(manifest_path)
+def _validated_release_entries(manifest: Mapping[str, object]) -> tuple[JsonObject, ...]:
     if _integer(manifest.get("schema_version"), "schema_version") != 1:
         raise ReleaseBundleError("Unsupported release manifest schema version.")
     if _text(manifest.get("bundle_name"), "bundle_name") != (
@@ -523,7 +560,12 @@ def validate_release_bundle(
         raise ReleaseBundleError("Release manifest must list its payload files.")
     if _integer(manifest.get("file_count"), "file_count") != len(entries):
         raise ReleaseBundleError("Release manifest file count disagrees with its entries.")
+    return entries
 
+
+def _validated_release_payloads(
+    bundle_dir: Path, entries: Sequence[Mapping[str, object]]
+) -> tuple[tuple[PurePosixPath, ...], int]:
     paths: list[PurePosixPath] = []
     payload_bytes = 0
     for index, entry in enumerate(entries):
@@ -563,7 +605,10 @@ def validate_release_bundle(
         if _file_sha256(artifact) != expected_hash:
             raise ReleaseBundleError(f"Release payload checksum disagrees for {path_text}.")
         payload_bytes += expected_size
+    return tuple(paths), payload_bytes
 
+
+def _validated_release_provenance(manifest: Mapping[str, object]) -> JsonObject:
     provenance = _object(manifest.get("provenance"), "provenance")
     for field in (
         "dependency_lock_sha256",
@@ -614,7 +659,10 @@ def validate_release_bundle(
     )
     if not 0 <= elapsed_fraction <= 1:
         raise ReleaseBundleError("Release prediction-context elapsed fraction is outside 0–1.")
+    return provenance
 
+
+def _validate_release_attribution_and_roots(manifest: Mapping[str, object]) -> None:
     attribution = _object(manifest.get("attribution"), "attribution")
     _text(attribution.get("source_owner"), "attribution.source_owner")
     _text(attribution.get("source_landing_page"), "attribution.source_landing_page")
@@ -633,6 +681,12 @@ def validate_release_bundle(
     }:
         raise ReleaseBundleError("Release application roots do not match the offline contract.")
 
+
+def _validate_release_file_set(
+    bundle_dir: Path,
+    paths: Sequence[PurePosixPath],
+    provenance: Mapping[str, object],
+) -> None:
     frozen_hash = _sha256_text(
         provenance.get("frozen_experiment_sha256"), "provenance.frozen_experiment_sha256"
     )
@@ -655,6 +709,15 @@ def validate_release_bundle(
     if actual_files != expected_files:
         raise ReleaseBundleError("Release directory contains unapproved or unlisted files.")
 
+
+def _validated_release_size_and_identity(
+    *,
+    manifest: Mapping[str, object],
+    manifest_path: Path,
+    entries: Sequence[Mapping[str, object]],
+    payload_bytes: int,
+    max_bytes: int,
+) -> tuple[str, int]:
     recorded_bundle_hash = _sha256_text(
         manifest.get("bundle_content_sha256"), "bundle_content_sha256"
     )
@@ -667,6 +730,27 @@ def validate_release_bundle(
         raise ReleaseBundleError(
             f"Release bundle is {total_bytes} bytes; it must remain below {max_bytes} bytes."
         )
+    return recorded_bundle_hash, total_bytes
+
+
+def validate_release_bundle(
+    bundle_dir: Path, *, max_bytes: int = MAX_RELEASE_BYTES
+) -> ReleaseBundleResult:
+    """Validate the tracked bundle's exact files, sizes, checksums, and provenance envelope."""
+    manifest_path = bundle_dir / RELEASE_MANIFEST_NAME
+    manifest = _read_json(manifest_path)
+    entries = _validated_release_entries(manifest)
+    paths, payload_bytes = _validated_release_payloads(bundle_dir, entries)
+    provenance = _validated_release_provenance(manifest)
+    _validate_release_attribution_and_roots(manifest)
+    _validate_release_file_set(bundle_dir, paths, provenance)
+    recorded_bundle_hash, total_bytes = _validated_release_size_and_identity(
+        manifest=manifest,
+        manifest_path=manifest_path,
+        entries=entries,
+        payload_bytes=payload_bytes,
+        max_bytes=max_bytes,
+    )
 
     return ReleaseBundleResult(
         output_directory=bundle_dir,

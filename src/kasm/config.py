@@ -21,6 +21,12 @@ class ManifestError(ValueError):
     """Raised when a source manifest violates its contract."""
 
 
+def is_https_file_url(value: str) -> bool:
+    """Return whether a source URL is an absolute HTTPS URL with a filename."""
+    parsed = urlparse(value)
+    return parsed.scheme == "https" and bool(parsed.netloc and Path(parsed.path).name)
+
+
 @dataclass(frozen=True)
 class SourceRecord:
     """One immutable source release from the manifest."""
@@ -161,7 +167,7 @@ def _parse_source(value: object, index: int) -> SourceRecord:
     transport = cast(Transport, raw_transport)
     url = _required_string(values, "url", context)
     parsed_url = urlparse(url)
-    if parsed_url.scheme != "https" or not parsed_url.netloc or not Path(parsed_url.path).name:
+    if not is_https_file_url(url):
         raise ManifestError(f"{context}.url must be an HTTPS file URL.")
     download_bytes = _required_integer(values, "download_bytes", context)
     if download_bytes <= 0:

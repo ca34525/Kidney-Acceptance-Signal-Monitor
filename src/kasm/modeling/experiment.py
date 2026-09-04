@@ -156,13 +156,7 @@ def _sensitivity_specs(value: object) -> tuple[SensitivitySpec, ...]:
     return result
 
 
-def load_experiment_config(path: Path) -> ExperimentConfig:
-    """Load the fixed baseline design and reject changes to its core scientific meaning."""
-    raw: object = yaml.safe_load(path.read_text(encoding="utf-8"))
-    values = _mapping(raw, "Experiment config")
-    if _integer(values.get("schema_version"), "schema_version") != 1:
-        raise ExperimentConfigError("schema_version must be 1.")
-
+def _target_and_features(values: dict[str, object]) -> tuple[str, tuple[str, ...]]:
     target = _mapping(values.get("target"), "target")
     target_column = _string(target.get("column"), "target.column")
     if target_column != "target_log_oar":
@@ -174,7 +168,12 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
         validate_feature_columns(feature_columns)
     except ValueError as error:
         raise ExperimentConfigError(str(error)) from error
+    return target_column, feature_columns
 
+
+def _temporal_design(
+    values: dict[str, object],
+) -> tuple[dict[str, object], int, tuple[int, ...], int, int, int]:
     temporal = _mapping(values.get("temporal_evaluation"), "temporal_evaluation")
     split_method = _string(temporal.get("split_method"), "temporal_evaluation.split_method")
     if split_method != "rolling_origin_by_target_year":
@@ -205,6 +204,40 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
             "Temporal years must match the prespecified 2018 training start, 2021-2023 "
             "selection years, 2024 validation year, and 2025 frozen replay year."
         )
+    replay_training_end = _integer(
+        temporal.get("replay_model_training_target_year_end"),
+        "temporal_evaluation.replay_model_training_target_year_end",
+    )
+    if replay_training_end != 2023:
+        raise ExperimentConfigError(
+            "temporal_evaluation.replay_model_training_target_year_end must be 2023."
+        )
+    return (
+        temporal,
+        training_start,
+        selection_years,
+        validation_year,
+        replay_year,
+        replay_training_end,
+    )
+
+
+def load_experiment_config(path: Path) -> ExperimentConfig:
+    """Load the fixed baseline design and reject changes to its core scientific meaning."""
+    raw: object = yaml.safe_load(path.read_text(encoding="utf-8"))
+    values = _mapping(raw, "Experiment config")
+    if _integer(values.get("schema_version"), "schema_version") != 1:
+        raise ExperimentConfigError("schema_version must be 1.")
+
+    target_column, feature_columns = _target_and_features(values)
+    (
+        temporal,
+        training_start,
+        selection_years,
+        validation_year,
+        replay_year,
+        replay_training_end,
+    ) = _temporal_design(values)
 
     baselines = _string_tuple(values.get("baselines"), "baselines")
     if baselines != ("neutral", "persistence", "historical_mean"):
@@ -233,15 +266,6 @@ def load_experiment_config(path: Path) -> ExperimentConfig:
     )
     if selected_alpha is not None and selected_alpha not in alpha_grid:
         raise ExperimentConfigError("ridge.selected_alpha must be from ridge.alpha_grid.")
-
-    replay_training_end = _integer(
-        temporal.get("replay_model_training_target_year_end"),
-        "temporal_evaluation.replay_model_training_target_year_end",
-    )
-    if replay_training_end != 2023:
-        raise ExperimentConfigError(
-            "temporal_evaluation.replay_model_training_target_year_end must be 2023."
-        )
 
     volume = _mapping(values.get("volume_quartiles"), "volume_quartiles")
     minimum_lowest_quartile_rows = _integer(
