@@ -8,7 +8,7 @@ from collections.abc import Sequence
 from dataclasses import asdict
 from pathlib import Path
 
-from kasm.config import load_data_source_manifest
+from kasm.config import ManifestError, load_data_source_manifest
 from kasm.data.build import BuildError, build_cached_data
 from kasm.data.cache import verify_cache
 from kasm.data.download import sync_cache
@@ -17,6 +17,14 @@ from kasm.modeling.backtest import BacktestError, run_baseline_backtest
 from kasm.modeling.challenger import ChallengerError, run_ridge_backtest
 from kasm.modeling.experiment import ExperimentConfigError
 from kasm.modeling.replay import FrozenReplayError, run_frozen_replay
+from kasm.patient_journey.artifacts import (
+    PatientJourneyArtifactError,
+    build_cached_patient_journey_artifacts,
+)
+from kasm.patient_journey.config import PatientJourneyConfigError
+from kasm.patient_journey.ledger import MethodologyLedgerError
+from kasm.patient_journey.panel import PatientJourneyPanelError
+from kasm.patient_journey.parse import PatientJourneyParseError
 from kasm.reporting.artifacts import ReleaseBundleError, build_release_bundle
 
 
@@ -41,6 +49,32 @@ def build_parser() -> argparse.ArgumentParser:
     )
     build_data_parser.add_argument("--cache-dir", type=Path, default=Path("data/raw/srtr"))
     build_data_parser.add_argument("--output-dir", type=Path, default=Path("data/processed"))
+    patient_journey_parser = commands.add_parser("patient-journey")
+    patient_journey_commands = patient_journey_parser.add_subparsers(
+        dest="patient_journey_command", required=True
+    )
+    patient_journey_data_parser = patient_journey_commands.add_parser("data")
+    patient_journey_data_commands = patient_journey_data_parser.add_subparsers(
+        dest="patient_journey_data_command", required=True
+    )
+    patient_journey_build_parser = patient_journey_data_commands.add_parser("build")
+    patient_journey_build_parser.add_argument(
+        "--manifest", type=Path, default=Path("configs/data_sources.yaml")
+    )
+    patient_journey_build_parser.add_argument(
+        "--methodology",
+        type=Path,
+        default=Path("configs/patient_journey_v2/methodology.yaml"),
+    )
+    patient_journey_build_parser.add_argument(
+        "--config",
+        type=Path,
+        default=Path("configs/patient_journey_v2/experiment.yaml"),
+    )
+    patient_journey_build_parser.add_argument(
+        "--cache-dir", type=Path, default=Path("data/raw/srtr")
+    )
+    patient_journey_build_parser.add_argument("--lock", type=Path, default=Path("uv.lock"))
     model_parser = commands.add_parser("model")
     model_commands = model_parser.add_subparsers(dest="model_command", required=True)
     backtest_parser = model_commands.add_parser("backtest")
@@ -90,6 +124,44 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> int:
     """Run a command and return a process exit code."""
     args = build_parser().parse_args(argv)
+    if args.command == "patient-journey":
+        try:
+            patient_journey_result = build_cached_patient_journey_artifacts(
+                repository_root=Path.cwd(),
+                source_manifest_path=args.manifest,
+                experiment_config_path=args.config,
+                methodology_path=args.methodology,
+                cache_dir=args.cache_dir,
+                lock_path=args.lock,
+            )
+        except (
+            ManifestError,
+            MethodologyLedgerError,
+            ParseError,
+            PatientJourneyArtifactError,
+            PatientJourneyConfigError,
+            PatientJourneyPanelError,
+            PatientJourneyParseError,
+            OSError,
+        ) as error:
+            print(json.dumps({"error": str(error), "ok": False}, indent=2, sort_keys=True))
+            return 1
+        print(
+            json.dumps(
+                {
+                    "artifact_set_sha256": patient_journey_result.artifact_set_sha256,
+                    "manifest_path": str(patient_journey_result.manifest_path),
+                    "ok": True,
+                    "output_directory": str(patient_journey_result.output_directory),
+                    "panel_path": str(patient_journey_result.panel_path),
+                    "panel_rows": patient_journey_result.panel_rows,
+                    "qa_report_path": str(patient_journey_result.qa_report_path),
+                },
+                indent=2,
+                sort_keys=True,
+            )
+        )
+        return 0
     if args.command == "artifacts":
         try:
             release_result = build_release_bundle(

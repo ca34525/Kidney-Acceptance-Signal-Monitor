@@ -1,16 +1,30 @@
 from __future__ import annotations
 
+import json
 import math
 from dataclasses import replace
-from datetime import date
+from datetime import UTC, date, datetime
+from hashlib import sha256
 from pathlib import Path
 
+import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
+import yaml
 
 from kasm.config import DataSourceManifest, SourceRecord, load_data_source_manifest
 from kasm.data.parse import ParsedRelease, ProgramSignal
+from kasm.patient_journey.artifacts import (
+    PatientJourneyArtifactError,
+    PatientJourneyArtifactResult,
+    PatientJourneyBuildContext,
+    build_cached_patient_journey_artifacts,
+    validate_patient_journey_artifacts,
+    write_patient_journey_artifacts,
+)
 from kasm.patient_journey.config import (
     PatientJourneyConfig,
+    PatientJourneyConfigError,
     PatientJourneyEligibility,
     PatientJourneyOutputPaths,
     PatientJourneyPair,
@@ -19,6 +33,7 @@ from kasm.patient_journey.config import (
 )
 from kasm.patient_journey.ledger import (
     MethodologyLedger,
+    MethodologyLedgerError,
     MetricMethodology,
     ReleaseMethodology,
     SheetContract,
@@ -57,7 +72,7 @@ def _source(
         published_value=published_value,
         published_precision=precision,  # type: ignore[arg-type]
         cohort_year=cohort_year,
-        expected_rows=5,
+        expected_rows=200,
         expected_columns=125,
         sheet_name="Acceptance",
         transport="xls",
@@ -446,6 +461,22 @@ def test_panel_uses_feature_release_universe_and_keeps_missing_target_null() -> 
     assert missing.primary_analytic_eligible is False
     assert panel.pair_summaries[0].missing_target_rows == 1
     assert panel.pair_summaries[0].target_only_additions == 1
+    assert panel.pair_summaries[0].target_only_program_keys == ("IJKL:TX1",)
+    assert panel.pair_summaries[0].target_program_keys == (
+        "ABCD:TX1",
+        "BCD1:TX1",
+        "BCD2:TX1",
+        "BCD3:TX1",
+        "IJKL:TX1",
+    )
+    assert panel.pair_summaries[0].available_cohort_target_successes == 16
+    assert panel.pair_summaries[0].available_cohort_target_n == 40
+    history = {
+        evidence.program_key: evidence for evidence in panel.pair_summaries[0].row_history_evidence
+    }
+    assert history["ABCD:TX1"].release_codes == ("1808", "1905")
+    assert history["ABCD:TX1"].target_proportions == (0.3, 0.4)
+    assert history["ABCD:TX1"].earliest_identity_release_code == "1808"
 
 
 def test_primary_and_sensitivity_threshold_boundaries_are_fixed() -> None:
@@ -578,3 +609,1076 @@ def test_cached_panel_reads_each_verified_source_once(monkeypatch: pytest.Monkey
 
     assert loaded == ["1808", "1905", "2205"]
     assert len(panel.rows) == 5
+
+
+def _artifact_manifest(sources: tuple[SourceRecord, ...]) -> DataSourceManifest:
+    return DataSourceManifest(
+        schema_version=2,
+        sources=sources,
+        required_machine_columns=("ENTIRE_NAME",),
+        optional_recent_machine_columns=(),
+    )
+
+
+def _sheet_config(sheet: SheetContract) -> dict[str, object]:
+    return {
+        "sheet_name": sheet.name,
+        "expected_rows": sheet.expected_rows,
+        "expected_columns": sheet.expected_columns,
+        "required_fields": list(sheet.required_fields),
+    }
+
+
+def _methodology_config(ledger: MethodologyLedger) -> dict[str, object]:
+    releases = []
+    for release in ledger.releases:
+        metrics = []
+        for metric in release.metrics:
+            metrics.append(
+                {
+                    "family": metric.family,
+                    **_sheet_config(metric.sheet),
+                    "measurement_start": metric.measurement_start.isoformat(),
+                    "measurement_end": metric.measurement_end.isoformat(),
+                    "follow_up_end": metric.follow_up_end.isoformat(),
+                    "timing_source_url": metric.timing_source_url,
+                    "definition_notes": list(metric.definition_notes),
+                    "method_changes": list(metric.method_changes),
+                    "policy_context": list(metric.policy_context),
+                }
+            )
+        releases.append(
+            {
+                "release_code": release.release_code,
+                "published_value": release.published_value,
+                "published_precision": release.published_precision,
+                "source_url": release.source_url,
+                "source_sha256": release.source_sha256,
+                "identity": _sheet_config(release.identity_sheet),
+                "metrics": metrics,
+            }
+        )
+    return {
+        "schema_version": ledger.schema_version,
+        "analysis_id": ledger.analysis_id,
+        "source_manifest": ledger.source_manifest,
+        "releases": releases,
+    }
+
+
+def _artifact_paths(
+    tmp_path: Path,
+    *,
+    manifest: DataSourceManifest,
+    config: PatientJourneyConfig,
+    ledger: MethodologyLedger,
+) -> dict[str, Path]:
+    paths = {
+        "source_manifest_path": tmp_path / "configs" / "data_sources.yaml",
+        "experiment_config_path": tmp_path / "configs" / "patient_journey_v2" / "experiment.yaml",
+        "methodology_path": tmp_path / "configs" / "patient_journey_v2" / "methodology.yaml",
+        "lock_path": tmp_path / "uv.lock",
+    }
+    for path in paths.values():
+        path.parent.mkdir(parents=True, exist_ok=True)
+    sources = []
+    for source in manifest.sources:
+        sources.append(
+            {
+                "release_code": source.release_code,
+                "release_label": source.release_label,
+                "release_date_value": source.published_value,
+                "release_date_precision": source.published_precision,
+                "cohort_year": source.cohort_year,
+                "expected_rows": source.expected_rows,
+                "expected_columns": source.expected_columns,
+                "sheet_name": source.sheet_name,
+                "transport": source.transport,
+                "url": source.url,
+                "download_bytes": source.download_bytes,
+                "download_sha256": source.download_sha256,
+            }
+        )
+    paths["source_manifest_path"].write_text(
+        yaml.safe_dump(
+            {
+                "schema_version": manifest.schema_version,
+                "required_machine_columns": list(manifest.required_machine_columns),
+                "optional_recent_machine_columns": list(manifest.optional_recent_machine_columns),
+                "sources": sources,
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+    processed_relative = config.paths.processed_dir.resolve().relative_to(tmp_path.resolve())
+    paths["experiment_config_path"].write_text(
+        yaml.safe_dump(
+            {
+                "schema_version": config.schema_version,
+                "analysis_id": config.analysis_id,
+                "target": {
+                    "column": config.target_column,
+                    "canonical_scale": "proportion",
+                    "officially_risk_adjusted": False,
+                },
+                "temporal_design": {
+                    "evaluation_mode": config.temporal_design.evaluation_mode,
+                    "max_prediction_origin_month_offset": (
+                        config.temporal_design.max_prediction_origin_month_offset
+                    ),
+                    "primary_pairs": [
+                        {
+                            "feature_release_code": pair.feature_release_code,
+                            "target_release_code": pair.target_release_code,
+                        }
+                        for pair in config.temporal_design.primary_pairs
+                    ],
+                    "excluded_candidates": [
+                        {
+                            "feature_release_code": pair.feature_release_code,
+                            "target_release_code": pair.target_release_code,
+                            "reason": pair.reason,
+                        }
+                        for pair in config.temporal_design.excluded_candidates
+                    ],
+                },
+                "eligibility": {
+                    "primary_min_target_n": config.eligibility.primary_min_target_n,
+                    "sensitivity_min_target_n": list(config.eligibility.sensitivity_min_target_n),
+                },
+                "paths": {
+                    "processed_dir": processed_relative.as_posix(),
+                    "modeling_dir": "data/patient_journey_v2/modeling",
+                    "release_dir": "artifacts/patient_journey_v2",
+                },
+                "protected_v1_roots": [
+                    "data/processed",
+                    "data/modeling",
+                    "artifacts/release",
+                ],
+            },
+            sort_keys=False,
+        ),
+        encoding="utf-8",
+    )
+    paths["methodology_path"].write_text(
+        yaml.safe_dump(_methodology_config(ledger), sort_keys=False),
+        encoding="utf-8",
+    )
+    paths["lock_path"].write_text("fixture-lock\n", encoding="utf-8")
+    return paths
+
+
+def _artifact_context() -> PatientJourneyBuildContext:
+    return PatientJourneyBuildContext(
+        build_timestamp_utc=datetime(2026, 9, 4, 18, 0, tzinfo=UTC),
+        git_commit_sha="a" * 40,
+        git_worktree_dirty=False,
+        python_version="3.12.10",
+    )
+
+
+def _refresh_artifact_manifest(result: PatientJourneyArtifactResult) -> None:
+    build_manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+    for key, path in (
+        ("panel", result.panel_path),
+        ("qa_report", result.qa_report_path),
+    ):
+        record = build_manifest["artifacts"][key]
+        record["bytes"] = path.stat().st_size
+        record["sha256"] = sha256(path.read_bytes()).hexdigest()
+    normalized = {
+        name: {"bytes": record["bytes"], "sha256": record["sha256"]}
+        for name, record in sorted(build_manifest["artifacts"].items())
+    }
+    build_manifest["artifact_set_sha256"] = sha256(
+        json.dumps(normalized, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    result.manifest_path.write_text(
+        json.dumps(build_manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
+def test_patient_journey_writer_publishes_exact_manifest_bound_artifacts(
+    tmp_path: Path,
+) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(
+        config,
+        paths=replace(config.paths, processed_dir=output_dir),
+    )
+    panel = _build_fixture()
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+
+    result = write_patient_journey_artifacts(
+        panel,
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+
+    assert {path.name for path in output_dir.iterdir()} == {
+        "build_manifest.json",
+        "patient_journey_panel.parquet",
+        "qa_report.json",
+    }
+    assert result.panel_rows == 5
+    assert result.output_directory == output_dir
+    table = pq.read_table(result.panel_path)
+    assert table.schema.remove_metadata() == PATIENT_JOURNEY_PANEL_SCHEMA
+    assert table.schema.metadata is not None
+    provenance = json.loads(table.schema.metadata[b"kasm_provenance"])
+    assert provenance["analysis_id"] == "kidney_patient_journey_v2"
+    assert provenance["model_fitted"] is False
+    assert provenance["model_parameters"] == {}
+    assert provenance["git_worktree_dirty"] is False
+    assert provenance["canonical_build"] is True
+    assert provenance["methodology_ledger_identity"] == panel.methodology_ledger_identity
+    assert provenance["source_sha256"] == {
+        source.release_code: source.download_sha256 for source in sources
+    }
+
+    qa = json.loads(result.qa_report_path.read_text(encoding="utf-8"))
+    assert qa["row_count"] == 5
+    assert qa["pair_summaries"][0]["missing_target_rows"] == 1
+    assert qa["pair_summaries"][0]["target_only_additions"] == 1
+    assert qa["strict_vintage_folds"][0]["training_pairs"] == []
+    assert qa["eligibility_status_counts"] == {
+        "eligible": 3,
+        "missing_prior_target": 0,
+        "missing_target": 1,
+        "target_n_below_10": 1,
+    }
+    assert qa["eligibility_thresholds"] == {
+        "primary_min_target_n": 10,
+        "sensitivity_min_target_n": [20, 30],
+    }
+
+    validated = validate_patient_journey_artifacts(
+        output_dir,
+        repository_root=tmp_path,
+        **input_paths,
+    )
+    assert validated.artifact_set_sha256 == result.artifact_set_sha256
+    assert validated.panel_rows == 5
+
+
+def test_patient_journey_writer_failure_leaves_prior_bundle_unchanged(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import kasm.patient_journey.artifacts as artifact_module
+
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    panel = _build_fixture()
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    first = write_patient_journey_artifacts(
+        panel,
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+    original = first.manifest_path.read_bytes()
+
+    def fail_json(_path: Path, _value: object) -> None:
+        raise OSError("fixture serialization failure")
+
+    monkeypatch.setattr(artifact_module, "_write_json", fail_json)
+    with pytest.raises(OSError, match="fixture serialization failure"):
+        write_patient_journey_artifacts(
+            panel,
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+    assert first.manifest_path.read_bytes() == original
+    assert {path.name for path in output_dir.iterdir()} == {
+        "build_manifest.json",
+        "patient_journey_panel.parquet",
+        "qa_report.json",
+    }
+
+
+def test_patient_journey_publication_failure_rolls_back_prior_bundle(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import kasm.patient_journey.artifacts as artifact_module
+
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    panel = _build_fixture()
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    first = write_patient_journey_artifacts(
+        panel,
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+    original = first.manifest_path.read_bytes()
+    real_replace = artifact_module.os.replace
+    failed = False
+
+    def fail_staging_publish(source: Path, destination: Path) -> None:
+        nonlocal failed
+        source_path = Path(source)
+        if source_path.name.startswith(".processed-staging-") and not failed:
+            failed = True
+            raise OSError("fixture publication failure")
+        real_replace(source, destination)
+
+    monkeypatch.setattr(artifact_module.os, "replace", fail_staging_publish)
+    with pytest.raises(OSError, match="fixture publication failure"):
+        write_patient_journey_artifacts(
+            panel,
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+    assert first.manifest_path.read_bytes() == original
+    assert not (output_dir.parent / ".processed-backup").exists()
+
+
+def test_patient_journey_writer_rechecks_protected_v1_destination(tmp_path: Path) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    protected_output = tmp_path / "data" / "processed" / "patient_journey_v2"
+    config = replace(config, paths=replace(config.paths, processed_dir=protected_output))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+
+    with pytest.raises(
+        (PatientJourneyArtifactError, PatientJourneyConfigError), match="protected v1 root"
+    ):
+        write_patient_journey_artifacts(
+            _build_fixture(),
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+    assert not protected_output.exists()
+
+
+def test_patient_journey_writer_rejects_unconfigured_same_schema_pair(tmp_path: Path) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    panel = _build_fixture()
+    changed = replace(
+        panel,
+        rows=(
+            replace(
+                panel.rows[0],
+                feature_release_code="1808",
+                target_release_code="2105",
+            ),
+            *panel.rows[1:],
+        ),
+    )
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+
+    with pytest.raises(PatientJourneyArtifactError, match="configured primary pair"):
+        write_patient_journey_artifacts(
+            changed,
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+
+def test_patient_journey_writer_recomputes_eligibility_from_values(tmp_path: Path) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    panel = _build_fixture()
+    eligible_index = next(
+        index for index, row in enumerate(panel.rows) if row.primary_analytic_eligible
+    )
+    changed_rows = list(panel.rows)
+    changed_rows[eligible_index] = replace(
+        changed_rows[eligible_index],
+        primary_analytic_eligible=False,
+    )
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+
+    with pytest.raises(PatientJourneyArtifactError, match="eligibility"):
+        write_patient_journey_artifacts(
+            replace(panel, rows=tuple(changed_rows)),
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+
+def test_patient_journey_artifact_payload_is_deterministic_with_fixed_build_context(
+    tmp_path: Path,
+) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    panel = _build_fixture()
+    first = write_patient_journey_artifacts(
+        panel,
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+    first_bytes = (
+        first.panel_path.read_bytes(),
+        first.qa_report_path.read_bytes(),
+        first.manifest_path.read_bytes(),
+    )
+    second = write_patient_journey_artifacts(
+        panel,
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+
+    assert first_bytes[0] == second.panel_path.read_bytes()
+    assert first_bytes[1] == second.qa_report_path.read_bytes()
+    assert first_bytes[2] == second.manifest_path.read_bytes()
+    assert first.artifact_set_sha256 == second.artifact_set_sha256
+
+
+def test_patient_journey_artifact_validator_rejects_tampered_hash_or_schema(
+    tmp_path: Path,
+) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    panel = _build_fixture()
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    result = write_patient_journey_artifacts(
+        panel,
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+    tampered = result.qa_report_path.read_bytes()
+    result.qa_report_path.write_bytes(b"[" + tampered[1:])
+
+    with pytest.raises(PatientJourneyArtifactError, match="checksum"):
+        validate_patient_journey_artifacts(
+            output_dir,
+            repository_root=tmp_path,
+            **input_paths,
+        )
+
+
+def test_patient_journey_artifact_validator_rejects_rehashed_schema_drift(
+    tmp_path: Path,
+) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    result = write_patient_journey_artifacts(
+        _build_fixture(),
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+    table = pq.read_table(result.panel_path).drop(["target_logit"])
+    pq.write_table(table, result.panel_path)
+    build_manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+    panel_record = build_manifest["artifacts"]["panel"]
+    panel_record["bytes"] = result.panel_path.stat().st_size
+    panel_record["sha256"] = sha256(result.panel_path.read_bytes()).hexdigest()
+    normalized = {
+        name: {"bytes": record["bytes"], "sha256": record["sha256"]}
+        for name, record in sorted(build_manifest["artifacts"].items())
+    }
+    build_manifest["artifact_set_sha256"] = sha256(
+        json.dumps(normalized, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    result.manifest_path.write_text(
+        json.dumps(build_manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(PatientJourneyArtifactError, match="schema"):
+        validate_patient_journey_artifacts(
+            output_dir,
+            repository_root=tmp_path,
+            **input_paths,
+        )
+
+
+def test_patient_journey_validator_rejects_rehashed_scientific_mutation(
+    tmp_path: Path,
+) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    result = write_patient_journey_artifacts(
+        _build_fixture(),
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+    table = pq.read_table(result.panel_path)
+    flags = table.column("primary_analytic_eligible").to_pylist()
+    changed_index = next(index for index, value in enumerate(flags) if value)
+    flags[changed_index] = False
+    field_index = table.schema.get_field_index("primary_analytic_eligible")
+    table = table.set_column(
+        field_index,
+        table.schema.field(field_index),
+        pa.array(flags, type=pa.bool_()),
+    )
+    pq.write_table(table, result.panel_path)
+    build_manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+    panel_record = build_manifest["artifacts"]["panel"]
+    panel_record["bytes"] = result.panel_path.stat().st_size
+    panel_record["sha256"] = sha256(result.panel_path.read_bytes()).hexdigest()
+    normalized = {
+        name: {"bytes": record["bytes"], "sha256": record["sha256"]}
+        for name, record in sorted(build_manifest["artifacts"].items())
+    }
+    build_manifest["artifact_set_sha256"] = sha256(
+        json.dumps(normalized, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    result.manifest_path.write_text(
+        json.dumps(build_manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(PatientJourneyArtifactError, match="eligibility"):
+        validate_patient_journey_artifacts(
+            output_dir,
+            repository_root=tmp_path,
+            **input_paths,
+        )
+
+
+def test_patient_journey_validator_rejects_rehashed_risk_adjustment_claim(
+    tmp_path: Path,
+) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    result = write_patient_journey_artifacts(
+        _build_fixture(),
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+
+    build_manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+    build_manifest["provenance"]["target_officially_risk_adjusted"] = True
+    qa = json.loads(result.qa_report_path.read_text(encoding="utf-8"))
+    qa["provenance"]["target_officially_risk_adjusted"] = True
+    result.qa_report_path.write_text(
+        json.dumps(qa, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    table = pq.read_table(result.panel_path)
+    provenance = json.loads((table.schema.metadata or {})[b"kasm_provenance"])
+    provenance["target_officially_risk_adjusted"] = True
+    pq.write_table(
+        table.replace_schema_metadata(
+            {b"kasm_provenance": json.dumps(provenance, sort_keys=True).encode()}
+        ),
+        result.panel_path,
+    )
+    result.manifest_path.write_text(
+        json.dumps(build_manifest, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    _refresh_artifact_manifest(result)
+
+    with pytest.raises(PatientJourneyArtifactError, match="risk-adjustment claim"):
+        validate_patient_journey_artifacts(
+            output_dir,
+            repository_root=tmp_path,
+            **input_paths,
+        )
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("transplant_rate_person_years", -1.0),
+        ("transplant_rate_ratio", -0.1),
+        ("wait_time_months_25th_percentile", -1.0),
+        ("acceptance_overall_expected_acceptances", -1.0),
+        ("acceptance_overall_oar", -0.1),
+    ],
+)
+def test_patient_journey_writer_rejects_negative_model_features(
+    tmp_path: Path,
+    field: str,
+    value: float,
+) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    panel = _build_fixture()
+    row_index = next(
+        (index for index, row in enumerate(panel.rows) if getattr(row, field) is not None),
+        0,
+    )
+    changed_rows = list(panel.rows)
+    changes: dict[str, object] = {field: value}
+    if field == "wait_time_months_25th_percentile":
+        changes["missing_wait_time"] = False
+    changed_rows[row_index] = replace(changed_rows[row_index], **changes)
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+
+    with pytest.raises(PatientJourneyArtifactError, match="nonnegative"):
+        write_patient_journey_artifacts(
+            replace(panel, rows=tuple(changed_rows)),
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+
+def test_patient_journey_writer_requires_reconstructed_target_successes(tmp_path: Path) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    panel = _build_fixture()
+    row_index = next(index for index, row in enumerate(panel.rows) if not row.missing_target)
+    changed_rows = list(panel.rows)
+    changed_rows[row_index] = replace(changed_rows[row_index], target_reconstructed_successes=None)
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+
+    with pytest.raises(PatientJourneyArtifactError, match="reconstructed successes"):
+        write_patient_journey_artifacts(
+            replace(panel, rows=tuple(changed_rows)),
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+
+def test_patient_journey_writer_rejects_inconsistent_history_fields(tmp_path: Path) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    panel = _build_fixture()
+    row_index = next(
+        index for index, row in enumerate(panel.rows) if row.historical_target_count > 0
+    )
+    changed_rows = list(panel.rows)
+    changed_rows[row_index] = replace(changed_rows[row_index], historical_target_count=-1)
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+
+    with pytest.raises(PatientJourneyArtifactError, match="Historical target"):
+        write_patient_journey_artifacts(
+            replace(panel, rows=tuple(changed_rows)),
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+
+def test_patient_journey_writer_recomputes_first_observed_from_history(tmp_path: Path) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    panel = _build_fixture()
+    row_index = next(
+        index for index, row in enumerate(panel.rows) if row.historical_target_count > 1
+    )
+    changed_rows = list(panel.rows)
+    changed_rows[row_index] = replace(changed_rows[row_index], first_observed_program=True)
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    changed_panel = replace(
+        panel,
+        rows=tuple(changed_rows),
+        pair_summaries=(
+            replace(
+                panel.pair_summaries[0],
+                first_observed_rows=panel.pair_summaries[0].first_observed_rows + 1,
+            ),
+        ),
+    )
+
+    with pytest.raises(PatientJourneyArtifactError, match="First-observed status"):
+        write_patient_journey_artifacts(
+            changed_panel,
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+
+def test_patient_journey_writer_recomputes_multi_release_history_mean(tmp_path: Path) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    panel = _build_fixture()
+    row_index = next(
+        index for index, row in enumerate(panel.rows) if row.historical_target_count > 1
+    )
+    changed_rows = list(panel.rows)
+    changed_rows[row_index] = replace(
+        changed_rows[row_index], historical_mean_target_proportion=0.99
+    )
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+
+    with pytest.raises(PatientJourneyArtifactError, match="historical target mean"):
+        write_patient_journey_artifacts(
+            replace(panel, rows=tuple(changed_rows)),
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+
+def test_patient_journey_writer_recomputes_available_cohort_target(tmp_path: Path) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    panel = _build_fixture()
+    changed_rows = tuple(
+        replace(row, available_cohort_target_proportion=0.99) for row in panel.rows
+    )
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+
+    with pytest.raises(PatientJourneyArtifactError, match="cohort target proportion"):
+        write_patient_journey_artifacts(
+            replace(panel, rows=changed_rows),
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+
+def test_patient_journey_writer_recomputes_first_observed_without_outcome_history(
+    tmp_path: Path,
+) -> None:
+    config, ledger, sources, patient_releases, acceptance = _fixture()
+    earlier = patient_releases[0]
+    patient_releases = (
+        replace(
+            earlier,
+            identities=(*earlier.identities, _identity("BCD1:TX1")),
+        ),
+        *patient_releases[1:],
+    )
+    panel = build_patient_journey_panel(
+        patient_releases=patient_releases,
+        acceptance_releases=acceptance,
+        config=config,
+        ledger=ledger,
+        sources=sources,
+    )
+    row_index = next(index for index, row in enumerate(panel.rows) if row.program_key == "BCD1:TX1")
+    assert panel.rows[row_index].historical_target_count == 1
+    assert panel.rows[row_index].first_observed_program is False
+    changed_rows = list(panel.rows)
+    changed_rows[row_index] = replace(changed_rows[row_index], first_observed_program=True)
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    changed_panel = replace(
+        panel,
+        rows=tuple(changed_rows),
+        pair_summaries=(
+            replace(
+                panel.pair_summaries[0],
+                first_observed_rows=panel.pair_summaries[0].first_observed_rows + 1,
+            ),
+        ),
+    )
+
+    with pytest.raises(PatientJourneyArtifactError, match="First-observed status"):
+        write_patient_journey_artifacts(
+            changed_panel,
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+
+def test_patient_journey_validator_binds_target_only_program_evidence(tmp_path: Path) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    result = write_patient_journey_artifacts(
+        _build_fixture(),
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+    qa = json.loads(result.qa_report_path.read_text(encoding="utf-8"))
+    summary = qa["pair_summaries"][0]
+    summary["target_only_additions"] += 1
+    summary["target_table_rows"] += 1
+    result.qa_report_path.write_text(
+        json.dumps(qa, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    _refresh_artifact_manifest(result)
+
+    with pytest.raises(PatientJourneyArtifactError, match="target-only program evidence"):
+        validate_patient_journey_artifacts(
+            output_dir,
+            repository_root=tmp_path,
+            **input_paths,
+        )
+
+
+def test_patient_journey_validator_binds_target_only_keys_to_target_roster(
+    tmp_path: Path,
+) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    result = write_patient_journey_artifacts(
+        _build_fixture(),
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+    qa = json.loads(result.qa_report_path.read_text(encoding="utf-8"))
+    qa["pair_summaries"][0]["target_only_program_keys"] = ["ZZZZ:TX1"]
+    result.qa_report_path.write_text(
+        json.dumps(qa, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    _refresh_artifact_manifest(result)
+
+    with pytest.raises(PatientJourneyArtifactError, match="target source roster"):
+        validate_patient_journey_artifacts(
+            output_dir,
+            repository_root=tmp_path,
+            **input_paths,
+        )
+
+
+def test_patient_journey_inputs_are_loaded_from_recorded_files(tmp_path: Path) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    source_path = input_paths["source_manifest_path"]
+    source_path.write_text(
+        source_path.read_text(encoding="utf-8").replace(
+            sources[0].download_sha256,
+            "f" * 64,
+            1,
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(MethodologyLedgerError, match="source URL and SHA-256 disagree"):
+        write_patient_journey_artifacts(
+            _build_fixture(),
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+
+def test_patient_journey_build_rejects_input_changed_during_load(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import kasm.patient_journey.artifacts as artifact_module
+
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    real_load = artifact_module.load_data_source_manifest
+
+    def load_then_change(path: Path) -> DataSourceManifest:
+        loaded = real_load(path)
+        path.write_text(path.read_text(encoding="utf-8") + "# changed\n", encoding="utf-8")
+        return loaded
+
+    monkeypatch.setattr(artifact_module, "load_data_source_manifest", load_then_change)
+
+    with pytest.raises(PatientJourneyArtifactError, match="changed while"):
+        write_patient_journey_artifacts(
+            _build_fixture(),
+            repository_root=tmp_path,
+            build_context=_artifact_context(),
+            **input_paths,
+        )
+
+
+def test_patient_journey_writer_recovers_stranded_valid_backup(tmp_path: Path) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    first = write_patient_journey_artifacts(
+        _build_fixture(),
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+    original = first.manifest_path.read_bytes()
+    backup = output_dir.parent / ".processed-backup"
+    output_dir.replace(backup)
+    assert not output_dir.exists()
+
+    recovered = write_patient_journey_artifacts(
+        _build_fixture(),
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+
+    assert recovered.manifest_path.read_bytes() == original
+    assert not backup.exists()
+
+
+def test_patient_journey_validator_is_limited_to_configured_root(tmp_path: Path) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    write_patient_journey_artifacts(
+        _build_fixture(),
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+
+    with pytest.raises(PatientJourneyArtifactError, match="configured v2 processed output"):
+        validate_patient_journey_artifacts(
+            output_dir.parent,
+            repository_root=tmp_path,
+            **input_paths,
+        )
+
+
+def test_cached_patient_journey_artifact_wrapper_binds_loaded_inputs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import kasm.patient_journey.artifacts as artifact_module
+
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    monkeypatch.setattr(
+        artifact_module,
+        "build_cached_patient_journey_panel",
+        lambda **kwargs: _build_fixture(),
+    )
+    monkeypatch.setattr(
+        artifact_module,
+        "current_patient_journey_build_context",
+        lambda repository_root: _artifact_context(),
+    )
+
+    result = build_cached_patient_journey_artifacts(
+        repository_root=tmp_path,
+        cache_dir=tmp_path / "cache",
+        **input_paths,
+    )
+
+    assert result.panel_rows == 5
+    assert result.output_directory == output_dir
+
+
+def test_cached_patient_journey_artifact_wrapper_rejects_snapshot_change(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import kasm.patient_journey.artifacts as artifact_module
+
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+
+    def build_then_change(**kwargs: object):  # type: ignore[no-untyped-def]
+        input_paths["lock_path"].write_text("changed-lock\n", encoding="utf-8")
+        return _build_fixture()
+
+    monkeypatch.setattr(
+        artifact_module,
+        "build_cached_patient_journey_panel",
+        build_then_change,
+    )
+    monkeypatch.setattr(
+        artifact_module,
+        "current_patient_journey_build_context",
+        lambda repository_root: _artifact_context(),
+    )
+
+    with pytest.raises(PatientJourneyArtifactError, match="changed during panel construction"):
+        build_cached_patient_journey_artifacts(
+            repository_root=tmp_path,
+            cache_dir=tmp_path / "cache",
+            **input_paths,
+        )
+
+
+def test_patient_journey_artifact_validator_rejects_unexpected_file(tmp_path: Path) -> None:
+    config, ledger, sources, _, _ = _fixture()
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    config = replace(config, paths=replace(config.paths, processed_dir=output_dir))
+    manifest = _artifact_manifest(sources)
+    input_paths = _artifact_paths(tmp_path, manifest=manifest, config=config, ledger=ledger)
+    write_patient_journey_artifacts(
+        _build_fixture(),
+        repository_root=tmp_path,
+        build_context=_artifact_context(),
+        **input_paths,
+    )
+    (output_dir / "unexpected.txt").write_text("unexpected\n", encoding="utf-8")
+
+    with pytest.raises(PatientJourneyArtifactError, match="file set"):
+        validate_patient_journey_artifacts(
+            output_dir,
+            repository_root=tmp_path,
+            **input_paths,
+        )
+
+
+def test_git_provenance_failure_is_actionable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import kasm.patient_journey.artifacts as artifact_module
+
+    def fail_git(*args: object, **kwargs: object) -> object:
+        raise artifact_module.subprocess.TimeoutExpired("git", 10)
+
+    monkeypatch.setattr(artifact_module.subprocess, "run", fail_git)
+
+    with pytest.raises(PatientJourneyArtifactError, match="Git provenance"):
+        artifact_module.current_patient_journey_build_context(tmp_path)

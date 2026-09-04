@@ -121,6 +121,22 @@ copies only the approved 12 files, writes an attributed manifest, enforces the 5
 publishes the directory atomically. The checked-in bundle content identity is
 `1de89083ceebfda9afaf2d6b1c6ba3f1e6d0c1a1da16df9d09d994c4ec3581ad`.
 
+### Optional patient-journey v2 research build
+
+The separate v2 study is governed by `docs/specs/patient-journey-v2.md` and does not change the v1
+application or frozen evaluation. From the same verified source cache, build its canonical processed
+panel offline with:
+
+```powershell
+uv run kasm patient-journey data build
+```
+
+The command writes only to the v2-owned processed root declared in
+`configs/patient_journey_v2/experiment.yaml`. It atomically publishes the Parquet panel, QA report,
+and build manifest; validates their exact schemas and hashes; and records source, configuration,
+methodology, dependency-lock, cohort-timing, and Git provenance. A dirty-worktree build is explicitly
+marked noncanonical. This phase fits no model and publishes no v2 product bundle.
+
 ## Verification
 
 ```powershell

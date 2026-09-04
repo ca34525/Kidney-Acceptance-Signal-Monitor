@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
+import re
 from dataclasses import asdict, dataclass
 from datetime import date
 from pathlib import Path
@@ -26,7 +28,11 @@ from kasm.patient_journey.config import (
     PatientJourneyExcludedPair,
     PatientJourneyPair,
 )
-from kasm.patient_journey.ledger import MethodologyLedger, ReleaseMethodology
+from kasm.patient_journey.ledger import (
+    MethodologyLedger,
+    MethodologyLedgerError,
+    ReleaseMethodology,
+)
 from kasm.patient_journey.parse import (
     ParsedPatientJourneyRelease,
     PatientJourneyOutcome,
@@ -52,6 +58,8 @@ _ACCEPTANCE_GROUPS: tuple[OfferGroup, ...] = (
 )
 
 _CATEGORY = pa.dictionary(pa.int8(), pa.string())
+_CENTER_CODE = re.compile(r"^[A-Z0-9]{4}$")
+_CENTER_TYPE = re.compile(r"^[A-Za-z0-9]+$")
 
 
 class PatientJourneyPanelError(ValueError):
@@ -145,6 +153,16 @@ class PatientJourneyPanelRow:
 
 
 @dataclass(frozen=True)
+class PatientJourneyRowHistoryEvidence:
+    """Source-derived history needed to revalidate row-level baseline fields."""
+
+    program_key: str
+    release_codes: tuple[str, ...]
+    target_proportions: tuple[float, ...]
+    earliest_identity_release_code: str
+
+
+@dataclass(frozen=True)
 class PatientJourneyPairSummary:
     """Pair-level QA for prediction-universe and target availability."""
 
@@ -155,6 +173,11 @@ class PatientJourneyPairSummary:
     matched_target_rows: int
     missing_target_rows: int
     target_only_additions: int
+    target_only_program_keys: tuple[str, ...]
+    target_program_keys: tuple[str, ...]
+    row_history_evidence: tuple[PatientJourneyRowHistoryEvidence, ...]
+    available_cohort_target_successes: int
+    available_cohort_target_n: int
     primary_eligible_rows: int
     sensitivity_n20_eligible_rows: int
     sensitivity_n30_eligible_rows: int
@@ -417,7 +440,8 @@ def _canonical_json_value(value: object) -> str:
     raise TypeError(f"Unsupported methodology identity value {type(value).__name__}.")
 
 
-def _methodology_ledger_identity(ledger: MethodologyLedger) -> str:
+def methodology_ledger_identity(ledger: MethodologyLedger) -> str:
+    """Return the semantic identity used in every row and processed artifact."""
     payload = json.dumps(
         asdict(ledger),
         default=_canonical_json_value,
@@ -426,6 +450,360 @@ def _methodology_ledger_identity(ledger: MethodologyLedger) -> str:
         sort_keys=True,
     ).encode("utf-8")
     return f"sha256:{hashlib.sha256(payload).hexdigest()}"
+
+
+def _outcome_values_are_valid(
+    *,
+    target_n: int | None,
+    published_percent: float | None,
+    proportion: float | None,
+    target_logit: float | None,
+    reconstructed_successes: int | None,
+    context: str,
+) -> bool:
+    values = (target_n, published_percent, proportion, target_logit)
+    if all(value is None for value in values) and reconstructed_successes is None:
+        return False
+    if target_n is None or published_percent is None or proportion is None or target_logit is None:
+        raise PatientJourneyPanelError(f"{context} outcome fields must be jointly present or null.")
+    if isinstance(target_n, bool) or not isinstance(target_n, int) or target_n <= 0:
+        raise PatientJourneyPanelError(f"{context} target_n must be a positive integer.")
+    if not all(math.isfinite(value) for value in (published_percent, proportion, target_logit)):
+        raise PatientJourneyPanelError(f"{context} outcome fields must be finite.")
+    if not 0 <= published_percent <= 100 or not 0 <= proportion <= 1:
+        raise PatientJourneyPanelError(f"{context} outcome must stay on the published scale.")
+    if not math.isclose(proportion, published_percent / 100, rel_tol=0, abs_tol=1e-12):
+        raise PatientJourneyPanelError(f"{context} target proportion disagrees with its percent.")
+    successes = math.floor(target_n * proportion + 0.5)
+    if reconstructed_successes is not None:
+        if (
+            isinstance(reconstructed_successes, bool)
+            or not isinstance(reconstructed_successes, int)
+            or not 0 <= reconstructed_successes <= target_n
+        ):
+            raise PatientJourneyPanelError(
+                f"{context} reconstructed successes must be an integer within target_n."
+            )
+        if reconstructed_successes != successes:
+            raise PatientJourneyPanelError(f"{context} reconstructed successes disagree.")
+    smoothed = (successes + 0.5) / (target_n + 1)
+    expected_logit = math.log(smoothed / (1 - smoothed))
+    if not math.isclose(target_logit, expected_logit, rel_tol=0, abs_tol=1e-12):
+        raise PatientJourneyPanelError(f"{context} empirical-logit target disagrees.")
+    return True
+
+
+def _validate_row_identity_and_timing(
+    row: PatientJourneyPanelRow,
+    *,
+    ledger: MethodologyLedger,
+    sources: dict[str, SourceRecord],
+    methodology_identity: str,
+) -> None:
+    if (
+        _CENTER_CODE.fullmatch(row.center_code) is None
+        or _CENTER_TYPE.fullmatch(row.center_type) is None
+        or row.program_key != f"{row.center_code}:{row.center_type}"
+    ):
+        raise PatientJourneyPanelError("Panel row has an invalid composite program identity.")
+    feature_source = sources[row.feature_release_code]
+    target_source = sources[row.target_release_code]
+    feature_method = ledger.release(row.feature_release_code)
+    target_timing = ledger.release(row.target_release_code).metric("patient_outcome")
+    rate_timing = feature_method.metric("transplant_rate")
+    wait_timing = feature_method.metric("wait_time")
+    expected = (
+        feature_source.published_value,
+        feature_source.published_precision,
+        _prediction_origin_month_offset(feature_source, target_timing.measurement_start),
+        target_source.published_value,
+        target_source.published_precision,
+        target_timing.measurement_start,
+        target_timing.measurement_end,
+        target_timing.follow_up_end,
+        rate_timing.measurement_start,
+        rate_timing.measurement_end,
+        wait_timing.measurement_start,
+        wait_timing.measurement_end,
+        wait_timing.follow_up_end,
+        date(feature_source.cohort_year, 1, 1),
+        date(feature_source.cohort_year, 12, 31),
+        methodology_identity,
+        feature_source.url,
+        feature_source.download_sha256,
+        target_source.url,
+        target_source.download_sha256,
+    )
+    observed = (
+        row.prediction_origin_value,
+        row.prediction_origin_precision,
+        row.prediction_origin_month_offset_from_target_start,
+        row.target_published_value,
+        row.target_published_precision,
+        row.target_listing_cohort_start,
+        row.target_listing_cohort_end,
+        row.target_follow_up_end,
+        row.transplant_rate_measurement_start,
+        row.transplant_rate_measurement_end,
+        row.wait_time_measurement_start,
+        row.wait_time_measurement_end,
+        row.wait_time_follow_up_end,
+        row.acceptance_cohort_start,
+        row.acceptance_cohort_end,
+        row.methodology_ledger_identity,
+        row.feature_source_url,
+        row.feature_source_sha256,
+        row.target_source_url,
+        row.target_source_sha256,
+    )
+    if observed != expected:
+        raise PatientJourneyPanelError("Panel row source identity or cohort timing disagrees.")
+
+
+def _validate_row_targets(
+    row: PatientJourneyPanelRow, *, config: PatientJourneyConfig, ledger: MethodologyLedger
+) -> None:
+    if row.target_n is not None and row.target_reconstructed_successes is None:
+        raise PatientJourneyPanelError(
+            "Target reconstructed successes must accompany an available target."
+        )
+    target_available = _outcome_values_are_valid(
+        target_n=row.target_n,
+        published_percent=row.target_published_percent,
+        proportion=row.target_proportion,
+        target_logit=row.target_logit,
+        reconstructed_successes=row.target_reconstructed_successes,
+        context="Target",
+    )
+    if row.missing_target == target_available:
+        raise PatientJourneyPanelError("Target missingness flag disagrees with target values.")
+    prior_available = _outcome_values_are_valid(
+        target_n=row.prior_target_n,
+        published_percent=row.prior_target_published_percent,
+        proportion=row.prior_target_proportion,
+        target_logit=row.prior_target_logit,
+        reconstructed_successes=None,
+        context="Prior target",
+    )
+    if row.missing_prior_target == prior_available:
+        raise PatientJourneyPanelError("Prior-target missingness flag disagrees with history.")
+    prior_timing_values = (
+        row.prior_target_release_code,
+        row.prior_target_published_value,
+        row.prior_target_published_precision,
+        row.prior_target_listing_cohort_start,
+        row.prior_target_listing_cohort_end,
+        row.prior_target_follow_up_end,
+    )
+    if not prior_available and any(value is not None for value in prior_timing_values):
+        raise PatientJourneyPanelError("Missing prior target must not retain timing metadata.")
+    if prior_available:
+        if any(value is None for value in prior_timing_values):
+            raise PatientJourneyPanelError("Prior target must retain complete timing metadata.")
+        if row.prior_target_release_code is None:
+            raise PatientJourneyPanelError("Prior-target release identity is missing.")
+        try:
+            prior_release = ledger.release(row.prior_target_release_code)
+        except MethodologyLedgerError as exc:
+            raise PatientJourneyPanelError("Prior-target release identity is unknown.") from exc
+        prior_timing = prior_release.metric("patient_outcome")
+        expected_prior = (
+            prior_release.published_value,
+            prior_release.published_precision,
+            prior_timing.measurement_start,
+            prior_timing.measurement_end,
+            prior_timing.follow_up_end,
+        )
+        if prior_timing_values[1:] != expected_prior:
+            raise PatientJourneyPanelError("Prior-target publication or cohort timing disagrees.")
+
+    if not target_available:
+        expected = (False, False, False, "missing_target")
+    elif row.target_n is not None and row.target_n < config.eligibility.primary_min_target_n:
+        expected = (False, False, False, "target_n_below_10")
+    elif not prior_available:
+        expected = (False, False, False, "missing_prior_target")
+    else:
+        if row.target_n is None:
+            raise PatientJourneyPanelError("Eligible target count is missing.")
+        n20, n30 = config.eligibility.sensitivity_min_target_n
+        expected = (True, row.target_n >= n20, row.target_n >= n30, "eligible")
+    observed = (
+        row.primary_analytic_eligible,
+        row.sensitivity_n20_eligible,
+        row.sensitivity_n30_eligible,
+        row.eligibility_status,
+    )
+    if observed != expected:
+        raise PatientJourneyPanelError(
+            "Panel eligibility flags disagree with target/history values."
+        )
+
+
+def _validate_row_feature_values(row: PatientJourneyPanelRow) -> None:
+    missing_pairs = (
+        (row.transplant_rate_person_years, row.missing_transplant_rate_person_years),
+        (row.transplant_rate_ratio, row.missing_transplant_rate_ratio),
+        (row.wait_time_months_25th_percentile, row.missing_wait_time),
+        (
+            row.acceptance_overall_expected_acceptances,
+            row.missing_acceptance_expected_acceptances,
+        ),
+        (row.acceptance_overall_oar, row.missing_acceptance_overall_oar),
+        (row.acceptance_low_oar, row.missing_acceptance_low_oar),
+        (row.acceptance_medium_oar, row.missing_acceptance_medium_oar),
+        (row.acceptance_high_oar, row.missing_acceptance_high_oar),
+        (row.acceptance_hard_to_place_oar, row.missing_acceptance_hard_to_place_oar),
+    )
+    if any((value is None) != missing for value, missing in missing_pairs):
+        raise PatientJourneyPanelError(
+            "Panel feature missingness indicator disagrees with its value."
+        )
+    interval_missing = (
+        row.acceptance_overall_oar_lower is None or row.acceptance_overall_oar_upper is None
+    )
+    if interval_missing != row.missing_acceptance_interval:
+        raise PatientJourneyPanelError("Acceptance-interval missingness indicator disagrees.")
+    numeric_values = (
+        row.historical_mean_target_proportion,
+        row.available_cohort_target_proportion,
+        *(value for value, _ in missing_pairs),
+        row.acceptance_overall_oar_lower,
+        row.acceptance_overall_oar_upper,
+    )
+    if any(value is not None and not math.isfinite(value) for value in numeric_values):
+        raise PatientJourneyPanelError("Panel feature values must be finite or null.")
+    nonnegative_values = {
+        "transplant-rate person-years": row.transplant_rate_person_years,
+        "transplant-rate ratio": row.transplant_rate_ratio,
+        "wait-time percentile": row.wait_time_months_25th_percentile,
+        "expected acceptances": row.acceptance_overall_expected_acceptances,
+        "overall OAR": row.acceptance_overall_oar,
+        "overall OAR lower interval": row.acceptance_overall_oar_lower,
+        "overall OAR upper interval": row.acceptance_overall_oar_upper,
+        "low OAR": row.acceptance_low_oar,
+        "medium OAR": row.acceptance_medium_oar,
+        "high OAR": row.acceptance_high_oar,
+        "hard-to-place OAR": row.acceptance_hard_to_place_oar,
+    }
+    for label, value in nonnegative_values.items():
+        if value is not None and value < 0:
+            raise PatientJourneyPanelError(f"Panel {label} must be nonnegative.")
+    for value in (row.historical_mean_target_proportion, row.available_cohort_target_proportion):
+        if value is not None and not 0 <= value <= 1:
+            raise PatientJourneyPanelError("Historical/cohort target proportions must be bounded.")
+    if (row.acceptance_overall_oar_lower is None) != (row.acceptance_overall_oar_upper is None):
+        raise PatientJourneyPanelError(
+            "Acceptance interval bounds must be jointly present or null."
+        )
+    if (
+        row.acceptance_overall_oar_lower is not None
+        and row.acceptance_overall_oar_upper is not None
+        and row.acceptance_overall_oar_lower > row.acceptance_overall_oar_upper
+    ):
+        raise PatientJourneyPanelError("Acceptance interval bounds are reversed.")
+    if (
+        row.acceptance_overall_oar is not None
+        and row.acceptance_overall_oar_lower is not None
+        and row.acceptance_overall_oar_upper is not None
+        and not (
+            row.acceptance_overall_oar_lower
+            <= row.acceptance_overall_oar
+            <= row.acceptance_overall_oar_upper
+        )
+    ):
+        raise PatientJourneyPanelError("Acceptance interval must contain its published OAR.")
+
+
+def _validate_row_history(row: PatientJourneyPanelRow) -> None:
+    count = row.historical_target_count
+    if isinstance(count, bool) or not isinstance(count, int) or count < 0:
+        raise PatientJourneyPanelError("Historical target count must be a nonnegative integer.")
+    if count == 0:
+        if not row.missing_prior_target or row.historical_mean_target_proportion is not None:
+            raise PatientJourneyPanelError(
+                "Historical target fields disagree with an empty history."
+            )
+    elif row.missing_prior_target or row.historical_mean_target_proportion is None:
+        raise PatientJourneyPanelError(
+            "Historical target fields disagree with an available history."
+        )
+    if (
+        count == 1
+        and row.prior_target_proportion is not None
+        and row.historical_mean_target_proportion is not None
+        and not math.isclose(
+            row.historical_mean_target_proportion,
+            row.prior_target_proportion,
+            rel_tol=0,
+            abs_tol=1e-12,
+        )
+    ):
+        raise PatientJourneyPanelError(
+            "Historical target mean disagrees with the sole available outcome."
+        )
+    if row.first_observed_program and (
+        count > 1
+        or (
+            row.prior_target_release_code is not None
+            and row.prior_target_release_code != row.feature_release_code
+        )
+    ):
+        raise PatientJourneyPanelError(
+            "First-observed status disagrees with earlier outcome history."
+        )
+
+
+def validate_patient_journey_panel_rows(
+    rows: tuple[PatientJourneyPanelRow, ...],
+    *,
+    config: PatientJourneyConfig,
+    ledger: MethodologyLedger,
+    sources: tuple[SourceRecord, ...],
+) -> None:
+    """Recompute scientific invariants at processed write and trusted-read boundaries."""
+    if not rows:
+        raise PatientJourneyPanelError("A patient-journey panel cannot be empty.")
+    validate_temporal_design(config, ledger, sources)
+    _, _, source_by_code = _release_maps(ledger, sources)
+    expected_pairs = {
+        (pair.feature_release_code, pair.target_release_code)
+        for pair in config.temporal_design.primary_pairs
+    }
+    observed_pairs = {(row.feature_release_code, row.target_release_code) for row in rows}
+    if observed_pairs != expected_pairs:
+        raise PatientJourneyPanelError(
+            "Panel rows must cover exactly every configured primary pair and no other pair."
+        )
+    keys = [(row.feature_release_code, row.target_release_code, row.program_key) for row in rows]
+    if len(keys) != len(set(keys)):
+        raise PatientJourneyPanelError("Patient-journey panel keys must be unique.")
+    methodology_identity = methodology_ledger_identity(ledger)
+    for row in rows:
+        _validate_row_identity_and_timing(
+            row,
+            ledger=ledger,
+            sources=source_by_code,
+            methodology_identity=methodology_identity,
+        )
+        _validate_row_targets(row, config=config, ledger=ledger)
+        _validate_row_feature_values(row)
+        _validate_row_history(row)
+
+    release_order = {release.release_code: index for index, release in enumerate(ledger.releases)}
+    seen_programs: set[str] = set()
+    for row in sorted(
+        rows,
+        key=lambda candidate: (
+            release_order[candidate.feature_release_code],
+            candidate.program_key,
+        ),
+    ):
+        if row.program_key in seen_programs and row.first_observed_program:
+            raise PatientJourneyPanelError(
+                "First-observed status disagrees with an earlier prediction-universe row."
+            )
+        seen_programs.add(row.program_key)
 
 
 @dataclass(frozen=True)
@@ -631,12 +1009,17 @@ def _history(
     return (observed[-1] if observed else None), tuple(observed)
 
 
-def _available_cohort_proportion(index: _PatientReleaseIndex) -> float | None:
+def _available_cohort_counts(index: _PatientReleaseIndex) -> tuple[int, int]:
     outcomes = tuple(outcome for outcome in index.outcomes.values() if _valid_outcome(outcome))
     total_n = sum(outcome.target_n or 0 for outcome in outcomes)
+    successes = sum(outcome.reconstructed_successes or 0 for outcome in outcomes)
+    return successes, total_n
+
+
+def _available_cohort_proportion(index: _PatientReleaseIndex) -> float | None:
+    successes, total_n = _available_cohort_counts(index)
     if total_n == 0:
         return None
-    successes = sum(outcome.reconstructed_successes or 0 for outcome in outcomes)
     return successes / total_n
 
 
@@ -666,6 +1049,41 @@ def _first_observed(
     return not any(
         program_key in indexes[release.release_code].identities
         for release in ordered_releases[:feature_index]
+    )
+
+
+def _row_history_evidence(
+    program_key: str,
+    *,
+    feature_index: int,
+    ordered_releases: tuple[ParsedPatientJourneyRelease, ...],
+    indexes: dict[str, _PatientReleaseIndex],
+) -> PatientJourneyRowHistoryEvidence:
+    _, history = _history(
+        program_key,
+        feature_index=feature_index,
+        ordered_releases=ordered_releases,
+        indexes=indexes,
+    )
+    earliest_identity_release_code = next(
+        (
+            release.release_code
+            for release in ordered_releases[: feature_index + 1]
+            if program_key in indexes[release.release_code].identities
+        ),
+        None,
+    )
+    if earliest_identity_release_code is None:
+        raise PatientJourneyPanelError(f"Feature program {program_key!r} has no identity history.")
+    return PatientJourneyRowHistoryEvidence(
+        program_key=program_key,
+        release_codes=tuple(outcome.release_code for outcome in history),
+        target_proportions=tuple(
+            outcome.target_proportion
+            for outcome in history
+            if outcome.target_proportion is not None
+        ),
+        earliest_identity_release_code=earliest_identity_release_code,
     )
 
 
@@ -803,17 +1221,28 @@ def _pair_summary(
     pair: PatientJourneyPair,
     rows: tuple[PatientJourneyPanelRow, ...],
     *,
-    target_table_rows: int,
-    target_only_additions: int,
+    target_program_keys: tuple[str, ...],
+    row_history_evidence: tuple[PatientJourneyRowHistoryEvidence, ...],
+    available_cohort_target_successes: int,
+    available_cohort_target_n: int,
 ) -> PatientJourneyPairSummary:
+    prediction_program_keys = {row.program_key for row in rows}
+    target_only_program_keys = tuple(
+        key for key in target_program_keys if key not in prediction_program_keys
+    )
     return PatientJourneyPairSummary(
         feature_release_code=pair.feature_release_code,
         target_release_code=pair.target_release_code,
         prediction_universe_rows=len(rows),
-        target_table_rows=target_table_rows,
+        target_table_rows=len(target_program_keys),
         matched_target_rows=sum(not row.missing_target for row in rows),
         missing_target_rows=sum(row.missing_target for row in rows),
-        target_only_additions=target_only_additions,
+        target_only_additions=len(target_only_program_keys),
+        target_only_program_keys=target_only_program_keys,
+        target_program_keys=target_program_keys,
+        row_history_evidence=row_history_evidence,
+        available_cohort_target_successes=available_cohort_target_successes,
+        available_cohort_target_n=available_cohort_target_n,
         primary_eligible_rows=sum(row.primary_analytic_eligible for row in rows),
         sensitivity_n20_eligible_rows=sum(row.sensitivity_n20_eligible for row in rows),
         sensitivity_n30_eligible_rows=sum(row.sensitivity_n30_eligible for row in rows),
@@ -857,7 +1286,7 @@ def build_patient_journey_panel(
 
     all_rows: list[PatientJourneyPanelRow] = []
     summaries: list[PatientJourneyPairSummary] = []
-    methodology_identity = _methodology_ledger_identity(ledger)
+    methodology_identity = methodology_ledger_identity(ledger)
     for pair in config.temporal_design.primary_pairs:
         if pair.feature_release_code not in acceptance_by_code:
             raise PatientJourneyPanelError(
@@ -888,12 +1317,29 @@ def build_patient_journey_panel(
             for identity in sorted(feature.identities.values(), key=lambda row: row.program_key)
         )
         all_rows.extend(pair_rows)
+        target_program_keys = tuple(sorted(target.outcomes))
+        available_cohort_target_successes, available_cohort_target_n = _available_cohort_counts(
+            feature
+        )
+        row_history_evidence = tuple(
+            _row_history_evidence(
+                identity.program_key,
+                feature_index=order[pair.feature_release_code],
+                ordered_releases=patient_releases,
+                indexes=indexes,
+            )
+            for identity in sorted(feature.identities.values(), key=lambda row: row.program_key)
+        )
         summaries.append(
+            # Target-only identities are retained as auditable pair evidence; they never
+            # enter the feature-release prediction universe.
             _pair_summary(
                 pair,
                 pair_rows,
-                target_table_rows=len(target.outcomes),
-                target_only_additions=len(set(target.outcomes) - set(feature.identities)),
+                target_program_keys=target_program_keys,
+                row_history_evidence=row_history_evidence,
+                available_cohort_target_successes=available_cohort_target_successes,
+                available_cohort_target_n=available_cohort_target_n,
             )
         )
     return PatientJourneyPanel(

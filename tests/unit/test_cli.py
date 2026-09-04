@@ -9,6 +9,7 @@ from kasm.data.parse import ParseError, SourceInventoryEntry
 from kasm.modeling.backtest import BaselineBacktestResult
 from kasm.modeling.challenger import RidgeBacktestResult
 from kasm.modeling.replay import FrozenReplayResult
+from kasm.patient_journey.artifacts import PatientJourneyArtifactResult
 from kasm.reporting.artifacts import ReleaseBundleResult
 
 
@@ -156,6 +157,45 @@ def test_data_build_command_reports_canonical_paths_and_counts(
     assert '"program_signal_rows": 10515' in captured.out
     assert '"model_panel_rows": 2103' in captured.out
     assert str(output_dir / "qa_report.json").replace("\\", "\\\\") in captured.out
+
+
+def test_patient_journey_build_command_uses_configured_v2_root_and_reports_counts(
+    tmp_path: Path, capsys: Any, monkeypatch: Any
+) -> None:
+    output_dir = tmp_path / "data" / "patient_journey_v2" / "processed"
+    observed: dict[str, object] = {}
+
+    def fake_build(**kwargs: object) -> PatientJourneyArtifactResult:
+        observed.update(kwargs)
+        return PatientJourneyArtifactResult(
+            output_directory=output_dir,
+            panel_path=output_dir / "patient_journey_panel.parquet",
+            qa_report_path=output_dir / "qa_report.json",
+            manifest_path=output_dir / "build_manifest.json",
+            panel_rows=966,
+            artifact_set_sha256="b" * 64,
+        )
+
+    monkeypatch.setattr(kasm.cli, "build_cached_patient_journey_artifacts", fake_build)
+    exit_code = main(
+        [
+            "patient-journey",
+            "data",
+            "build",
+            "--cache-dir",
+            str(tmp_path / "cache"),
+            "--config",
+            "configs/patient_journey_v2/experiment.yaml",
+        ]
+    )
+
+    assert exit_code == 0
+    assert "output_dir" not in observed
+    assert observed["experiment_config_path"] == Path("configs/patient_journey_v2/experiment.yaml")
+    captured = capsys.readouterr()
+    assert '"panel_rows": 966' in captured.out
+    assert '"artifact_set_sha256": "' + "b" * 64 + '"' in captured.out
+    assert str(output_dir / "build_manifest.json").replace("\\", "\\\\") in captured.out
 
 
 def test_model_backtest_command_reports_artifacts_without_loading_source_cache(
