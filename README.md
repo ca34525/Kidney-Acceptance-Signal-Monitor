@@ -121,6 +121,32 @@ copies only the approved 12 files, writes an attributed manifest, enforces the 5
 publishes the directory atomically. The checked-in bundle content identity is
 `1de89083ceebfda9afaf2d6b1c6ba3f1e6d0c1a1da16df9d09d994c4ec3581ad`.
 
+### Optional patient-journey v2 research build
+
+The separate v2 study is governed by `docs/specs/patient-journey-v2.md` and does not change the v1
+application or frozen evaluation. From the same verified source cache, reproduce the complete V2
+evidence and offline bundle with:
+
+```powershell
+uv run kasm patient-journey data build
+uv run kasm patient-journey model evaluate
+uv run kasm patient-journey artifacts build
+uv run streamlit run app/patient_journey_v2.py
+```
+
+The commands write only to V2-owned roots declared in
+`configs/patient_journey_v2/experiment.yaml`. They atomically publish and validate the processed
+panel and safety table, the prespecified retrospective evaluation, and the self-contained
+bundle under `artifacts/patient_journey_v2/`. A dirty-worktree build is explicitly marked
+noncanonical.
+
+The V2 app is a separate research entry point. It does not replace `app/streamlit_app.py`, generate
+a future forecast, rank programs, or promote a model. Ridge evidence is limited to one
+strict-publication-vintage fold and remains permanently nonpromotional. See
+`docs/patient_journey_v2_data_card.md`, `docs/patient_journey_v2_model_card.md`, and
+`docs/patient_journey_v2_reproduction_log.md` for the exact data contract, results, and build
+identities.
+
 ## Verification
 
 ```powershell

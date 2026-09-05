@@ -8,7 +8,7 @@ from collections.abc import Sequence
 from dataclasses import asdict
 from pathlib import Path
 
-from kasm.config import load_data_source_manifest
+from kasm.config import ManifestError, load_data_source_manifest
 from kasm.data.build import BuildError, build_cached_data
 from kasm.data.cache import verify_cache
 from kasm.data.download import sync_cache
@@ -17,6 +17,23 @@ from kasm.modeling.backtest import BacktestError, run_baseline_backtest
 from kasm.modeling.challenger import ChallengerError, run_ridge_backtest
 from kasm.modeling.experiment import ExperimentConfigError
 from kasm.modeling.replay import FrozenReplayError, run_frozen_replay
+from kasm.patient_journey.artifacts import (
+    PatientJourneyArtifactError,
+    build_cached_patient_journey_artifacts,
+)
+from kasm.patient_journey.config import PatientJourneyConfigError
+from kasm.patient_journey.ledger import MethodologyLedgerError
+from kasm.patient_journey.model_artifacts import (
+    PatientJourneyModelArtifactError,
+    build_patient_journey_model_artifacts,
+)
+from kasm.patient_journey.modeling import PatientJourneyModelError
+from kasm.patient_journey.panel import PatientJourneyPanelError
+from kasm.patient_journey.parse import PatientJourneyParseError
+from kasm.patient_journey.release import (
+    PatientJourneyReleaseError,
+    build_patient_journey_release_bundle,
+)
 from kasm.reporting.artifacts import ReleaseBundleError, build_release_bundle
 
 
@@ -41,6 +58,70 @@ def build_parser() -> argparse.ArgumentParser:
     )
     build_data_parser.add_argument("--cache-dir", type=Path, default=Path("data/raw/srtr"))
     build_data_parser.add_argument("--output-dir", type=Path, default=Path("data/processed"))
+    patient_journey_parser = commands.add_parser("patient-journey")
+    patient_journey_commands = patient_journey_parser.add_subparsers(
+        dest="patient_journey_command", required=True
+    )
+    patient_journey_data_parser = patient_journey_commands.add_parser("data")
+    patient_journey_data_commands = patient_journey_data_parser.add_subparsers(
+        dest="patient_journey_data_command", required=True
+    )
+    patient_journey_build_parser = patient_journey_data_commands.add_parser("build")
+    patient_journey_build_parser.add_argument(
+        "--manifest", type=Path, default=Path("configs/data_sources.yaml")
+    )
+    patient_journey_build_parser.add_argument(
+        "--methodology",
+        type=Path,
+        default=Path("configs/patient_journey_v2/methodology.yaml"),
+    )
+    patient_journey_build_parser.add_argument(
+        "--config",
+        type=Path,
+        default=Path("configs/patient_journey_v2/experiment.yaml"),
+    )
+    patient_journey_build_parser.add_argument(
+        "--cache-dir", type=Path, default=Path("data/raw/srtr")
+    )
+    patient_journey_build_parser.add_argument("--lock", type=Path, default=Path("uv.lock"))
+    patient_journey_model_parser = patient_journey_commands.add_parser("model")
+    patient_journey_model_commands = patient_journey_model_parser.add_subparsers(
+        dest="patient_journey_model_command", required=True
+    )
+    patient_journey_evaluate_parser = patient_journey_model_commands.add_parser("evaluate")
+    patient_journey_evaluate_parser.add_argument(
+        "--manifest", type=Path, default=Path("configs/data_sources.yaml")
+    )
+    patient_journey_evaluate_parser.add_argument(
+        "--methodology",
+        type=Path,
+        default=Path("configs/patient_journey_v2/methodology.yaml"),
+    )
+    patient_journey_evaluate_parser.add_argument(
+        "--config",
+        type=Path,
+        default=Path("configs/patient_journey_v2/experiment.yaml"),
+    )
+    patient_journey_evaluate_parser.add_argument("--lock", type=Path, default=Path("uv.lock"))
+    patient_journey_artifact_parser = patient_journey_commands.add_parser("artifacts")
+    patient_journey_artifact_commands = patient_journey_artifact_parser.add_subparsers(
+        dest="patient_journey_artifact_command", required=True
+    )
+    patient_journey_release_parser = patient_journey_artifact_commands.add_parser("build")
+    patient_journey_release_parser.add_argument(
+        "--manifest", type=Path, default=Path("configs/data_sources.yaml")
+    )
+    patient_journey_release_parser.add_argument(
+        "--methodology",
+        type=Path,
+        default=Path("configs/patient_journey_v2/methodology.yaml"),
+    )
+    patient_journey_release_parser.add_argument(
+        "--config",
+        type=Path,
+        default=Path("configs/patient_journey_v2/experiment.yaml"),
+    )
+    patient_journey_release_parser.add_argument("--lock", type=Path, default=Path("uv.lock"))
     model_parser = commands.add_parser("model")
     model_commands = model_parser.add_subparsers(dest="model_command", required=True)
     backtest_parser = model_commands.add_parser("backtest")
@@ -87,9 +168,109 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _print_command_error(error: Exception) -> int:
+    print(json.dumps({"error": str(error), "ok": False}, indent=2, sort_keys=True))
+    return 1
+
+
+def _run_patient_journey_command(args: argparse.Namespace) -> int:
+    if args.patient_journey_command == "artifacts":
+        try:
+            release_result = build_patient_journey_release_bundle(
+                repository_root=Path.cwd(),
+                source_manifest_path=args.manifest,
+                experiment_config_path=args.config,
+                methodology_path=args.methodology,
+                lock_path=args.lock,
+            )
+        except (
+            ManifestError,
+            MethodologyLedgerError,
+            PatientJourneyArtifactError,
+            PatientJourneyConfigError,
+            PatientJourneyModelArtifactError,
+            PatientJourneyModelError,
+            PatientJourneyReleaseError,
+            OSError,
+        ) as error:
+            return _print_command_error(error)
+        payload = {
+            "bundle_content_sha256": release_result.bundle_content_sha256,
+            "file_count": release_result.file_count,
+            "manifest_path": str(release_result.manifest_path),
+            "ok": True,
+            "output_directory": str(release_result.output_directory),
+            "total_bytes": release_result.total_bytes,
+        }
+    elif args.patient_journey_command == "model":
+        try:
+            model_result = build_patient_journey_model_artifacts(
+                repository_root=Path.cwd(),
+                source_manifest_path=args.manifest,
+                experiment_config_path=args.config,
+                methodology_path=args.methodology,
+                lock_path=args.lock,
+            )
+        except (
+            ManifestError,
+            MethodologyLedgerError,
+            PatientJourneyArtifactError,
+            PatientJourneyConfigError,
+            PatientJourneyModelArtifactError,
+            PatientJourneyModelError,
+            OSError,
+        ) as error:
+            return _print_command_error(error)
+        payload = {
+            "artifact_set_sha256": model_result.artifact_set_sha256,
+            "evaluation_path": str(model_result.evaluation_path),
+            "manifest_path": str(model_result.manifest_path),
+            "ok": True,
+            "output_directory": str(model_result.output_directory),
+            "prediction_rows": model_result.prediction_rows,
+            "predictions_path": str(model_result.predictions_path),
+        }
+    else:
+        try:
+            data_result = build_cached_patient_journey_artifacts(
+                repository_root=Path.cwd(),
+                source_manifest_path=args.manifest,
+                experiment_config_path=args.config,
+                methodology_path=args.methodology,
+                cache_dir=args.cache_dir,
+                lock_path=args.lock,
+            )
+        except (
+            ManifestError,
+            MethodologyLedgerError,
+            ParseError,
+            PatientJourneyArtifactError,
+            PatientJourneyConfigError,
+            PatientJourneyPanelError,
+            PatientJourneyParseError,
+            OSError,
+        ) as error:
+            return _print_command_error(error)
+        payload = {
+            "artifact_set_sha256": data_result.artifact_set_sha256,
+            "manifest_path": str(data_result.manifest_path),
+            "ok": True,
+            "output_directory": str(data_result.output_directory),
+            "panel_path": str(data_result.panel_path),
+            "panel_rows": data_result.panel_rows,
+            "qa_report_path": str(data_result.qa_report_path),
+            "safety_path": str(data_result.safety_path),
+            "safety_rows": data_result.safety_rows,
+        }
+    print(json.dumps(payload, indent=2, sort_keys=True))
+    return 0
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Run a command and return a process exit code."""
     args = build_parser().parse_args(argv)
+    if args.command == "patient-journey":
+        return _run_patient_journey_command(args)
     if args.command == "artifacts":
         try:
             release_result = build_release_bundle(

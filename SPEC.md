@@ -5,6 +5,12 @@
 **Specification date:** 2026-09-03  
 **Primary audience:** Transplant-program quality and performance staff  
 
+> **Version boundary:** This document remains the authoritative specification for the released v1
+> acceptance monitor. The separate patient-journey v2 study is specified in
+> `docs/specs/patient-journey-v2.md`. Shared repository safety and claim rules apply to both, but
+> v2 may not alter or reinterpret the v1 frozen experiment, canonical replay, release bundle, or
+> default application behavior.
+
 ## 1. Decision summary
 
 Build a public-data prototype that helps a kidney transplant program review its longitudinal, risk-adjusted offer-acceptance signals and compare them with national expectation. The guaranteed product is a historical monitor. An experimental model projects the program's **next same-cadence calendar-year PSR signal** and must meet prespecified descriptive promotion criteria against simple persistence before it can appear in the interface.

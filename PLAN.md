@@ -58,6 +58,11 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 | M6 | Reproducibility, documentation, and container | done | Plan 0012: 1.23 MB tracked bundle, clean-checkout/full reproduction, docs, local Docker non-root/health smoke, and 2/2 remote CI checks pass at `2c815688` |
 | M7 | Interview presentation release | in_progress | Plan 0013: verified eight-slide deck, offline backup demo, and 3:55 rehearsal package committed at `dc34b3a`; release tag awaits explicit user authorization |
 | M8 | AI-generated code and context hardening | done | Plan 0014: research-backed audit, HTTPS boundary regression, Ruff security/complexity/pytest gates, focused context guidance, 143 tests at 83.93% branch coverage, and reproducible 12-file release bundle |
+| M9 | Patient-journey v2 foundation | done | Plan 0015: v2 scientific spec and decision accepted; typed configuration isolates all v2 outputs from protected v1 roots; 151 tests and required quality gates pass |
+| M10 | V2 methodology ledger and source parser | done | Plan 0016: typed/source-cited ledger, fixture-first parser, nine-release cache audit, 169 tests, and required quality gates pass |
+| M11 | V2 temporal design and canonical panel | done | Plan 0017: four non-overlapping pairs, strict-vintage folds, deterministic 966-row in-memory panel, 181 tests, and required quality gates pass |
+| M12 | V2 canonical artifact publication | done | Plan 0018: config-owned processed bundle, source-derived QA evidence, provenance contract, trusted validation, and isolated offline build command; 214 tests pass and the real cache build publishes 966 rows |
+| M13 | V2 exploratory study and optional product | done | Plan 0019: canonical 679 KB bundle built from clean `cdea5c4` and published at `0353f99`; 236-test/83.93% suite, offline V2 flow, V1 isolation, and both remote CI jobs pass; no model promoted |
 
 ## 5. Day-by-day execution
 

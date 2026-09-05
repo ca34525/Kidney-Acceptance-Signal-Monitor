@@ -1,0 +1,721 @@
+schema_version: 1
+analysis_id: kidney_patient_journey_v2
+source_manifest: configs/data_sources.yaml
+
+# published_value and published_precision are the earliest public-availability value and precision
+# from the immutable source manifest; month-only releases intentionally do not acquire a day.
+
+# Shared lists keep release-specific timing and shape changes visible without duplicating field names.
+field_sets:
+  identity: &identity_fields
+    [ENTIRE_NAME, PRIMARY_CITY, PRIMARY_STATE, PRIMARY_ZIP, CTR_CD, CTR_TY, ORGAN]
+  patient_outcome: &outcome_fields
+    [ENTIRE_NAME, CTR_CD, CTR_TY, RELEASE_DATE, ORG, SAL_N_C, SAL_TOTFTX_C18]
+  transplant_rate_without_ratio: &rate_fields_without_ratio
+    [center, RELEASE_DATE, wl_org, begdate, enddate, TMR_TxPy_c]
+  transplant_rate: &rate_fields
+    [center, RELEASE_DATE, wl_org, begdate, enddate, TMR_TxPy_c, TX_RR]
+  wait_time: &wait_fields
+    [ENTIRE_NAME, CTR_CD, CTR_TY, RELEASE_DATE, ORG, TTT_25_C]
+  waiting_list_mortality: &waiting_list_mortality_fields
+    [center, RELEASE_DATE, wl_org, begdate, enddate, TMR_DthPy_c, TMR_DthN_c, TMR_DthR_c, TMR_DthER_c, WLM_RR, WLM_RR_CREDLO, WLM_RR_CREDHI]
+  mortality_after_listing: &mortality_after_listing_fields
+    [ENTIRE_NAME, CTR_CD, CTR_TY, begdate, enddate, sfl_all_n_c, sfl_all_py_c, sfl_all_obs_c, sfl_all_exp_c, sfl_all_obs_rate_c, sfl_all_exp_rate_c, sfl_all_hr_c, sfl_all_hr_lb_c, sfl_all_hr_ub_c]
+  graft_failure_90_day: &graft_failure_90_day_fields
+    [ENTIRE_NAME, CTR_CD, CTR_TY, RELEASE_DATE, GSR_AD_N_C90D, GSR_AD_OBS_C90D, GSR_AD_EXP_C90D, GSR_AD_HR_C90D, GSR_AD_CREDLO_C90D, GSR_AD_CREDHI_C90D]
+  graft_failure_1_year_conditional: &graft_failure_1_year_fields
+    [ENTIRE_NAME, CTR_CD, CTR_TY, RELEASE_DATE, GSR_AD_N_C1YC, GSR_AD_OBS_C1YC, GSR_AD_EXP_C1YC, GSR_AD_HR_C1YC, GSR_AD_CREDLO_C1YC, GSR_AD_CREDHI_C1YC]
+
+definitions:
+  patient_outcome: &outcome_definition
+    - SAL_TOTFTX_C18 is the published observed percentage of listed candidates known alive with a functioning transplant at 18 months.
+    - SAL_N_C is used only for rounding reconciliation and the boundary-safe empirical-logit transform; the published percentage remains authoritative.
+  transplant_rate: &rate_definition
+    - TX_RR is the published transplant-rate ratio estimate and TMR_TxPy_c is the program transplant person-time field.
+    - The access-table combined center identifier must be reconciled to same-release Tiers code and type fields.
+  wait_time: &wait_definition
+    - TTT_25_C is the published 25th-percentile time to transplant in months.
+    - Not Observed, >72, hyphen, and blank source values remain missing and are never converted to zero.
+  waiting_list_mortality: &waiting_list_mortality_definition
+    family: waiting_list_mortality
+    sheet_name: Tbls B4-B5 & Fig B1-B6 - All
+    expected_columns: 78
+    required_fields: *waiting_list_mortality_fields
+    population: kidney_candidates_after_listing
+    event: death_before_transplant_or_removal_for_other_reasons
+    denominator: candidate_person_years
+    direction: lower_ratio_is_better
+    interval_kind: bayesian_credible_interval
+    interval_level: 0.95
+    definition_notes:
+      - WLM_RR is the published waiting-list mortality ratio; the published Bayesian credible interval is authoritative.
+      - TMR_DthPy_c is candidate person-time and TMR_DthN_c is the published observed death count.
+  mortality_after_listing: &mortality_after_listing_definition
+    family: mortality_after_listing
+    expected_columns: 107
+    required_fields: *mortality_after_listing_fields
+    population: kidney_candidates_after_listing
+    event: death_after_listing
+    denominator: listed_candidate_person_years
+    direction: lower_ratio_is_better
+    interval_kind: bayesian_credible_interval
+    interval_level: 0.95
+    definition_notes:
+      - sfl_all_hr_c is the published mortality-after-listing hazard ratio for all kidney candidates.
+      - Person-years and candidate count are separate denominator context and remain distinct.
+  graft_failure_90_day: &graft_failure_90_day_definition
+    family: graft_failure_90_day
+    sheet_name: TabC5-C12 FigC1-C20 90D 1YC
+    expected_columns: 232
+    required_fields: *graft_failure_90_day_fields
+    population: adult_single_organ_kidney_transplant_recipients
+    event: graft_failure_within_90_days
+    denominator: adult_kidney_transplants
+    direction: lower_ratio_is_better
+    interval_kind: bayesian_credible_interval
+    interval_level: 0.95
+    definition_notes:
+      - GSR_AD_HR_C90D is the published adult 90-day graft-failure hazard ratio.
+      - Adult all-donor single-organ kidney recipients define this measure.
+  graft_failure_1_year_conditional: &graft_failure_1_year_definition
+    family: graft_failure_1_year_conditional
+    sheet_name: TabC5-C12 FigC1-C20 90D 1YC
+    expected_columns: 232
+    required_fields: *graft_failure_1_year_fields
+    population: adult_single_organ_kidney_recipients_with_functioning_graft_at_day_90
+    event: graft_failure_between_day_90_and_one_year
+    denominator: adult_recipients_with_functioning_graft_at_day_90
+    direction: lower_ratio_is_better
+    interval_kind: bayesian_credible_interval
+    interval_level: 0.95
+    definition_notes:
+      - GSR_AD_HR_C1YC is the published adult one-year graft-failure hazard ratio conditional on a functioning graft at day 90.
+      - Its denominator is not interchangeable with the 90-day transplant count.
+
+releases:
+  - release_code: "1808"
+    published_value: "2018-10"
+    published_precision: month
+    source_url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_1808all.zip
+    source_sha256: 2461603f825068e28d11dbc6bd1537a60a1e9e3401971df373a0ffd71626ab87
+    identity:
+      sheet_name: Tiers
+      expected_rows: 244
+      expected_columns: 13
+      required_fields: *identity_fields
+    metrics:
+      - family: patient_outcome
+        sheet_name: Table B6
+        expected_rows: 236
+        expected_columns: 139
+        required_fields: *outcome_fields
+        measurement_start: 2015-07-01
+        measurement_end: 2016-06-30
+        follow_up_end: 2017-12-30
+        timing_source_url: https://www.srtr.org/PDFs/102018_release/pdfPSR/ILLUTX1KI201808PNEW.pdf
+        definition_notes: *outcome_definition
+        method_changes: [Old-layout outcome sheet is Table B6.]
+        policy_context: [Pre-COVID and pre-circle-allocation listing cohort.]
+      - family: transplant_rate
+        sheet_name: Tbls B4-B5 & Fig B1-B6 - All
+        expected_rows: 242
+        expected_columns: 69
+        required_fields: *rate_fields_without_ratio
+        measurement_start: 2016-01-01
+        measurement_end: 2017-12-31
+        follow_up_end: 2017-12-31
+        timing_source_url: https://www.srtr.org/PDFs/102018_release/pdfPSR/ILLUTX1KI201808PNEW.pdf
+        definition_notes: *rate_definition
+        method_changes: [TX_RR is absent and cannot be used from this release.]
+        policy_context: [Pre-COVID and pre-circle-allocation measurement period.]
+      - family: wait_time
+        sheet_name: Table B9
+        expected_rows: 243
+        expected_columns: 25
+        required_fields: *wait_fields
+        measurement_start: 2012-01-01
+        measurement_end: 2017-06-30
+        follow_up_end: 2017-12-31
+        timing_source_url: https://www.srtr.org/PDFs/102018_release/pdfPSR/ILLUTX1KI201808PNEW.pdf
+        definition_notes: *wait_definition
+        method_changes: [Old-layout wait-time sheet is Table B9.]
+        policy_context: [Pre-COVID and pre-circle-allocation registration cohort.]
+    safety_metrics: []
+
+  - release_code: "1905"
+    published_value: "2019-07"
+    published_precision: month
+    source_url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_1905all.zip
+    source_sha256: 9b800b3f1ab41345902ac186cda512d748e7f0d2c1c2086b20608790a74acc3c
+    identity:
+      sheet_name: Tiers
+      expected_rows: 246
+      expected_columns: 17
+      required_fields: *identity_fields
+    metrics:
+      - family: patient_outcome
+        sheet_name: Table B6
+        expected_rows: 239
+        expected_columns: 139
+        required_fields: *outcome_fields
+        measurement_start: 2016-07-01
+        measurement_end: 2017-06-30
+        follow_up_end: 2018-12-30
+        timing_source_url: https://www.srtr.org/PDFs/072019_release/pdfPSR/NYWCTX1KP201905PNEW.pdf
+        definition_notes: *outcome_definition
+        method_changes: [Old-layout outcome sheet remains Table B6.]
+        policy_context: [Pre-COVID and pre-circle-allocation listing cohort.]
+      - family: transplant_rate
+        sheet_name: Tbls B4-B5 & Fig B1-B6 - All
+        expected_rows: 242
+        expected_columns: 78
+        required_fields: *rate_fields
+        measurement_start: 2017-01-01
+        measurement_end: 2018-12-31
+        follow_up_end: 2018-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072019_release/pdfPSR/NYWCTX1KP201905PNEW.pdf
+        definition_notes: *rate_definition
+        method_changes: [TX_RR first appears in the pinned annual series.]
+        policy_context: [Pre-COVID and pre-circle-allocation measurement period.]
+      - family: wait_time
+        sheet_name: Table B9
+        expected_rows: 244
+        expected_columns: 25
+        required_fields: *wait_fields
+        measurement_start: 2013-01-01
+        measurement_end: 2018-06-30
+        follow_up_end: 2018-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072019_release/pdfPSR/NYWCTX1KP201905PNEW.pdf
+        definition_notes: *wait_definition
+        method_changes: [Old-layout wait-time sheet remains Table B9.]
+        policy_context: [Pre-COVID and pre-circle-allocation registration cohort.]
+    safety_metrics:
+      - <<: *waiting_list_mortality_definition
+        expected_rows: 242
+        measurement_start: 2017-01-01
+        measurement_end: 2018-12-31
+        included_segments: [{start: 2017-01-01, end: 2018-12-31}]
+        follow_up_end: 2018-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072019_release/pdfPSR/NYWCTX1KP201905PNEW.pdf
+
+  - release_code: "2006"
+    published_value: "2020-08"
+    published_precision: month
+    source_url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2006all.zip
+    source_sha256: 2b9de46096db7ded0eed0aae2a98e5d9d31d9241ea75d2d2d69083027733e1e4
+    identity:
+      sheet_name: Tiers
+      expected_rows: 243
+      expected_columns: 17
+      required_fields: *identity_fields
+    metrics:
+      - family: patient_outcome
+        sheet_name: Table B6
+        expected_rows: 238
+        expected_columns: 139
+        required_fields: *outcome_fields
+        measurement_start: 2017-07-01
+        measurement_end: 2018-06-30
+        follow_up_end: 2019-12-30
+        timing_source_url: https://www.srtr.org/PDFs/082020_release/pdfPSR/OHTCTX1KI202006PNEW.pdf
+        definition_notes: *outcome_definition
+        method_changes: [Old-layout outcome sheet remains Table B6.]
+        policy_context: [Pre-COVID and pre-circle-allocation listing cohort.]
+      - family: transplant_rate
+        sheet_name: Tbls B4-B5 & Fig B1-B6 - All
+        expected_rows: 239
+        expected_columns: 78
+        required_fields: *rate_fields
+        measurement_start: 2018-01-01
+        measurement_end: 2019-12-31
+        follow_up_end: 2019-12-31
+        timing_source_url: https://www.srtr.org/PDFs/082020_release/pdfPSR/OHTCTX1KI202006PNEW.pdf
+        definition_notes: *rate_definition
+        method_changes: []
+        policy_context: [Pre-COVID and pre-circle-allocation measurement period.]
+      - family: wait_time
+        sheet_name: Table B9
+        expected_rows: 242
+        expected_columns: 25
+        required_fields: *wait_fields
+        measurement_start: 2014-01-01
+        measurement_end: 2019-06-30
+        follow_up_end: 2019-12-31
+        timing_source_url: https://www.srtr.org/PDFs/082020_release/pdfPSR/OHTCTX1KI202006PNEW.pdf
+        definition_notes: *wait_definition
+        method_changes: [Old-layout wait-time sheet remains Table B9.]
+        policy_context: [Pre-COVID and pre-circle-allocation registration cohort.]
+    safety_metrics:
+      - <<: *waiting_list_mortality_definition
+        expected_rows: 239
+        measurement_start: 2018-01-01
+        measurement_end: 2019-12-31
+        included_segments: [{start: 2018-01-01, end: 2019-12-31}]
+        follow_up_end: 2019-12-31
+        timing_source_url: https://www.srtr.org/PDFs/082020_release/pdfPSR/OHTCTX1KI202006PNEW.pdf
+
+  - release_code: "2105"
+    published_value: "2021-07"
+    published_precision: month
+    source_url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2105all.zip
+    source_sha256: 36b3fd2572844f5da8017ec6558e7340f356ef0800633bb10b08b61f435b3ec9
+    identity:
+      sheet_name: Tiers
+      expected_rows: 241
+      expected_columns: 17
+      required_fields: *identity_fields
+    metrics:
+      - family: patient_outcome
+        sheet_name: Table B6
+        expected_rows: 235
+        expected_columns: 139
+        required_fields: *outcome_fields
+        measurement_start: 2018-07-01
+        measurement_end: 2019-06-30
+        follow_up_end: 2020-12-30
+        timing_source_url: https://www.srtr.org/PDFs/062021_release/pdfPSR/TXMHTX1KI202105PNEW.pdf
+        definition_notes: *outcome_definition
+        method_changes: [Old-layout outcome sheet remains Table B6.]
+        policy_context: [Listing cohort precedes COVID-19; 18-month follow-up reaches the pandemic period.]
+      - family: transplant_rate
+        sheet_name: Tbls B4-B5 & Fig B1-B6 - All
+        expected_rows: 239
+        expected_columns: 78
+        required_fields: *rate_fields
+        measurement_start: 2019-01-01
+        measurement_end: 2020-12-31
+        follow_up_end: 2020-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062021_release/pdfPSR/TXMHTX1KI202105PNEW.pdf
+        definition_notes: *rate_definition
+        method_changes: [Report documents COVID-era metric modifications.]
+        policy_context: [Measurement period includes the March 2020 COVID-19 disruption.]
+      - family: wait_time
+        sheet_name: Table B9
+        expected_rows: 238
+        expected_columns: 25
+        required_fields: *wait_fields
+        measurement_start: 2015-01-01
+        measurement_end: 2020-06-30
+        follow_up_end: 2020-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062021_release/pdfPSR/TXMHTX1KI202105PNEW.pdf
+        definition_notes: *wait_definition
+        method_changes: [Old-layout wait-time sheet remains Table B9; report documents COVID-era modifications.]
+        policy_context: [Registration and censoring periods include the March 2020 COVID-19 disruption.]
+    safety_metrics:
+      - <<: *waiting_list_mortality_definition
+        expected_rows: 239
+        measurement_start: 2019-01-01
+        measurement_end: 2020-12-31
+        included_segments: [{start: 2019-01-01, end: 2020-03-12}]
+        follow_up_end: 2020-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062021_release/pdfPSR/TXMHTX1KI202105PNEW.pdf
+      - <<: *mortality_after_listing_definition
+        sheet_name: Table B6 - SFL
+        expected_rows: 241
+        measurement_start: 2019-01-01
+        measurement_end: 2020-03-12
+        included_segments: [{start: 2019-01-01, end: 2020-03-12}]
+        follow_up_end: 2020-03-12
+        timing_source_url: https://www.srtr.org/PDFs/062021_release/pdfPSR/TXMHTX1KI202105PNEW.pdf
+
+  - release_code: "2205"
+    published_value: "2022-07"
+    published_precision: month
+    source_url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2205all.zip
+    source_sha256: 6e87092dc56207937ff032783cd49e1b1fbb3e522f0ae1ccab5192431f7530c8
+    identity:
+      sheet_name: Tiers
+      expected_rows: 236
+      expected_columns: 17
+      required_fields: *identity_fields
+    metrics:
+      - family: patient_outcome
+        sheet_name: Table B7
+        expected_rows: 232
+        expected_columns: 139
+        required_fields: *outcome_fields
+        measurement_start: 2019-07-01
+        measurement_end: 2020-06-30
+        follow_up_end: 2021-12-30
+        timing_source_url: https://www.srtr.org/PDFs/062022_release/pdfPSR/CTHHTX1KI202205PNEW.pdf
+        definition_notes: *outcome_definition
+        method_changes: [Outcome sheet moves from Table B6 to Table B7.]
+        policy_context: [Listing cohort includes the March 2020 COVID-19 disruption; follow-up includes the March 2021 circle-allocation change.]
+      - family: transplant_rate
+        sheet_name: Tbls B4-B5 & Fig B1-B6 - All
+        expected_rows: 236
+        expected_columns: 78
+        required_fields: *rate_fields
+        measurement_start: 2020-01-01
+        measurement_end: 2021-12-31
+        follow_up_end: 2021-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062022_release/pdfPSR/CTHHTX1KI202205PNEW.pdf
+        definition_notes: *rate_definition
+        method_changes: [Report documents COVID-era metric modifications.]
+        policy_context: [Measurement period includes COVID-19 and the March 2021 circle-allocation change.]
+      - family: wait_time
+        sheet_name: Table B10
+        expected_rows: 234
+        expected_columns: 25
+        required_fields: *wait_fields
+        measurement_start: 2016-01-01
+        measurement_end: 2021-06-30
+        follow_up_end: 2021-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062022_release/pdfPSR/CTHHTX1KI202205PNEW.pdf
+        definition_notes: *wait_definition
+        method_changes: [Wait-time sheet moves from Table B9 to Table B10; report documents COVID-era modifications.]
+        policy_context: [Registration and censoring periods include COVID-19 and the March 2021 circle-allocation change.]
+    safety_metrics:
+      - <<: *waiting_list_mortality_definition
+        expected_rows: 236
+        measurement_start: 2020-01-01
+        measurement_end: 2021-12-31
+        included_segments:
+          - {start: 2020-01-01, end: 2020-03-12}
+          - {start: 2020-06-13, end: 2021-12-31}
+        follow_up_end: 2021-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062022_release/pdfPSR/CTHHTX1KI202205PNEW.pdf
+      - <<: *mortality_after_listing_definition
+        sheet_name: Table B6 & Fig B7-B9
+        expected_rows: 239
+        measurement_start: 2020-01-01
+        measurement_end: 2021-12-31
+        included_segments:
+          - {start: 2020-01-01, end: 2020-03-12}
+          - {start: 2020-06-13, end: 2021-12-31}
+        follow_up_end: 2021-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062022_release/pdfPSR/CTHHTX1KI202205PNEW.pdf
+      - <<: *graft_failure_90_day_definition
+        expected_rows: 235
+        measurement_start: 2019-01-01
+        measurement_end: 2021-06-30
+        included_segments:
+          - {start: 2019-01-01, end: 2020-03-12}
+          - {start: 2020-06-13, end: 2021-06-30}
+        follow_up_end: 2021-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062022_release/pdfPSR/CTHHTX1KI202205PNEW.pdf
+      - <<: *graft_failure_1_year_definition
+        expected_rows: 235
+        measurement_start: 2019-01-01
+        measurement_end: 2021-06-30
+        included_segments:
+          - {start: 2019-01-01, end: 2020-03-12}
+          - {start: 2020-06-13, end: 2021-06-30}
+        follow_up_end: 2021-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062022_release/pdfPSR/CTHHTX1KI202205PNEW.pdf
+
+  - release_code: "2305"
+    published_value: "2023-07-06"
+    published_precision: day
+    source_url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2305all.zip
+    source_sha256: e1aa222c9a894d83379184785169252a53b70859e63b5d8fd1033c243e7f2c8d
+    identity:
+      sheet_name: Tiers
+      expected_rows: 238
+      expected_columns: 17
+      required_fields: *identity_fields
+    metrics:
+      - family: patient_outcome
+        sheet_name: Table B7
+        expected_rows: 233
+        expected_columns: 139
+        required_fields: *outcome_fields
+        measurement_start: 2020-07-01
+        measurement_end: 2021-06-30
+        follow_up_end: 2022-12-30
+        timing_source_url: https://www.srtr.org/PDFs/062023_release/pdfPSR/MNUMTX1KI202305PNEW.pdf
+        definition_notes: *outcome_definition
+        method_changes: [Report documents COVID-era modifications.]
+        policy_context: [Listing cohort includes COVID-19 and the March 2021 circle-allocation change.]
+      - family: transplant_rate
+        sheet_name: Tbls B4-B5 & Fig B1-B6 - All
+        expected_rows: 238
+        expected_columns: 78
+        required_fields: *rate_fields
+        measurement_start: 2021-01-01
+        measurement_end: 2022-12-31
+        follow_up_end: 2022-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062023_release/pdfPSR/MNUMTX1KI202305PNEW.pdf
+        definition_notes: *rate_definition
+        method_changes: [Report documents COVID-era metric modifications.]
+        policy_context: [Measurement period includes COVID-19 and the March 2021 circle-allocation change.]
+      - family: wait_time
+        sheet_name: Table B10
+        expected_rows: 233
+        expected_columns: 25
+        required_fields: *wait_fields
+        measurement_start: 2017-01-01
+        measurement_end: 2022-06-30
+        follow_up_end: 2022-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062023_release/pdfPSR/MNUMTX1KI202305PNEW.pdf
+        definition_notes: *wait_definition
+        method_changes: [Report documents COVID-era metric modifications.]
+        policy_context: [Registration and censoring periods include COVID-19 and the March 2021 circle-allocation change.]
+    safety_metrics:
+      - <<: *waiting_list_mortality_definition
+        expected_rows: 238
+        measurement_start: 2021-01-01
+        measurement_end: 2022-12-31
+        included_segments: [{start: 2021-01-01, end: 2022-12-31}]
+        follow_up_end: 2022-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062023_release/pdfPSR/MNUMTX1KI202305PNEW.pdf
+      - <<: *mortality_after_listing_definition
+        sheet_name: Table B6 & Fig B7-B9
+        expected_rows: 241
+        measurement_start: 2021-01-01
+        measurement_end: 2022-12-31
+        included_segments: [{start: 2021-01-01, end: 2022-12-31}]
+        follow_up_end: 2022-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062023_release/pdfPSR/MNUMTX1KI202305PNEW.pdf
+      - <<: *graft_failure_90_day_definition
+        expected_rows: 235
+        measurement_start: 2020-01-01
+        measurement_end: 2022-06-30
+        included_segments:
+          - {start: 2020-01-01, end: 2020-03-12}
+          - {start: 2020-06-13, end: 2022-06-30}
+        follow_up_end: 2022-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062023_release/pdfPSR/MNUMTX1KI202305PNEW.pdf
+      - <<: *graft_failure_1_year_definition
+        expected_rows: 235
+        measurement_start: 2020-01-01
+        measurement_end: 2022-06-30
+        included_segments:
+          - {start: 2020-01-01, end: 2020-03-12}
+          - {start: 2020-06-13, end: 2022-06-30}
+        follow_up_end: 2022-12-31
+        timing_source_url: https://www.srtr.org/PDFs/062023_release/pdfPSR/MNUMTX1KI202305PNEW.pdf
+
+  - release_code: "2405"
+    published_value: "2024-07-09"
+    published_precision: day
+    source_url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2405all.zip
+    source_sha256: 023dcc9f7bd4e6cfee84f4707294be367e789b5430420c778d827d47e879aa49
+    identity:
+      sheet_name: Tiers
+      expected_rows: 236
+      expected_columns: 17
+      required_fields: *identity_fields
+    metrics:
+      - family: patient_outcome
+        sheet_name: Table B7
+        expected_rows: 236
+        expected_columns: 139
+        required_fields: *outcome_fields
+        measurement_start: 2021-07-01
+        measurement_end: 2022-06-30
+        follow_up_end: 2023-12-30
+        timing_source_url: https://www.srtr.org/PDFs/072024_release/pdfPSR/ILUITX1KP202405PNEW.pdf
+        definition_notes: *outcome_definition
+        method_changes: [Report documents the final named cycle of COVID-era metric modifications.]
+        policy_context: [Post-circle-allocation listing cohort; follow-up overlaps the July 2023 OAR monitoring change.]
+      - family: transplant_rate
+        sheet_name: Tbls B4-B5 & Fig B1-B6 - All
+        expected_rows: 236
+        expected_columns: 78
+        required_fields: *rate_fields
+        measurement_start: 2022-01-01
+        measurement_end: 2023-12-31
+        follow_up_end: 2023-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072024_release/pdfPSR/ILUITX1KP202405PNEW.pdf
+        definition_notes: *rate_definition
+        method_changes: [Report documents the final named cycle of COVID-era metric modifications.]
+        policy_context: [Post-circle-allocation period; measurement overlaps the July 2023 OAR monitoring change.]
+      - family: wait_time
+        sheet_name: Table B10
+        expected_rows: 232
+        expected_columns: 25
+        required_fields: *wait_fields
+        measurement_start: 2018-01-01
+        measurement_end: 2023-06-30
+        follow_up_end: 2023-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072024_release/pdfPSR/ILUITX1KP202405PNEW.pdf
+        definition_notes: *wait_definition
+        method_changes: [Report documents the final named cycle of COVID-era metric modifications.]
+        policy_context: [Registration and censoring periods include COVID-19 and the March 2021 circle-allocation change.]
+    safety_metrics:
+      - <<: *waiting_list_mortality_definition
+        expected_rows: 236
+        measurement_start: 2022-01-01
+        measurement_end: 2023-12-31
+        included_segments: [{start: 2022-01-01, end: 2023-12-31}]
+        follow_up_end: 2023-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072024_release/pdfPSR/ILUITX1KP202405PNEW.pdf
+      - <<: *mortality_after_listing_definition
+        sheet_name: Table B6 & Fig B7-B9
+        expected_rows: 238
+        measurement_start: 2022-01-01
+        measurement_end: 2023-12-31
+        included_segments: [{start: 2022-01-01, end: 2023-12-31}]
+        follow_up_end: 2023-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072024_release/pdfPSR/ILUITX1KP202405PNEW.pdf
+      - <<: *graft_failure_90_day_definition
+        expected_rows: 235
+        measurement_start: 2021-01-01
+        measurement_end: 2023-06-30
+        included_segments: [{start: 2021-01-01, end: 2023-06-30}]
+        follow_up_end: 2023-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072024_release/pdfPSR/ILUITX1KP202405PNEW.pdf
+      - <<: *graft_failure_1_year_definition
+        expected_rows: 235
+        measurement_start: 2021-01-01
+        measurement_end: 2023-06-30
+        included_segments: [{start: 2021-01-01, end: 2023-06-30}]
+        follow_up_end: 2023-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072024_release/pdfPSR/ILUITX1KP202405PNEW.pdf
+
+  - release_code: "2505"
+    published_value: "2025-07-08"
+    published_precision: day
+    source_url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2505all.zip
+    source_sha256: 359723874d5cdc2acaae98e0ebd3385f4a7d2f4dcc255e4dba90dba2a6036b8b
+    identity:
+      sheet_name: Tiers
+      expected_rows: 237
+      expected_columns: 17
+      required_fields: *identity_fields
+    metrics:
+      - family: patient_outcome
+        sheet_name: Table B7
+        expected_rows: 234
+        expected_columns: 139
+        required_fields: *outcome_fields
+        measurement_start: 2022-07-01
+        measurement_end: 2023-06-30
+        follow_up_end: 2024-12-30
+        timing_source_url: https://www.srtr.org/PDFs/072025_release/pdfPSR/NYNSTX1KI202505PNEW.pdf
+        definition_notes: *outcome_definition
+        method_changes: []
+        policy_context: [Post-circle-allocation cohort; listing ends shortly before the July 2023 OAR monitoring change.]
+      - family: transplant_rate
+        sheet_name: Tbls B4-B5 & Fig B1-B6 - All
+        expected_rows: 237
+        expected_columns: 78
+        required_fields: *rate_fields
+        measurement_start: 2023-01-01
+        measurement_end: 2024-12-31
+        follow_up_end: 2024-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072025_release/pdfPSR/NYNSTX1KI202505PNEW.pdf
+        definition_notes: *rate_definition
+        method_changes: []
+        policy_context: [Measurement overlaps the July 2023 OAR monitoring change and then enters full post-policy time.]
+      - family: wait_time
+        sheet_name: Table B10
+        expected_rows: 231
+        expected_columns: 25
+        required_fields: *wait_fields
+        measurement_start: 2019-01-01
+        measurement_end: 2024-06-30
+        follow_up_end: 2024-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072025_release/pdfPSR/NYNSTX1KI202505PNEW.pdf
+        definition_notes: *wait_definition
+        method_changes: []
+        policy_context: [Registration and censoring periods span COVID-19, circle allocation, and the July 2023 OAR monitoring change.]
+    safety_metrics:
+      - <<: *waiting_list_mortality_definition
+        expected_rows: 237
+        measurement_start: 2023-01-01
+        measurement_end: 2024-12-31
+        included_segments: [{start: 2023-01-01, end: 2024-12-31}]
+        follow_up_end: 2024-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072025_release/pdfPSR/NYNSTX1KI202505PNEW.pdf
+      - <<: *mortality_after_listing_definition
+        sheet_name: Table B6 & Fig B7-B9
+        expected_rows: 237
+        measurement_start: 2023-01-01
+        measurement_end: 2024-12-31
+        included_segments: [{start: 2023-01-01, end: 2024-12-31}]
+        follow_up_end: 2024-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072025_release/pdfPSR/NYNSTX1KI202505PNEW.pdf
+      - <<: *graft_failure_90_day_definition
+        expected_rows: 234
+        measurement_start: 2022-01-01
+        measurement_end: 2024-06-30
+        included_segments: [{start: 2022-01-01, end: 2024-06-30}]
+        follow_up_end: 2024-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072025_release/pdfPSR/NYNSTX1KI202505PNEW.pdf
+      - <<: *graft_failure_1_year_definition
+        expected_rows: 234
+        measurement_start: 2022-01-01
+        measurement_end: 2024-06-30
+        included_segments: [{start: 2022-01-01, end: 2024-06-30}]
+        follow_up_end: 2024-12-31
+        timing_source_url: https://www.srtr.org/PDFs/072025_release/pdfPSR/NYNSTX1KI202505PNEW.pdf
+
+  - release_code: "2605"
+    published_value: "2026-07-07"
+    published_precision: day
+    source_url: https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables/csrs_final_tables_2605_KI.xls
+    source_sha256: 8f357b6ed7a060f395fd1930e34e9e4aee4fe508d67f10b4167073eded834184
+    identity:
+      sheet_name: Tiers
+      expected_rows: 236
+      expected_columns: 17
+      required_fields: *identity_fields
+    metrics:
+      - family: patient_outcome
+        sheet_name: Table B7
+        expected_rows: 229
+        expected_columns: 139
+        required_fields: *outcome_fields
+        measurement_start: 2023-01-01
+        measurement_end: 2023-12-31
+        follow_up_end: 2025-06-30
+        timing_source_url: https://srtr.hrsa.gov/transplant-professionals/program-specific-report/psr-reporting-timeline/
+        definition_notes: *outcome_definition
+        method_changes: [Listing cohort changes to a calendar year and overlaps 2505 from January through June 2023.]
+        policy_context: [Mixed 2023 context because OAR monitoring took effect July 27 2023.]
+      - family: transplant_rate
+        sheet_name: Tbls B4-B5 & Fig B1-B6 - All
+        expected_rows: 235
+        expected_columns: 78
+        required_fields: *rate_fields
+        measurement_start: 2024-01-01
+        measurement_end: 2025-12-31
+        follow_up_end: 2025-12-31
+        timing_source_url: https://srtr.hrsa.gov/transplant-professionals/program-specific-report/psr-reporting-timeline/
+        definition_notes: *rate_definition
+        method_changes: []
+        policy_context: [Full post-OAR-monitoring measurement period.]
+      - family: wait_time
+        sheet_name: Table B10
+        expected_rows: 231
+        expected_columns: 25
+        required_fields: *wait_fields
+        measurement_start: 2019-07-01
+        measurement_end: 2024-12-31
+        follow_up_end: 2024-12-31
+        timing_source_url: https://srtr.hrsa.gov/transplant-professionals/program-specific-report/psr-reporting-timeline/
+        definition_notes: *wait_definition
+        method_changes: [Registration cohort moves forward six months while the censor date remains December 31 2024.]
+        policy_context: [Registration and censoring periods span COVID-19, circle allocation, and the July 2023 OAR monitoring change.]
+    safety_metrics:
+      - <<: *waiting_list_mortality_definition
+        expected_rows: 235
+        measurement_start: 2024-01-01
+        measurement_end: 2025-12-31
+        included_segments: [{start: 2024-01-01, end: 2025-12-31}]
+        follow_up_end: 2025-12-31
+        timing_source_url: https://srtr.hrsa.gov/transplant-professionals/program-specific-report/psr-reporting-timeline/
+      - <<: *mortality_after_listing_definition
+        sheet_name: Table B6 & Fig B7-B9
+        expected_rows: 236
+        measurement_start: 2024-01-01
+        measurement_end: 2025-12-31
+        included_segments: [{start: 2024-01-01, end: 2025-12-31}]
+        follow_up_end: 2025-12-31
+        timing_source_url: https://srtr.hrsa.gov/transplant-professionals/program-specific-report/psr-reporting-timeline/
+      - <<: *graft_failure_90_day_definition
+        expected_rows: 233
+        measurement_start: 2023-01-01
+        measurement_end: 2025-06-30
+        included_segments: [{start: 2023-01-01, end: 2025-06-30}]
+        follow_up_end: 2025-12-31
+        timing_source_url: https://srtr.hrsa.gov/transplant-professionals/program-specific-report/psr-reporting-timeline/
+      - <<: *graft_failure_1_year_definition
+        expected_rows: 233
+        measurement_start: 2023-01-01
+        measurement_end: 2025-06-30
+        included_segments: [{start: 2023-01-01, end: 2025-06-30}]
+        follow_up_end: 2025-12-31
+        timing_source_url: https://srtr.hrsa.gov/transplant-professionals/program-specific-report/psr-reporting-timeline/
