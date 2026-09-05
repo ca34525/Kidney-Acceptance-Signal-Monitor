@@ -1,6 +1,6 @@
 # Plan 0021 — Close the AI coding safeguard gaps
 
-**Status:** all six fixes implemented and locally verified; Docker runtime verification pending CI
+**Status:** complete; all six fixes and Docker verification pass locally and in CI
 **Started:** 2026-09-04 (2026-09-05 UTC)
 **Starting revision:** `4155ea7`; clean worktree
 
@@ -108,7 +108,7 @@ evidence. Tests cover generation, evaluation, serialization, trusted loading, an
 | `uv run kasm artifacts build --processed-dir data/hardening-0021/processed --modeling-dir data/hardening-0021/modeling --output-dir data/hardening-0021/release` | 12 payload files; 1,229,848 bytes; original content identity reproduced |
 | `uv run python data/hardening-0021/check_compatibility.py` | synthetic attempted-activation fit/schema/predictions/metrics exactly match `4155ea7` |
 | `uv run python data/hardening-0021/check_app_health.py` | local Streamlit child process returned HTTP 200 / `ok`; child stopped afterward |
-| `docker build -t kidney-acceptance-signal-monitor:hardening .` | unavailable: Docker executable not installed/on PATH; standard Docker Desktop executable path also absent |
+| `docker build -t kidney-acceptance-signal-monitor:hardening .` | initial attempt could not resolve Docker from the session PATH; the standard machine-wide path was absent. This did not establish that Docker was uninstalled; see the completed verification below |
 | `git diff --check` | passed |
 
 The isolated reproduction first compared all three processed and six backtest payload SHA-256
@@ -120,12 +120,36 @@ Scripts, coverage details, app log, and reproduction outputs stay under ignored
 `data/hardening-0021/`. Frozen configurations, source pins, dependency lock, and tracked V1/V2
 release artifacts are unchanged. No dependency was added and no commit was created.
 
-### Remaining verification and next work
+### Docker verification completed — 2026-09-04 (2026-09-05 UTC)
 
-Docker image startup and runtime non-root/health verification could not run on this host.
-The existing CI container job still performs them; its result must be checked before treating
-container verification as complete. Static Dockerfile checks and the local app process check
-passed. No container runtime success is claimed here.
+The user committed and pushed the hardening as
+`5f26ec93262a53069dcd5b2c7fb1c8cfb783bf7e`, then requested local Docker verification.
+Docker was installed under `%LOCALAPPDATA%/Programs/DockerDesktop/resources/bin/docker.exe`
+and its Linux engine was running. The earlier check missed this per-user installation because
+the executable was absent from the session PATH; accessing this location and the engine also
+required execution outside the restricted sandbox. The earlier conclusion that Docker was
+unavailable on the host was too broad.
 
-After reviewing this engineering change and its normal CI result, resume Plan 0020 at P0a.
-Its documentation pass, follow-up analysis, and presentation work remain separate work.
+Using that executable directly, Docker Desktop 4.89.0 / Engine 29.7.2 in the `desktop-linux`
+context passed the following checks against the committed project:
+
+| Check | Evidence |
+|---|---|
+| `docker build -t kidney-acceptance-signal-monitor:hardening-5f26ec9 .` | image built successfully with the frozen production dependencies |
+| `docker image inspect ... --format '{{.Config.User}}'` | configured user `kasm` |
+| `docker run --detach --rm --name <unique-verification-name> --network none ...` | isolated container started with external networking disabled |
+| `docker exec <container-id> id -u` | UID `10001`, not root |
+| `docker inspect <container-id> --format '{{.State.Health.Status}}'` | `healthy`, after waiting for the configured Docker health check |
+| HTTP request inside the container to `http://127.0.0.1:8501/_stcore/health` | HTTP `200`, body `ok` |
+| Cleanup | only the temporary verification container was removed; the built image remains available |
+
+Independently confirmed [CI run 33938291395](https://github.com/ca34525/Kidney-Acceptance-Signal-Monitor/actions/runs/33938291395)
+for the exact pushed commit. Both `quality` (job `101230449776`) and `container`
+(job `101230609252`) completed successfully. This includes both coverage gates, offline app
+startup, image build, and configured/runtime non-root checks.
+
+This follow-through changes documentation only and records the existing test-first exception
+for documentation. `git diff --check` passes; production code, dependencies, scientific settings,
+and released results are unchanged from the verified commit. No further verification remains
+open for Plan 0021. Resume Plan 0020 at P0a; its documentation pass, follow-up analysis, and
+presentation work remain separate work.

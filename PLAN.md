@@ -2,7 +2,7 @@
 
 **Plan version:** 1.2
 
-**Status:** Original V2 complete; focused hardening implemented; container verification pending CI
+**Status:** Original V2 and focused hardening complete; local and CI container verification passed
 
 **Original build time box:** Seven full-time days
 
@@ -10,8 +10,8 @@ The original build budget was 56 focused hours: eight hours per day. Day 7 was r
 buffer. The day-by-day plan below is retained as the original work record.
 
 The six engineering fixes in [Plan 0021](docs/plans/0021-focused-ai-coding-hardening.md) are
-implemented and locally verified, with both studies' frozen evidence preserved. Docker runtime
-verification remains pending CI because Docker is unavailable on this host. The next work is
+complete, with both studies' frozen evidence preserved. Docker build, non-root startup, and
+application health now pass locally and in CI for commit `5f26ec9`. The next work is
 [Plan 0020](docs/plans/0020-v2-follow-up-and-interview-story.md). First, rewrite
 existing documentation and explanatory comments/docstrings in ordinary language (P0a), retaining
 the original facts and scientific requirements. Then investigate the report-count input, explain

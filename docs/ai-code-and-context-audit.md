@@ -218,6 +218,12 @@ dependency compatibility, Ruff, mypy, nine-source cache verification, and local 
 process health also pass. An isolated data/backtest/release reproduction matches the original
 payload hashes and release content identity; it reuses the existing completed replay bundle.
 
-Docker is unavailable on this host, so image build and runtime non-root/health verification
-remain for CI. Frozen settings, source pins, the dependency lock, and both tracked release bundles
-are unchanged. Plan 0020's scientific follow-up has not begun.
+**Docker verification correction, later on 2026-09-04 (2026-09-05 UTC):** Docker was installed
+and running in a per-user location missed by the initial PATH and standard-location check.
+Using that installation with the required sandbox access, local image build, non-root startup
+(UID `10001`), Docker health, and HTTP `200 / ok` all passed with external networking disabled.
+The temporary verification container was removed. Both `quality` and `container` jobs also
+passed in [CI run 33938291395](https://github.com/ca34525/Kidney-Acceptance-Signal-Monitor/actions/runs/33938291395)
+for the pushed hardening commit `5f26ec9`. Plan 0021 has no remaining verification item.
+Frozen settings, source pins, the dependency lock, and both tracked release bundles are unchanged.
+Plan 0020's scientific follow-up has not begun.
