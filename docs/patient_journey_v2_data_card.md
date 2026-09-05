@@ -75,15 +75,34 @@ use `MM/DD/YYYY`, and a valid safety program may be absent from the same-release
 
 ## Provenance and limitations
 
-The workspace offline release contains 966 panel rows and 5,678 safety rows. Its payload is 679,407
-bytes with bundle content SHA-256
+### Current published bundle
+
+The tracked release contains 966 panel rows and 5,678 safety rows. Its four payload files total
+679,407 bytes with bundle content SHA-256
+`ce2844edbcec92c09d0053720d5331dd37ed43ab75de7aa4dd1de431c79a9eee`.
+The [release manifest](../artifacts/patient_journey_v2/release_manifest.json) records source commit
+`cdea5c40302de1797d83698566d2ebb51de16938`, `canonical_build: true`,
+`git_worktree_dirty: false`, and build time `2026-09-04T22:40:05.364170Z`.
+[Plan 0019](plans/0019-patient-journey-v2-completion.md) records publication at `0353f99`.
+
+### Earlier development bundle retained as history
+
+The earlier workspace development release contained 966 panel rows and 5,678 safety rows. Its
+payload was 679,407 bytes with bundle content SHA-256
 `6542fc61968b4cda95a33dcb5057b41b37d6fc3ba5ad40397ee8e7a1ed2cc205`.
 
-The current artifact was generated at Git commit
+That development artifact was generated at Git commit
 `9357a33f96a19b4024d222a526e696b297740738` while the worktree contained the uncommitted V2
-implementation. Its manifest therefore records `canonical_build: false` and
-`git_worktree_dirty: true`. This is a reproducible development artifact, not a claimed clean-build
-release.
+implementation. Its manifest recorded `canonical_build: false` and
+`git_worktree_dirty: true`. It is retained here as the earlier build record, not the current
+published bundle.
+
+### Interpretation and planned follow-up
+
+[Plan 0020](plans/0020-v2-follow-up-and-interview-story.md) proposes a separate investigation of
+the report-count input and the living/deceased-donor and unknown-status parts of the outcome.
+Those additional components are not yet included in this original V2 panel. The existing published
+target and results remain unchanged.
 
 Aggregate program measures cannot support patient-level inference or fairness claims. Measurement
 definitions and policy context vary by release, including COVID-era exclusions and allocation

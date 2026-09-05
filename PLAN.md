@@ -1,10 +1,25 @@
 # Kidney Acceptance Signal Monitor — One-Week Build Plan
 
-**Plan version:** 1.1  
-**Status:** Ready to execute  
-**Time box:** Seven full-time days  
+**Plan version:** 1.2
 
-The hard budget is 56 focused hours: eight hours per day. Day 7 is release/rehearsal buffer, not a feature day. Conditional forecast activation is the first automatic cut and cannot consume that buffer.
+**Status:** Original V2 complete; follow-up planning documented
+
+**Original build time box:** Seven full-time days
+
+The original build budget was 56 focused hours: eight hours per day. Day 7 was release/rehearsal
+buffer. The day-by-day plan below is retained as the original work record.
+
+Current work is [Plan 0020](docs/plans/0020-v2-follow-up-and-interview-story.md). First, rewrite
+existing documentation and explanatory comments/docstrings in ordinary language (P0a), retaining
+the original facts and scientific requirements. Then investigate the report-count input, explain
+the living/deceased-donor and unknown-status parts of the outcome, and prepare a 20-minute
+interview story. Planning and the initial guide are complete; the existing-documentation pass,
+new analysis, and presentation implementation have not started. This follow-up has its own work
+order and retains the original V1 and V2 evidence.
+
+Understanding and explaining the project in ordinary language is a top priority, including in
+comments and docstrings. Start with [the project guide](docs/project-guide.md), then use exact
+specifications and source fields for implementation.
 
 ## 1. Operating model
 
@@ -63,6 +78,7 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 | M11 | V2 temporal design and canonical panel | done | Plan 0017: four non-overlapping pairs, strict-vintage folds, deterministic 966-row in-memory panel, 181 tests, and required quality gates pass |
 | M12 | V2 canonical artifact publication | done | Plan 0018: config-owned processed bundle, source-derived QA evidence, provenance contract, trusted validation, and isolated offline build command; 214 tests pass and the real cache build publishes 966 rows |
 | M13 | V2 exploratory study and optional product | done | Plan 0019: canonical 679 KB bundle built from clean `cdea5c4` and published at `0353f99`; 236-test/83.93% suite, offline V2 flow, V1 isolation, and both remote CI jobs pass; no model promoted |
+| M14 | V2 follow-up and 20-minute interview story | in_progress | Plan 0020: planning complete; first implementation step is P0a existing-documentation rewrite; original V2 retained; P0a and analytical/presentation passes not started |
 
 ## 5. Day-by-day execution
 

@@ -5,6 +5,12 @@
 **Specification date:** 2026-09-04
 **Primary audience:** Transplant-program quality and performance staff
 
+> **Record retained, 2026-09-04:** This is the completed original V2 design, including its fixed
+> model inputs and nonpromotion rule. [Plan 0020](../plans/0020-v2-follow-up-and-interview-story.md)
+> describes a separate proposed investigation; it does not amend this experiment's inputs or
+> results. The follow-up needs its own specification and configuration before implementation.
+> [The project guide](../project-guide.md) explains both opportunities in ordinary language.
+
 ## 1. Version boundary
 
 This specification defines a separate v2 patient-journey study. It does not replace the v1

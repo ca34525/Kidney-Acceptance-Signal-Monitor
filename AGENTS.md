@@ -134,6 +134,30 @@ The historical monitor is the product. Show the ridge challenger as the default 
 
 ## 7. Engineering rules
 
+### Ordinary-language explanations are a top priority
+
+- Use ordinary language first in user explanations, documentation, presentations, chart text,
+  and new or touched code comments/docstrings. Explain the idea before naming the method.
+- Plan 0020 also requires an ordinary-language pass over existing documentation and explanatory
+  comments/docstrings before its analytical work begins. Inventory the files, including past plans
+  and decisions. Retain their scientific meaning, numbers, commands, and historical evidence;
+  use dated explanations when a rewrite would obscure the original record.
+- State the purpose, what one record represents, the people or programs counted, the relevant
+  dates, and the units. Explain denominators, unknown values, and the reason for important rules.
+- Keep exact source field names, formulas, types, and statistical definitions wherever needed
+  for correctness. Plain explanations accompany these details; they do not replace them.
+- Define an unfamiliar term at first use. Prefer "number of earlier available reports" over
+  unexplained "archive depth," and "average size of the error" before introducing "MAE."
+- Use a short numerical example when it clarifies meaning. Label hypothetical examples clearly.
+  Distinguish percentage points from percent, reported outcomes from actual unknown outcomes,
+  original study results from later investigations, and proposals from completed work.
+- Comments explain intent and reasons, not every line of implementation. Do not rename stable
+  identifiers, add redundant prose, or refactor unrelated code solely to remove technical terms.
+- Follow `docs/project-guide.md` for the current explanation. Interview readiness requires a
+  walkthrough and rehearsal in the author's own words; documentation alone does not establish it.
+
+### Implementation requirements
+
 - Python 3.12 and `uv` with a committed `uv.lock` are the supported environment.
 - Prefer small, typed, pure functions and explicit schemas.
 - Treat AI-generated code, tests, dependency names, and factual claims as untrusted until verified.

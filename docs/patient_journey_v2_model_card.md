@@ -1,5 +1,11 @@
 # Patient-journey V2 model card
 
+This card retains the completed original V2 study and its results. A later review raised questions
+about the report-count input and unknown follow-up status. Those questions and their reproduction
+requirements are recorded separately in [Plan 0020](plans/0020-v2-follow-up-and-interview-story.md).
+No revised model result is included here. See [the project guide](project-guide.md) for the
+ordinary-language explanation and the distinction between the two history-based comparisons.
+
 ## Evidence status and intended use
 
 This is retrospective exploratory feasibility evidence. It compares prespecified baselines and

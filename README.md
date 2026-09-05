@@ -7,6 +7,14 @@ next-calendar-year PSR projection.
 
 > Public aggregate prototype — not clinical or regulatory decision support.
 
+For an ordinary-language explanation of V1, the completed V2 study, and the two planned
+investigations, start with [Understanding the project](docs/project-guide.md).
+[Plan 0020](docs/plans/0020-v2-follow-up-and-interview-story.md) describes the follow-up and
+20-minute interview presentation. Its first pass will rewrite existing documentation in ordinary
+language while preserving the original facts. The analytical follow-up comes afterward. That work
+is planned; the original V2 results and release remain available. The commands and four-minute demo
+below describe the retained V1 product.
+
 The frozen 2025 retrospective replay did not promote ridge: although ridge improved log-OAR MAE
 by 10.13%, its absolute mean signed error exceeded persistence. The application therefore carries
 the latest published OAR forward as its displayed projection and suppresses the ridge empirical

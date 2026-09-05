@@ -11,6 +11,12 @@
 > v2 may not alter or reinterpret the v1 frozen experiment, canonical replay, release bundle, or
 > default application behavior.
 
+> **Follow-up planning, 2026-09-04:** The original V2 study remains intact. The separately
+> identified investigation in [Plan 0020](docs/plans/0020-v2-follow-up-and-interview-story.md)
+> and [Decision 0007](docs/decisions/0007-preserve-v2-and-plan-explanatory-follow-up.md) requires
+> its own specification and configuration before implementation. It may not overwrite either
+> original study or present already-inspected outcomes as fresh validation.
+
 ## 1. Decision summary
 
 Build a public-data prototype that helps a kidney transplant program review its longitudinal, risk-adjusted offer-acceptance signals and compare them with national expectation. The guaranteed product is a historical monitor. An experimental model projects the program's **next same-cadence calendar-year PSR signal** and must meet prespecified descriptive promotion criteria against simple persistence before it can appear in the interface.
@@ -552,6 +558,21 @@ On every pull request:
 Tests never download live data. Live-source verification is a manual or scheduled maintenance command.
 
 ## 14. Documentation deliverables
+
+Ordinary-language understanding is a top-priority requirement across project explanations,
+presentations, chart text, and new or touched code comments/docstrings. Explain the question,
+population, dates, denominator, units, missing values, and reason for a rule before introducing
+specialist terminology. Preserve exact field names, equations, types, and source contracts.
+See [the project guide](docs/project-guide.md) and the writing rules in `AGENTS.md`.
+
+Plan 0020's first implementation pass extends this requirement to existing documentation and
+explanatory comments/docstrings. It includes past plans and decisions while retaining their
+original facts and scientific meaning. Complete that readability pass before its new analyses;
+it does not change model definitions, configuration contracts, or executable behavior.
+
+The original V1 deliverables below remain part of its release. Plan 0020 separately defines the
+20-minute interview story and requires an author walkthrough and timed rehearsal; readable
+documentation alone is not evidence that the author can explain the work.
 
 - README with a four-minute local demo path
 - Data card covering source, grain, cohorts, missingness, exclusions, provenance, and known shifts
