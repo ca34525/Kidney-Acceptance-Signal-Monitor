@@ -13,11 +13,24 @@ Before editing, read:
 
 Order of authority:
 
-1. `SPEC.md` for product and scientific requirements
-2. `configs/frozen_experiment.yaml` for a frozen evaluation
+1. The applicable study specification below for product and scientific requirements
+2. That study's configuration for its fixed experiment or frozen evaluation
 3. `configs/data_sources.yaml` for source identity and provenance
 4. `PLAN.md` and the active implementation plan for work order
 5. existing code conventions
+
+Choose the study contract before selecting implementation rules:
+
+| Work | Specification and configuration |
+|---|---|
+| V1 acceptance monitor | `SPEC.md`; `configs/experiment.yaml` and `configs/frozen_experiment.yaml` |
+| Original V2 patient-journey study | `docs/specs/patient-journey-v2.md`; `configs/patient_journey_v2/experiment.yaml` and its methodology ledger |
+| Plan 0020 analytical follow-up | Its own specification and typed configuration must exist before analysis starts; original V1/V2 contracts and results remain preserved |
+
+Read the applicable study documents in addition to the mandatory reads. Engineering, data
+safety, and nonclinical/nonregulatory claim safeguards apply across studies. V1's log(OAR)
+target and calendar-year cohorts do not apply to V2's published 18-month functioning-transplant
+percentage and fixed July–June listing cohorts. Original V2 permits no model promotion.
 
 If implementation requires changing scope, data meaning, target, features, splits, metrics, or promotion rules, change the specification and plan first. Record a short architectural decision in `docs/decisions/`.
 
@@ -47,17 +60,26 @@ Keep changes narrow. Do not combine unrelated refactors with feature work. One b
 
 ## 3. Scientific invariants
 
-These rules are non-negotiable:
+These shared rules are non-negotiable for every study:
+
+- Use the modeling unit, target, and pinned non-overlapping cohorts in the applicable study specification.
+- Never use a random row split.
+- All rows for an outcome cohort stay in the same temporal fold.
+- Every predictor and training outcome must meet that study's measurement and publication cutoff rules.
+- Imputation, scaling, and model fitting occur inside each training fold.
+- Center code, center type, name, city, state, ZIP, OPO/DSA identity, and future report availability are never predictors.
+- Published source values are authoritative. Reconstruct values only for a study's explicitly specified rounding checks or modeling transforms; never relabel reconstructed values as published.
+- Statistical uncertainty for model comparisons is resampled by program, not by treating repeated program-cohort rows as independent.
+- Preserve each completed study's fixed inputs and evidence; later investigations require separate identities and cannot become fresh validation.
+
+The following additional rules govern V1. Original V2 and the follow-up use their own exact
+scientific contracts, without weakening the shared safeguards above:
 
 - The modeling unit is a kidney transplant program-year.
 - The primary target is the next same-cadence calendar-year published `log(OAR)`.
 - The binary credible-interval status is descriptive, not the training target.
 - Modeling uses only the pinned, non-overlapping calendar-year cohorts.
-- Never use a random row split.
-- All rows for an outcome year stay in the same temporal fold.
 - Every predictor must be available in the feature cohort or earlier.
-- Imputation, scaling, and model fitting occur inside each training fold.
-- Center code, center type, name, city, state, ZIP, OPO/DSA identity, and future report availability are never predictors.
 - KDPI ≥60 is not a core model feature because it lacks adequate history.
 - Baselines are implemented and evaluated before the ridge challenger.
 - No second model family is added unless the specification is deliberately changed before the frozen replay.
@@ -68,7 +90,6 @@ These rules are non-negotiable:
 - Current SRTR credible intervals and empirical forecast bands are distinct quantities and must never share a label.
 - When activation is attempted, the nominal 80% band is marginal across programs, not conditional for a center, and has a separate display gate from the point model.
 - Treat 2025 replay estimates—and bootstrap intervals when activation is attempted—as descriptive product-selection evidence, never prospective or confirmatory validation.
-- Statistical uncertainty for model comparisons is resampled by program, not by treating repeated program-year rows as independent.
 
 If code makes it possible to violate one of these rules silently, add a hard validation error and a regression test.
 
@@ -84,7 +105,7 @@ If code makes it possible to violate one of these rules silently, add a hard val
 - Preserve missing and suppressed values as null; never convert them to zero.
 - A missing future program report creates a missing target, not a negative outcome.
 - Do not assume donor strata are mutually exhaustive when the source shows otherwise.
-- Keep raw downloads, archives, interim data, and large generated artifacts out of Git. Track only the approved, attributed, reproducible `<5 MB` bundle under `artifacts/release/`.
+- Keep raw downloads, archives, interim data, and large generated artifacts out of Git. Track only the approved, attributed, reproducible bundles under `artifacts/release/` (V1) and `artifacts/patient_journey_v2/` (original V2), each `<5 MB`. A follow-up output root needs its own explicit specification and approval.
 - Tests do not access the network.
 - A manual data-refresh workflow may inspect live sources but may not update checksums without review.
 - Preserve publication precision: month-only values render as month/year and never acquire an invented day.
@@ -94,7 +115,8 @@ Every release artifact must include source hashes, configuration hashes, Git com
 
 ## 5. Product and claim rules
 
-Use these terms:
+For the V1 acceptance monitor, use these terms. V2 uses its specification's patient-journey
+terminology; the prohibited claims and interface restrictions below apply across studies:
 
 - "screening signal"
 - "published offer-acceptance ratio"
@@ -118,7 +140,7 @@ Do not use these claims:
 
 Do not build a national center leaderboard, composite score, or patient/organ input form. Do not display MPSC thresholds.
 
-The historical monitor is the product. Show the ridge challenger as the default only if the frozen promotion gate passes. Otherwise display persistence and document the negative result plainly.
+For V1, the historical monitor is the product. Show the ridge challenger as the default only if the frozen promotion gate passes. Otherwise display persistence and document the negative result plainly. Original V2 remains a separate exploratory study with promotion prohibited.
 
 ## 6. Application boundary
 
@@ -182,7 +204,8 @@ uv sync --frozen
 uv run ruff format --check .
 uv run ruff check .
 uv run mypy src/kasm
-uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov-branch --cov-fail-under=80
+uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80
+uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2
 ```
 
 When the relevant components exist, also run:

@@ -5,11 +5,12 @@ from __future__ import annotations
 import os
 from collections.abc import Callable
 from dataclasses import dataclass
+from http.client import HTTPMessage
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Protocol, cast
+from typing import IO, Protocol, cast
 from urllib.error import URLError
-from urllib.request import Request, urlopen
+from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 from kasm.config import DataSourceManifest, SourceRecord, is_https_file_url
 from kasm.data.cache import CacheIssue, verify_source_file
@@ -55,9 +56,27 @@ class CacheSync:
         return not self.issues
 
 
+class _HttpsRedirectHandler(HTTPRedirectHandler):
+    """Check each destination before urllib follows a source redirect."""
+
+    def redirect_request(
+        self,
+        req: Request,
+        fp: IO[bytes],
+        code: int,
+        msg: str,
+        headers: HTTPMessage,
+        newurl: str,
+    ) -> Request | None:
+        if not is_https_file_url(newurl):
+            raise URLError("Source redirect destination must be an absolute HTTPS file URL.")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
 def _default_open_url(request: Request, *, timeout: float) -> DownloadResponse:
-    # `_sync_source` validates the scheme before this boundary is reachable.
-    return cast(DownloadResponse, urlopen(request, timeout=timeout))  # noqa: S310
+    # Initial URLs and every redirect are checked; normal TLS certificate checks still apply.
+    opener = build_opener(_HttpsRedirectHandler())
+    return cast(DownloadResponse, opener.open(request, timeout=timeout))  # noqa: S310
 
 
 def _download_to_temporary_file(
@@ -90,7 +109,16 @@ def _download_to_temporary_file(
                 delete=False,
             ) as temporary_file:
                 temporary_path = Path(temporary_file.name)
-                while chunk := response.read(_CHUNK_BYTES):
+                downloaded_bytes = 0
+                # Read at most one excess byte so a changed source cannot fill the cache disk.
+                while chunk := response.read(
+                    min(_CHUNK_BYTES, source.download_bytes - downloaded_bytes + 1)
+                ):
+                    downloaded_bytes += len(chunk)
+                    if downloaded_bytes > source.download_bytes:
+                        raise OSError(
+                            f"Download exceeds pinned size of {source.download_bytes} bytes"
+                        )
                     temporary_file.write(chunk)
                 temporary_file.flush()
                 os.fsync(temporary_file.fileno())

@@ -287,10 +287,25 @@ def _verified_replay_provenance(
     _array(provenance.get("feature_columns"), "provenance.feature_columns")
     _array(provenance.get("training_target_years"), "provenance.training_target_years")
     _object(provenance.get("model_parameters"), "provenance.model_parameters")
-    _integer(provenance.get("calibration_target_year"), "provenance.calibration_target_year")
+    _validate_calibration_provenance(provenance)
     _integer(provenance.get("replay_target_year"), "provenance.replay_target_year")
     _array(replay_metrics.get("methodology_version_ledger"), "methodology_version_ledger")
     return provenance
+
+
+def _validate_calibration_provenance(provenance: Mapping[str, object]) -> None:
+    # Older attempted-activation bundles predate the explicit skipped-activation marker.
+    attempted = _boolean(
+        provenance.get("forecast_activation_attempted", True),
+        "provenance.forecast_activation_attempted",
+    )
+    if attempted:
+        _integer(provenance.get("calibration_target_year"), "provenance.calibration_target_year")
+    elif (
+        "calibration_target_year" not in provenance
+        or provenance["calibration_target_year"] is not None
+    ):
+        raise ReleaseBundleError("Skipped activation must record a null calibration_target_year.")
 
 
 def _verify_pre_replay_input_identity(
@@ -365,6 +380,14 @@ def _manifest_provenance(
     experiment_hash: str,
     frozen_config: Mapping[str, object],
 ) -> JsonObject:
+    if _boolean(
+        provenance.get("forecast_activation_attempted", True),
+        "provenance.forecast_activation_attempted",
+    ) != _boolean(
+        frozen_config.get("forecast_activation_attempted"),
+        "frozen_config.forecast_activation_attempted",
+    ):
+        raise ReleaseBundleError("Replay activation state disagrees with the frozen config.")
     temporal = _object(frozen_config.get("temporal_evaluation"), "temporal_evaluation")
     validation_year = _integer(
         temporal.get("validation_target_year"), "temporal_evaluation.validation_target_year"
@@ -623,12 +646,12 @@ def _validated_release_provenance(manifest: Mapping[str, object]) -> JsonObject:
     for field in ("build_timestamp_utc", "git_commit_sha", "python_version"):
         _text(provenance.get(field), f"provenance.{field}")
     for field in (
-        "calibration_target_year",
         "replay_target_year",
         "source_manifest_schema_version",
         "validation_target_year",
     ):
         _integer(provenance.get(field), f"provenance.{field}")
+    _validate_calibration_provenance(provenance)
     for field in ("feature_columns", "source_cohort_years", "training_target_years"):
         _array(provenance.get(field), f"provenance.{field}")
     _object(provenance.get("model_parameters"), "provenance.model_parameters")

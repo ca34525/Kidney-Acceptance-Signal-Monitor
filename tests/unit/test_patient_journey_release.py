@@ -8,11 +8,15 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import pytest
 
+import kasm.patient_journey.release as release_module
 from kasm.patient_journey.release import (
     PatientJourneyReleaseError,
+    PatientJourneyReleaseResult,
     validate_patient_journey_release_directory,
     write_patient_journey_release_directory,
 )
+
+ReleaseBundle = tuple[PatientJourneyReleaseResult, dict[str, Path], dict[str, object]]
 
 
 def _content_identity(records: dict[str, dict[str, object]]) -> str:
@@ -207,3 +211,117 @@ def test_v2_release_recomputes_the_modeling_artifact_identity(tmp_path: Path) ->
 
     with pytest.raises(PatientJourneyReleaseError, match="modeling generation"):
         validate_patient_journey_release_directory(output_dir)
+
+
+@pytest.fixture
+def release_bundle(tmp_path: Path) -> ReleaseBundle:
+    assets, provenance = _release_inputs(tmp_path / "inputs")
+    result = write_patient_journey_release_directory(
+        assets=assets,
+        provenance=provenance,
+        output_dir=tmp_path / "release",
+    )
+    return result, assets, provenance
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("schema_version", 999, "unsupported"),
+        ("status", "in_progress", "incomplete"),
+        ("provenance", None, "provenance"),
+        ("display_contract", {}, "display contract"),
+        ("artifacts", {}, "records are incomplete"),
+        (
+            "artifacts",
+            {key: None for key in ("panel", "safety", "predictions", "evaluation")},
+            "record is invalid",
+        ),
+        ("total_bytes", 0, "aggregate"),
+        ("bundle_content_sha256", "0" * 64, "aggregate"),
+    ],
+)
+def test_release_validator_rejects_manifest_contract_drift(
+    release_bundle: ReleaseBundle, field: str, value: object, message: str
+) -> None:
+    result, _, _ = release_bundle
+    manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+    manifest[field] = value
+    result.manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(PatientJourneyReleaseError, match=message):
+        validate_patient_journey_release_directory(result.output_directory)
+
+
+@pytest.mark.parametrize(("value", "message"), [("{", "unreadable"), ("[]", "JSON object")])
+def test_release_validator_rejects_unreadable_manifest(
+    release_bundle: ReleaseBundle, value: str, message: str
+) -> None:
+    result, _, _ = release_bundle
+    result.manifest_path.write_text(value, encoding="utf-8")
+    with pytest.raises(PatientJourneyReleaseError, match=message):
+        validate_patient_journey_release_directory(result.output_directory)
+
+
+@pytest.mark.parametrize(
+    ("failure", "message"),
+    [
+        ("missing_asset", "missing"),
+        ("extra_asset", "exactly four"),
+        ("invalid_parquet", "generation provenance is invalid"),
+        ("array_provenance", "provenance must be an object"),
+        ("invalid_evaluation", "evaluation is unreadable"),
+        ("array_evaluation", "evaluation must be a JSON object"),
+    ],
+)
+def test_release_writer_rejects_bad_inputs_without_changing_prior_release(
+    release_bundle: ReleaseBundle, failure: str, message: str
+) -> None:
+    result, assets, provenance = release_bundle
+    before = {p.name: p.read_bytes() for p in result.output_directory.iterdir()}
+    if failure == "missing_asset":
+        assets["panel"] = result.output_directory.parent / "absent.parquet"
+    elif failure == "extra_asset":
+        assets["extra"] = assets["panel"]
+    elif failure == "invalid_parquet":
+        assets["panel"].write_bytes(b"not parquet")
+    elif failure == "array_provenance":
+        table = pq.read_table(assets["panel"]).replace_schema_metadata({b"kasm_provenance": b"[]"})
+        pq.write_table(table, assets["panel"])
+    else:
+        assets["evaluation"].write_text(
+            "{" if failure == "invalid_evaluation" else "[]", encoding="utf-8"
+        )
+        provenance["modeling_artifact_set_sha256"] = _content_identity(
+            {
+                key: {"bytes": assets[key].stat().st_size, "sha256": _file_sha256(assets[key])}
+                for key in ("predictions", "evaluation")
+            }
+        )
+    with pytest.raises(PatientJourneyReleaseError, match=message):
+        write_patient_journey_release_directory(
+            assets=assets, provenance=provenance, output_dir=result.output_directory
+        )
+    assert {p.name: p.read_bytes() for p in result.output_directory.iterdir()} == before
+    assert not list(result.output_directory.parent.glob(".*-staging-*"))
+
+
+def test_release_publication_failure_rolls_back_prior_bundle(
+    release_bundle: ReleaseBundle, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    result, assets, provenance = release_bundle
+    before = {p.name: p.read_bytes() for p in result.output_directory.iterdir()}
+    original = release_module.os.replace
+
+    def fail_publish(src: Path, dst: Path) -> None:
+        if "-staging-" in Path(src).name and Path(dst) == result.output_directory:
+            raise OSError("injected publish failure")
+        return original(src, dst)
+
+    monkeypatch.setattr(release_module.os, "replace", fail_publish)
+    with pytest.raises(OSError, match="injected"):
+        write_patient_journey_release_directory(
+            assets=assets, provenance=provenance, output_dir=result.output_directory
+        )
+    assert {p.name: p.read_bytes() for p in result.output_directory.iterdir()} == before
+    assert not list(result.output_directory.parent.glob(".*-staging-*"))
+    assert not list(result.output_directory.parent.glob(".*-backup"))

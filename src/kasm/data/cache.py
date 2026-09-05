@@ -8,6 +8,7 @@ from hashlib import sha256
 from pathlib import Path, PurePosixPath
 from typing import IO
 from zipfile import BadZipFile, ZipFile, is_zipfile
+from zlib import error as ZlibError
 
 from kasm.config import DataSourceManifest, SourceRecord
 
@@ -76,6 +77,7 @@ def _verify_zip(path: Path, source: SourceRecord) -> list[CacheIssue]:
                 issues.append(
                     _issue(source, f"Archive contains unsafe member path {unsafe_names[0]!r}.")
                 )
+                return issues
 
             try:
                 member = archive.getinfo(source.member_path)
@@ -100,6 +102,7 @@ def _verify_zip(path: Path, source: SourceRecord) -> list[CacheIssue]:
                         f"expected {source.member_bytes}, found {member.file_size} bytes.",
                     )
                 )
+                return issues
             with archive.open(member) as stream:
                 member_digest, member_prefix = _digest_and_prefix(stream)
             if member_digest != source.member_sha256:
@@ -116,6 +119,8 @@ def _verify_zip(path: Path, source: SourceRecord) -> list[CacheIssue]:
                 )
     except BadZipFile:
         issues.append(_issue(source, f"File type mismatch for {path.name}: invalid ZIP archive."))
+    except (NotImplementedError, RuntimeError, OSError, EOFError, ZlibError) as error:
+        issues.append(_issue(source, f"Cannot read ZIP archive {path.name}: {error}."))
     return issues
 
 
@@ -136,6 +141,7 @@ def verify_source_file(path: Path, source: SourceRecord) -> tuple[CacheIssue, ..
                 f"expected {source.download_bytes}, found {actual_bytes} bytes.",
             )
         )
+        return tuple(issues)
     with path.open("rb") as stream:
         actual_digest, prefix = _digest_and_prefix(stream)
     if actual_digest != source.download_sha256:
@@ -146,6 +152,7 @@ def verify_source_file(path: Path, source: SourceRecord) -> tuple[CacheIssue, ..
                 f"expected {source.download_sha256}, found {actual_digest}.",
             )
         )
+        return tuple(issues)
 
     if source.transport == "zip":
         issues.extend(_verify_zip(path, source))

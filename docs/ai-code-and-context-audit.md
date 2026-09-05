@@ -195,3 +195,29 @@ limitations assigned to Plan 0020, not new code defects discovered here.
 Command evidence and the documentation-only test exception are recorded in
 [Plan 0020](plans/0020-v2-follow-up-and-interview-story.md#ai-coding-practices-recheck--2026-09-04).
 This change adds the audit record only; all six remediations remain open.
+
+## Focused hardening follow-through — 2026-09-04 (2026-09-05 UTC)
+
+The user committed the second review as `4155ea7` and authorized its focused hardening.
+All six findings now have implemented fixes and local evidence in
+[Plan 0021](plans/0021-focused-ai-coding-hardening.md). The open-finding text above is retained
+as the record of the reviewed revision.
+
+Agent instructions now route work to the correct study. Archive verification stops at failed
+outer or member checks, oversized downloads stop early, and the actual HTTP opener rejects
+non-HTTPS redirects before following them. A skipped forecast activation keeps point results
+and persistence display, with band and bootstrap evidence absent. Synthetic tests cover that
+path through artifact publication and offline display; the attempted-activation calculations
+match the starting revision exactly.
+
+CI now includes V2 and separately requires its coverage to reach 80%, checked to two decimal
+places. New tests exercise malformed artifacts, rehashed inconsistencies, rollback after failed
+publication, source drift, and missing-value/date handling. All **353 tests pass**, with
+**82.48% combined** and **80.44% V2** statement/branch coverage. Frozen sync, lock checks,
+dependency compatibility, Ruff, mypy, nine-source cache verification, and local Streamlit
+process health also pass. An isolated data/backtest/release reproduction matches the original
+payload hashes and release content identity; it reuses the existing completed replay bundle.
+
+Docker is unavailable on this host, so image build and runtime non-root/health verification
+remain for CI. Frozen settings, source pins, the dependency lock, and both tracked release bundles
+are unchanged. Plan 0020's scientific follow-up has not begun.

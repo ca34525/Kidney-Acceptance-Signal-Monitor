@@ -476,7 +476,8 @@ uv run kasm model backtest
 uv run kasm model evaluate-frozen-replay --confirm
 uv run kasm artifacts build
 uv run streamlit run app/streamlit_app.py
-uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov-branch --cov-fail-under=80
+uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80
+uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2
 uv run ruff check .
 uv run mypy src/kasm
 ```
@@ -550,7 +551,7 @@ On every pull request:
 1. locked dependency installation;
 2. Ruff format/check;
 3. mypy on owned `src/kasm` code, with missing third-party stubs ignored only in named adapter modules;
-4. unit and integration tests with branch coverage ≥80% across `src/kasm/data`, `src/kasm/modeling`, and `src/kasm/reporting`;
+4. unit and integration tests with branch coverage ≥80% across `src/kasm/data`, `src/kasm/modeling`, `src/kasm/reporting`, and `src/kasm/patient_journey`;
 5. fixture-pipeline smoke test;
 6. Docker build; and
 7. check that no raw/archive/model file above the permitted size was committed.

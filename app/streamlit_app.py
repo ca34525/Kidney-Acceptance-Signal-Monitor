@@ -349,7 +349,12 @@ with program_tab:
             )
         st.info(_model_status_message(evaluation))
         if not evaluation.display_band:
-            if evaluation.band_suppression_reason == "ridge_point_not_promoted":
+            if evaluation.activation_status == "not_attempted":
+                st.info(
+                    "Forecast activation was not attempted; "
+                    "no empirical forecast band was calculated."
+                )
+            elif evaluation.band_suppression_reason == "ridge_point_not_promoted":
                 st.info(
                     "No nominal 80% empirical forecast band is displayed because the ridge point "
                     "model was not promoted. The ridge band gate was evaluated separately."
@@ -380,11 +385,20 @@ with evaluation_tab:
     ridge_metric.metric("Ridge log-OAR MAE", f"{replay.ridge_mae_log_oar:.3f}")
     persistence_metric.metric("Persistence log-OAR MAE", f"{replay.persistence_mae_log_oar:.3f}")
     skill_metric.metric("Ridge skill vs persistence", f"{replay.skill_over_persistence:.1%}")
+    if replay.bootstrap_interval is None:
+        uncertainty_text = (
+            "The paired-bootstrap interval was not calculated "
+            "because activation was not attempted. "
+        )
+    else:
+        uncertainty_text = (
+            f"Paired-bootstrap interval for ridge minus persistence absolute error: "
+            f"{replay.bootstrap_interval[0]:.3f} to {replay.bootstrap_interval[1]:.3f}. "
+        )
     st.caption(
         f"Descriptive retrospective product-selection evidence across {replay.n} programs. "
-        f"Paired-bootstrap interval for ridge minus persistence absolute error: "
-        f"{replay.bootstrap_interval[0]:.3f} to {replay.bootstrap_interval[1]:.3f}. "
-        "The replay was previously inspected during planning and is not an independent test; "
+        + uncertainty_text
+        + "The replay was previously inspected during planning and is not an independent test; "
         "the ridge model remains prospectively unvalidated."
     )
     st.write(
@@ -398,8 +412,10 @@ with evaluation_tab:
             "The modeling unit is a kidney transplant program-year, and the target is the next "
             "same-cadence calendar-year published log OAR. Rolling target years stay intact; no "
             "random row split is used. The frozen replay fit uses target years 2018–2023, while "
-            "2024 remains excluded from fitting because it calibrates the separate residual band."
+            "2024 remains excluded from fitting under the frozen training rule."
         )
+        if evaluation.activation_status != "not_attempted":
+            st.write("When activation is attempted, 2024 calibrates the separate residual band.")
         st.write(
             "Historical vertical marks are SRTR 95% credible intervals for published ratios. An "
             "empirical forecast band is a different quantity: it is marginal across programs and "

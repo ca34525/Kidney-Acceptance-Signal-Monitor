@@ -80,6 +80,14 @@ FROZEN_REPLAY_PREDICTIONS_SCHEMA = pa.schema(
     ]
 )
 
+# Keep the released attempted-activation schema exact. Only the skipped path permits null bands.
+POINT_ONLY_REPLAY_PREDICTIONS_SCHEMA = pa.schema(
+    [
+        field.with_nullable(True) if "_band_" in field.name else field
+        for field in FROZEN_REPLAY_PREDICTIONS_SCHEMA
+    ]
+)
+
 
 class FrozenReplayError(ValueError):
     """Raised when a replay would violate the frozen, write-once contract."""
@@ -117,16 +125,16 @@ class FrozenReplayPrediction:
     persistence_absolute_error_oar: float
     persistence_signed_error_log_oar: float
     absolute_error_difference_vs_persistence: float
-    ridge_band_lower_log_oar: float
-    ridge_band_upper_log_oar: float
-    ridge_band_lower_oar: float
-    ridge_band_upper_oar: float
-    ridge_band_covered: bool
-    persistence_band_lower_log_oar: float
-    persistence_band_upper_log_oar: float
-    persistence_band_lower_oar: float
-    persistence_band_upper_oar: float
-    persistence_band_covered: bool
+    ridge_band_lower_log_oar: float | None
+    ridge_band_upper_log_oar: float | None
+    ridge_band_lower_oar: float | None
+    ridge_band_upper_oar: float | None
+    ridge_band_covered: bool | None
+    persistence_band_lower_log_oar: float | None
+    persistence_band_upper_log_oar: float | None
+    persistence_band_lower_oar: float | None
+    persistence_band_upper_oar: float | None
+    persistence_band_covered: bool | None
 
 
 @dataclass(frozen=True)
@@ -244,6 +252,18 @@ def _frozen_radius(value: float | None, name: str) -> float:
     return value
 
 
+def _prediction_band(
+    predicted_log: float,
+    target_log: float,
+    radius: float | None,
+) -> tuple[float | None, float | None, float | None, float | None, bool | None]:
+    """Leave the whole band unknown when activation was skipped."""
+    if radius is None:
+        return None, None, None, None, None
+    lower, upper = predicted_log - radius, predicted_log + radius
+    return lower, upper, exp(lower), exp(upper), lower <= target_log <= upper
+
+
 def _training_years(
     config: ExperimentConfig, excluded_cohort_years: Sequence[int]
 ) -> tuple[int, ...]:
@@ -310,13 +330,21 @@ def generate_frozen_replay_predictions(
         random_seed=config.ridge_random_seed,
     )
     predicted_values = pipeline.predict(_feature_matrix(evaluation_rows, config.feature_columns))
-    ridge_radius = _frozen_radius(
-        config.ridge_absolute_log_residual_radius,
-        "ridge absolute-log-residual radius",
+    ridge_radius = (
+        _frozen_radius(
+            config.ridge_absolute_log_residual_radius,
+            "ridge absolute-log-residual radius",
+        )
+        if config.forecast_activation_attempted
+        else None
     )
-    persistence_radius = _frozen_radius(
-        config.persistence_absolute_log_residual_radius,
-        "persistence absolute-log-residual radius",
+    persistence_radius = (
+        _frozen_radius(
+            config.persistence_absolute_log_residual_radius,
+            "persistence absolute-log-residual radius",
+        )
+        if config.forecast_activation_attempted
+        else None
     )
     missingness_columns = tuple(
         column for column in config.feature_columns if column.startswith("missing_")
@@ -333,10 +361,8 @@ def generate_frozen_replay_predictions(
         persistence_oar = exp(persistence_log)
         ridge_absolute_error = abs(ridge_log - target_log)
         persistence_absolute_error = abs(persistence_log - target_log)
-        ridge_lower_log = ridge_log - ridge_radius
-        ridge_upper_log = ridge_log + ridge_radius
-        persistence_lower_log = persistence_log - persistence_radius
-        persistence_upper_log = persistence_log + persistence_radius
+        ridge_band = _prediction_band(ridge_log, target_log, ridge_radius)
+        persistence_band = _prediction_band(persistence_log, target_log, persistence_radius)
         predictions.append(
             FrozenReplayPrediction(
                 program_key=program_key,
@@ -375,18 +401,16 @@ def generate_frozen_replay_predictions(
                 absolute_error_difference_vs_persistence=(
                     ridge_absolute_error - persistence_absolute_error
                 ),
-                ridge_band_lower_log_oar=ridge_lower_log,
-                ridge_band_upper_log_oar=ridge_upper_log,
-                ridge_band_lower_oar=exp(ridge_lower_log),
-                ridge_band_upper_oar=exp(ridge_upper_log),
-                ridge_band_covered=ridge_lower_log <= target_log <= ridge_upper_log,
-                persistence_band_lower_log_oar=persistence_lower_log,
-                persistence_band_upper_log_oar=persistence_upper_log,
-                persistence_band_lower_oar=exp(persistence_lower_log),
-                persistence_band_upper_oar=exp(persistence_upper_log),
-                persistence_band_covered=(
-                    persistence_lower_log <= target_log <= persistence_upper_log
-                ),
+                ridge_band_lower_log_oar=ridge_band[0],
+                ridge_band_upper_log_oar=ridge_band[1],
+                ridge_band_lower_oar=ridge_band[2],
+                ridge_band_upper_oar=ridge_band[3],
+                ridge_band_covered=ridge_band[4],
+                persistence_band_lower_log_oar=persistence_band[0],
+                persistence_band_upper_log_oar=persistence_band[1],
+                persistence_band_lower_oar=persistence_band[2],
+                persistence_band_upper_oar=persistence_band[3],
+                persistence_band_covered=persistence_band[4],
             )
         )
     return FrozenReplayFit(
@@ -422,22 +446,54 @@ def _calibration_slope(
     )
 
 
-def _metric_record(
-    predictions: Sequence[FrozenReplayPrediction], *, nominal_coverage: float
+def _band_metrics(
+    predictions: Sequence[FrozenReplayPrediction],
+    *,
+    model: str,
+    nominal_coverage: float,
+    activation_attempted: bool,
 ) -> dict[str, object]:
-    ridge_covered = sum(row.ridge_band_covered for row in predictions)
-    persistence_covered = sum(row.persistence_band_covered for row in predictions)
-    ridge_interval = clopper_pearson_interval(
-        successes=ridge_covered, trials=len(predictions), confidence_level=0.95
-    )
-    persistence_interval = clopper_pearson_interval(
-        successes=persistence_covered,
+    if not activation_attempted:
+        result: dict[str, object] = {
+            f"{model}_band_coverage": None,
+            f"{model}_band_coverage_exact_95_interval": None,
+            f"{model}_band_mean_width_oar": None,
+        }
+        if model == "ridge":
+            result["ridge_band_coverage_warning"] = None
+        return result
+    records = [asdict(row) for row in predictions]
+    covered = sum(_required_bool(row, f"{model}_band_covered") for row in records)
+    interval = clopper_pearson_interval(
+        successes=covered,
         trials=len(predictions),
         confidence_level=0.95,
     )
+    result = {
+        f"{model}_band_coverage": covered / len(predictions),
+        f"{model}_band_coverage_exact_95_interval": list(interval),
+        f"{model}_band_mean_width_oar": _mean(
+            [
+                _required_float(row, f"{model}_band_upper_oar")
+                - _required_float(row, f"{model}_band_lower_oar")
+                for row in records
+            ]
+        ),
+    }
+    if model == "ridge":
+        result["ridge_band_coverage_warning"] = interval[1] < nominal_coverage
+    return result
+
+
+def _metric_record(
+    predictions: Sequence[FrozenReplayPrediction],
+    *,
+    nominal_coverage: float,
+    activation_attempted: bool,
+) -> dict[str, object]:
     ridge_mae = _mean([row.ridge_absolute_error_log_oar for row in predictions])
     persistence_mae = _mean([row.persistence_absolute_error_log_oar for row in predictions])
-    return {
+    result: dict[str, object] = {
         "n": len(predictions),
         "ridge_mae_log_oar": ridge_mae,
         "persistence_mae_log_oar": persistence_mae,
@@ -461,18 +517,17 @@ def _metric_record(
         "persistence_calibration_slope": _calibration_slope(
             predictions, prediction_field="persistence_predicted_log_oar"
         ),
-        "ridge_band_coverage": ridge_covered / len(predictions),
-        "ridge_band_coverage_exact_95_interval": list(ridge_interval),
-        "ridge_band_coverage_warning": ridge_interval[1] < nominal_coverage,
-        "ridge_band_mean_width_oar": _mean(
-            [row.ridge_band_upper_oar - row.ridge_band_lower_oar for row in predictions]
-        ),
-        "persistence_band_coverage": persistence_covered / len(predictions),
-        "persistence_band_coverage_exact_95_interval": list(persistence_interval),
-        "persistence_band_mean_width_oar": _mean(
-            [row.persistence_band_upper_oar - row.persistence_band_lower_oar for row in predictions]
-        ),
     }
+    for model in ("ridge", "persistence"):
+        result.update(
+            _band_metrics(
+                predictions,
+                model=model,
+                nominal_coverage=nominal_coverage,
+                activation_attempted=activation_attempted,
+            )
+        )
+    return result
 
 
 def _diagnostic_record(
@@ -480,45 +535,47 @@ def _diagnostic_record(
     predictions: Sequence[FrozenReplayPrediction],
     *,
     nominal_coverage: float,
+    activation_attempted: bool,
 ) -> dict[str, object]:
     if not predictions:
         return {"stratum": name, "n": 0, "available": False}
     return {
         "stratum": name,
         "available": True,
-        **_metric_record(predictions, nominal_coverage=nominal_coverage),
+        **_metric_record(
+            predictions,
+            nominal_coverage=nominal_coverage,
+            activation_attempted=activation_attempted,
+        ),
     }
 
 
-def evaluate_frozen_replay(
-    replay: FrozenReplayFit,
-    *,
-    rows: Sequence[Mapping[str, object]],
+def _activation_evidence(
+    predictions: Sequence[FrozenReplayPrediction],
+    overall: Mapping[str, object],
+    lowest: Mapping[str, object],
     config: ExperimentConfig,
 ) -> dict[str, object]:
-    """Calculate frozen replay metrics, diagnostics, sensitivities, and display gates."""
-    if replay.evaluation_target_year != config.replay_target_year:
-        raise FrozenReplayError("Replay evaluation year does not match the frozen config.")
-    if replay.excluded_cohort_years:
-        raise FrozenReplayError("Primary replay evidence cannot use a sensitivity fit.")
-    predictions = replay.predictions
-    if not predictions or {row.target_cohort_year for row in predictions} != {
-        config.replay_target_year
-    }:
-        raise FrozenReplayError("Primary replay evidence requires only target year 2025.")
-    overall = _metric_record(predictions, nominal_coverage=config.band_nominal_coverage)
-    quartile_records: list[dict[str, object]] = []
-    for quartile in range(1, 5):
-        group = tuple(row for row in predictions if row.expected_acceptance_quartile == quartile)
-        if not group:
-            raise FrozenReplayError(f"Replay is missing expected-acceptance quartile {quartile}.")
-        quartile_records.append(
-            {
-                "expected_acceptance_quartile": quartile,
-                **_metric_record(group, nominal_coverage=config.band_nominal_coverage),
-            }
-        )
-    lowest = quartile_records[0]
+    if not config.forecast_activation_attempted:
+        return {
+            "bootstrap": None,
+            "point_promotion": {
+                "promoted": False,
+                "displayed_model": "persistence",
+                "skill_over_persistence": overall["skill_over_persistence"],
+                "failed_criteria": ["forecast_activation_not_attempted"],
+            },
+            "band_promotion": None,
+            "release_decision": asdict(
+                ReleaseDecision(
+                    activation_status="not_attempted",
+                    displayed_model="persistence",
+                    ridge_band_gate_passed=False,
+                    display_band=False,
+                    band_suppression_reason="forecast_activation_not_attempted",
+                )
+            ),
+        }
     bootstrap = paired_bootstrap_mae_difference_interval(
         tuple(
             PairedAbsoluteErrors(
@@ -543,7 +600,7 @@ def evaluate_frozen_replay(
         config=config,
     )
     band_promotion = assess_band_promotion(
-        covered=sum(row.ridge_band_covered for row in predictions),
+        covered=sum(_required_bool(asdict(row), "ridge_band_covered") for row in predictions),
         total=len(predictions),
         challenger_mean_width=cast(float, overall["ridge_band_mean_width_oar"]),
         persistence_mean_width=cast(float, overall["persistence_band_mean_width_oar"]),
@@ -553,6 +610,53 @@ def evaluate_frozen_replay(
         point=point_promotion,
         band=band_promotion,
     )
+    bootstrap_record = asdict(bootstrap)
+    bootstrap_record["resampling_unit"] = "program_key"
+    return {
+        "bootstrap": bootstrap_record,
+        "point_promotion": asdict(point_promotion),
+        "band_promotion": asdict(band_promotion),
+        "release_decision": asdict(release_decision),
+    }
+
+
+def evaluate_frozen_replay(
+    replay: FrozenReplayFit,
+    *,
+    rows: Sequence[Mapping[str, object]],
+    config: ExperimentConfig,
+) -> dict[str, object]:
+    """Calculate frozen replay metrics, diagnostics, sensitivities, and display gates."""
+    if replay.evaluation_target_year != config.replay_target_year:
+        raise FrozenReplayError("Replay evaluation year does not match the frozen config.")
+    if replay.excluded_cohort_years:
+        raise FrozenReplayError("Primary replay evidence cannot use a sensitivity fit.")
+    predictions = replay.predictions
+    if not predictions or {row.target_cohort_year for row in predictions} != {
+        config.replay_target_year
+    }:
+        raise FrozenReplayError("Primary replay evidence requires only target year 2025.")
+    overall = _metric_record(
+        predictions,
+        nominal_coverage=config.band_nominal_coverage,
+        activation_attempted=bool(config.forecast_activation_attempted),
+    )
+    quartile_records: list[dict[str, object]] = []
+    for quartile in range(1, 5):
+        group = tuple(row for row in predictions if row.expected_acceptance_quartile == quartile)
+        if not group:
+            raise FrozenReplayError(f"Replay is missing expected-acceptance quartile {quartile}.")
+        quartile_records.append(
+            {
+                "expected_acceptance_quartile": quartile,
+                **_metric_record(
+                    group,
+                    nominal_coverage=config.band_nominal_coverage,
+                    activation_attempted=bool(config.forecast_activation_attempted),
+                ),
+            }
+        )
+    lowest = quartile_records[0]
     diagnostics = (
         (
             "first_observed_program",
@@ -586,17 +690,18 @@ def evaluate_frozen_replay(
                 **_metric_record(
                     sensitivity_fit.predictions,
                     nominal_coverage=config.band_nominal_coverage,
+                    activation_attempted=bool(config.forecast_activation_attempted),
                 ),
             }
         )
-    bootstrap_record = asdict(bootstrap)
-    bootstrap_record["resampling_unit"] = "program_key"
     return {
         "frozen_replay_evaluated": True,
         "evidence_classification": "descriptive_retrospective_product_selection",
         "prospective_validation": False,
         "training_target_years": list(replay.training_target_years),
-        "calibration_target_year": config.band_calibration_target_year,
+        "calibration_target_year": config.band_calibration_target_year
+        if config.forecast_activation_attempted
+        else None,
         "replay_target_year": replay.evaluation_target_year,
         "selected_alpha": config.selected_ridge_alpha,
         "overall": overall,
@@ -606,14 +711,12 @@ def evaluate_frozen_replay(
                 name,
                 group,
                 nominal_coverage=config.band_nominal_coverage,
+                activation_attempted=bool(config.forecast_activation_attempted),
             )
             for name, group in diagnostics
         ],
         "sensitivities": sensitivities,
-        "bootstrap": bootstrap_record,
-        "point_promotion": asdict(point_promotion),
-        "band_promotion": asdict(band_promotion),
-        "release_decision": asdict(release_decision),
+        **_activation_evidence(predictions, overall, lowest, config),
         "cohort_context": {
             "2023": "mixed offer-acceptance monitoring context after 2023-07-27",
             "2024": "full post-monitoring-policy cohort",
@@ -624,14 +727,26 @@ def evaluate_frozen_replay(
 
 def frozen_replay_predictions_table(
     predictions: Sequence[FrozenReplayPrediction],
+    *,
+    activation_attempted: bool = True,
 ) -> pa.Table:
     """Return replay predictions in a stable, exact Parquet schema."""
     ordered = sorted(predictions, key=lambda row: row.program_key)
+    schema = (
+        FROZEN_REPLAY_PREDICTIONS_SCHEMA
+        if activation_attempted
+        else POINT_ONLY_REPLAY_PREDICTIONS_SCHEMA
+    )
+    for row in ordered:
+        for field in schema:
+            if "_band_" in field.name:
+                value = getattr(row, field.name)
+                if (value is None) == activation_attempted:
+                    raise FrozenReplayError("Replay band fields disagree with activation state.")
     arrays = [
-        pa.array([getattr(row, field.name) for row in ordered], type=field.type)
-        for field in FROZEN_REPLAY_PREDICTIONS_SCHEMA
+        pa.array([getattr(row, field.name) for row in ordered], type=field.type) for field in schema
     ]
-    return pa.Table.from_arrays(arrays, schema=FROZEN_REPLAY_PREDICTIONS_SCHEMA)
+    return pa.Table.from_arrays(arrays, schema=schema)
 
 
 def _file_sha256(path: Path) -> str:
@@ -785,7 +900,9 @@ def run_frozen_replay(
         "feature_schema_sha256": sha256(feature_schema_payload).hexdigest(),
         "feature_columns": list(config.feature_columns),
         "training_target_years": list(replay.training_target_years),
-        "calibration_target_year": config.band_calibration_target_year,
+        "calibration_target_year": config.band_calibration_target_year
+        if config.forecast_activation_attempted
+        else None,
         "replay_target_year": config.replay_target_year,
         "model_parameters": {
             "alpha": config.selected_ridge_alpha,
@@ -797,6 +914,8 @@ def run_frozen_replay(
         },
         "methodology_version_ledger_sha256": methodology_ledger_sha256,
     }
+    if not config.forecast_activation_attempted:
+        provenance["forecast_activation_attempted"] = False
     metrics["provenance"] = provenance
     metrics["methodology_version_ledger"] = methodology_ledger
 
@@ -806,7 +925,9 @@ def run_frozen_replay(
     metrics_name = "replay_metrics.json"
     completion_name = "completion.json"
     try:
-        table = frozen_replay_predictions_table(replay.predictions)
+        table = frozen_replay_predictions_table(
+            replay.predictions, activation_attempted=bool(config.forecast_activation_attempted)
+        )
         table = table.replace_schema_metadata(
             {b"kasm_provenance": json.dumps(provenance, sort_keys=True).encode()}
         )

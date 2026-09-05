@@ -39,7 +39,7 @@ class ReplayEvaluation:
     skill_over_persistence: float
     ridge_mean_signed_log_error: float
     persistence_mean_signed_log_error: float
-    bootstrap_interval: tuple[float, float]
+    bootstrap_interval: tuple[float, float] | None
 
 
 @dataclass(frozen=True)
@@ -52,9 +52,9 @@ class ModelEvaluation:
     ridge_band_gate_passed: bool
     display_band: bool
     band_suppression_reason: str | None
-    band_coverage: float
-    band_coverage_interval: tuple[float, float]
-    band_mean_width_relative_to_persistence: float
+    band_coverage: float | None
+    band_coverage_interval: tuple[float, float] | None
+    band_mean_width_relative_to_persistence: float | None
     temporal_comparisons: tuple[TemporalModelComparison, ...]
     replay: ReplayEvaluation
     evidence_classification: str
@@ -277,6 +277,50 @@ def _temporal_comparisons(
     return tuple(result)
 
 
+def _point_state(
+    point: Mapping[str, object],
+) -> tuple[
+    Literal["not_attempted", "attempted_not_promoted", "promoted"], tuple[str, ...], bool, str
+]:
+    failed = tuple(
+        _text(value, "point_promotion.failed_criteria")
+        for value in _array(point.get("failed_criteria"), "point_promotion.failed_criteria")
+    )
+    promoted = _boolean(point.get("promoted"), "point_promotion.promoted")
+    displayed_model = _text(point.get("displayed_model"), "point_promotion.displayed_model")
+    expected_displayed_model = "ridge" if promoted else "persistence"
+    if displayed_model != expected_displayed_model:
+        raise ProductDataError("Point promotion state disagrees with the displayed model.")
+    activation_status: Literal["not_attempted", "attempted_not_promoted", "promoted"]
+    if "forecast_activation_not_attempted" in failed:
+        if promoted:
+            raise ProductDataError("Activation was not attempted but point promotion is claimed.")
+        activation_status = "not_attempted"
+    elif promoted:
+        activation_status = "promoted"
+    else:
+        activation_status = "attempted_not_promoted"
+
+    return activation_status, failed, promoted, displayed_model
+
+
+def _uncertainty_evidence(
+    metrics: Mapping[str, object],
+    *,
+    activation_status: str,
+) -> tuple[JsonObject | None, JsonObject | None]:
+    if activation_status == "not_attempted":
+        if metrics.get("band_promotion") is not None or metrics.get("bootstrap") is not None:
+            raise ProductDataError(
+                "Activation was not attempted but uncertainty evidence is present."
+            )
+        return None, None
+    return (
+        _object(metrics.get("band_promotion"), "band_promotion"),
+        _object(metrics.get("bootstrap"), "bootstrap"),
+    )
+
+
 def load_model_evaluation(modeling_dir: Path, *, expected_panel_sha256: str) -> ModelEvaluation:
     """Load the complete frozen product decision after ledger and schema validation."""
     _, completion, metrics, replay_panel_sha256 = _validated_replay_bundle(modeling_dir)
@@ -295,30 +339,17 @@ def load_model_evaluation(modeling_dir: Path, *, expected_panel_sha256: str) -> 
 
     overall = _object(metrics.get("overall"), "overall")
     point = _object(metrics.get("point_promotion"), "point_promotion")
-    band = _object(metrics.get("band_promotion"), "band_promotion")
-    bootstrap = _object(metrics.get("bootstrap"), "bootstrap")
     provenance = _object(metrics.get("provenance"), "provenance")
-    failed = tuple(
-        _text(value, "point_promotion.failed_criteria")
-        for value in _array(point.get("failed_criteria"), "point_promotion.failed_criteria")
+    activation_status, failed, promoted, displayed_model = _point_state(point)
+    band, bootstrap = _uncertainty_evidence(metrics, activation_status=activation_status)
+    raw_band_display = (
+        False if band is None else _boolean(band.get("display_band"), "band_promotion.display_band")
     )
-    promoted = _boolean(point.get("promoted"), "point_promotion.promoted")
-    displayed_model = _text(point.get("displayed_model"), "point_promotion.displayed_model")
-    expected_displayed_model = "ridge" if promoted else "persistence"
-    if displayed_model != expected_displayed_model:
-        raise ProductDataError("Point promotion state disagrees with the displayed model.")
-    activation_status: Literal["not_attempted", "attempted_not_promoted", "promoted"]
-    if "forecast_activation_not_attempted" in failed:
-        activation_status = "not_attempted"
-    elif promoted:
-        activation_status = "promoted"
-    else:
-        activation_status = "attempted_not_promoted"
-
-    raw_band_display = _boolean(band.get("display_band"), "band_promotion.display_band")
     effective_band_display = promoted and raw_band_display
     suppression_reason = (
-        None
+        "forecast_activation_not_attempted"
+        if activation_status == "not_attempted"
+        else None
         if effective_band_display
         else "ridge_point_not_promoted"
         if not promoted
@@ -345,7 +376,9 @@ def load_model_evaluation(modeling_dir: Path, *, expected_panel_sha256: str) -> 
             overall.get("persistence_mean_signed_log_error"),
             "persistence_mean_signed_log_error",
         ),
-        bootstrap_interval=(
+        bootstrap_interval=None
+        if bootstrap is None
+        else (
             _number(bootstrap.get("lower"), "bootstrap.lower"),
             _number(bootstrap.get("upper"), "bootstrap.upper"),
         ),
@@ -363,12 +396,18 @@ def load_model_evaluation(modeling_dir: Path, *, expected_panel_sha256: str) -> 
         ridge_band_gate_passed=raw_band_display,
         display_band=effective_band_display,
         band_suppression_reason=suppression_reason,
-        band_coverage=_number(band.get("coverage"), "band_promotion.coverage"),
-        band_coverage_interval=(
+        band_coverage=None
+        if band is None
+        else _number(band.get("coverage"), "band_promotion.coverage"),
+        band_coverage_interval=None
+        if band is None
+        else (
             _number(band.get("exact_interval_lower"), "band_promotion.exact_interval_lower"),
             _number(band.get("exact_interval_upper"), "band_promotion.exact_interval_upper"),
         ),
-        band_mean_width_relative_to_persistence=_number(
+        band_mean_width_relative_to_persistence=None
+        if band is None
+        else _number(
             band.get("mean_width_relative_to_persistence"),
             "band_promotion.mean_width_relative_to_persistence",
         ),

@@ -163,7 +163,8 @@ uv sync --frozen
 uv run ruff format --check .
 uv run ruff check .
 uv run mypy src/kasm
-uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov-branch --cov-fail-under=80
+uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80
+uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2
 docker build -t kidney-acceptance-signal-monitor .
 docker run --rm -p 8501:8501 kidney-acceptance-signal-monitor
 ```

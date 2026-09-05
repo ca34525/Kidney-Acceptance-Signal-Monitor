@@ -4,6 +4,11 @@
 
 **Status:** planning complete; analysis and presentation work not started
 
+**Current work order, 2026-09-04 (2026-09-05 UTC):** The user-authorized hardening in
+[Plan 0021](0021-focused-ai-coding-hardening.md) is implemented and locally verified; Docker
+runtime verification remains pending CI. Resume P0a after that engineering review. The hardening
+does not start this plan's new analyses.
+
 **Started:** 2026-09-04
 
 ## Purpose

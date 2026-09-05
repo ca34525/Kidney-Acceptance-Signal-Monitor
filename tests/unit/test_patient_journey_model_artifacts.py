@@ -2,19 +2,28 @@ from __future__ import annotations
 
 import json
 import math
+from hashlib import sha256
 from pathlib import Path
 
+import pyarrow as pa
+import pyarrow.parquet as pq
 import pytest
 
+import kasm.patient_journey.model_artifacts as model_artifacts
 from kasm.patient_journey.config import load_patient_journey_config
 from kasm.patient_journey.model_artifacts import (
     PatientJourneyModelArtifactError,
+    PatientJourneyModelArtifactResult,
+    PatientJourneyModelEvaluation,
     evaluate_patient_journey_rows,
     validate_model_evaluation_directory,
     write_model_evaluation_directory,
 )
 
 PROJECT_ROOT = Path(__file__).parents[2]
+ModelBundle = tuple[
+    PatientJourneyModelArtifactResult, PatientJourneyModelEvaluation, dict[str, object]
+]
 
 
 def _row(
@@ -178,3 +187,144 @@ def test_v2_model_writer_is_atomic_and_tamper_evident(tmp_path: Path) -> None:
             expected=evaluation,
             expected_provenance=provenance,
         )
+
+
+@pytest.fixture
+def model_bundle(tmp_path: Path) -> ModelBundle:
+    config = load_patient_journey_config(
+        PROJECT_ROOT / "configs/patient_journey_v2/experiment.yaml",
+        repository_root=PROJECT_ROOT,
+    )
+    evaluation = evaluate_patient_journey_rows(_rows(), config)
+    provenance = {"analysis_id": config.analysis_id, "git_commit_sha": "a" * 40}
+    result = write_model_evaluation_directory(
+        evaluation,
+        output_dir=tmp_path / "modeling",
+        provenance=provenance,
+    )
+    return result, evaluation, provenance
+
+
+def _rehash_model(result: PatientJourneyModelArtifactResult) -> None:
+    path = result.manifest_path
+    manifest = json.loads(path.read_text(encoding="utf-8"))
+    for key, payload in [
+        ("predictions", result.predictions_path),
+        ("evaluation", result.evaluation_path),
+    ]:
+        manifest["artifacts"][key].update(
+            bytes=payload.stat().st_size, sha256=sha256(payload.read_bytes()).hexdigest()
+        )
+    records = {
+        key: {"bytes": val["bytes"], "sha256": val["sha256"]}
+        for key, val in sorted(manifest["artifacts"].items())
+    }
+    manifest["artifact_set_sha256"] = sha256(
+        json.dumps(records, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    path.write_text(json.dumps(manifest), encoding="utf-8")
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"),
+    [
+        ("status", "in_progress", "incomplete"),
+        ("schema_version", 999, "unsupported"),
+        ("provenance", {}, "provenance"),
+        ("artifacts", {}, "records are incomplete"),
+        ("artifacts", {"predictions": None, "evaluation": None}, "record is invalid"),
+        ("artifact_set_sha256", "0" * 64, "artifact-set checksum"),
+        ("prediction_rows", 0, "recomputation"),
+    ],
+)
+def test_model_validator_rejects_manifest_contract_drift(
+    model_bundle: ModelBundle, field: str, value: object, message: str
+) -> None:
+    result, expected, provenance = model_bundle
+    manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+    manifest[field] = value
+    result.manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(PatientJourneyModelArtifactError, match=message):
+        validate_model_evaluation_directory(
+            result.output_directory, expected=expected, expected_provenance=provenance
+        )
+
+
+@pytest.mark.parametrize(
+    ("failure", "message"),
+    [
+        ("manifest_json", "unreadable"),
+        ("manifest_array", "JSON object"),
+        ("extra_file", "file set"),
+        ("evaluation_json", "unreadable"),
+        ("evaluation_rehashed", "evaluation disagrees"),
+        ("parquet_unreadable", "predictions are unreadable"),
+        ("parquet_schema", "schema"),
+        ("provenance_missing", "provenance is invalid"),
+        ("provenance_changed", "provenance disagrees"),
+        ("prediction_changed", "recomputation"),
+    ],
+)
+def test_model_validator_rejects_rehashed_or_unreadable_payloads(
+    model_bundle: ModelBundle, failure: str, message: str
+) -> None:
+    result, expected, provenance = model_bundle
+    if failure.startswith("manifest_"):
+        result.manifest_path.write_text(
+            "{" if failure == "manifest_json" else "[]", encoding="utf-8"
+        )
+    elif failure == "extra_file":
+        (result.output_directory / "unexpected.txt").write_text("unexpected", encoding="utf-8")
+    else:
+        if failure.startswith("evaluation_"):
+            result.evaluation_path.write_text(
+                "{" if failure == "evaluation_json" else "{}", encoding="utf-8"
+            )
+        elif failure == "parquet_unreadable":
+            result.predictions_path.write_bytes(b"invalid parquet")
+        else:
+            table = pq.read_table(result.predictions_path)
+            if failure == "parquet_schema":
+                table = pa.table({"unrecognized": [1]})
+            elif failure == "provenance_missing":
+                table = table.replace_schema_metadata(None)
+            elif failure == "provenance_changed":
+                table = table.replace_schema_metadata({b"kasm_provenance": b"{}"})
+            else:
+                table = table.slice(1)
+            pq.write_table(table, result.predictions_path)
+        _rehash_model(result)
+    with pytest.raises(PatientJourneyModelArtifactError, match=message):
+        validate_model_evaluation_directory(
+            result.output_directory, expected=expected, expected_provenance=provenance
+        )
+
+
+@pytest.mark.parametrize("stage", ["write", "publish"])
+def test_model_publication_failure_preserves_previous_bundle(
+    model_bundle: ModelBundle, monkeypatch: pytest.MonkeyPatch, stage: str
+) -> None:
+    result, expected, provenance = model_bundle
+    before = {p.name: p.read_bytes() for p in result.output_directory.iterdir()}
+    if stage == "write":
+
+        def fail_write(*args: object, **kwargs: object) -> None:
+            raise OSError("injected write failure")
+
+        monkeypatch.setattr(model_artifacts.pq, "write_table", fail_write)
+    else:
+        original = model_artifacts.os.replace
+
+        def fail_publish(src: Path, dst: Path) -> None:
+            if "-staging-" in Path(src).name and Path(dst) == result.output_directory:
+                raise OSError("injected publish failure")
+            return original(src, dst)
+
+        monkeypatch.setattr(model_artifacts.os, "replace", fail_publish)
+    with pytest.raises(OSError, match="injected"):
+        write_model_evaluation_directory(
+            expected, output_dir=result.output_directory, provenance=provenance
+        )
+    assert {p.name: p.read_bytes() for p in result.output_directory.iterdir()} == before
+    assert not list(result.output_directory.parent.glob(".*-staging-*"))
+    assert not list(result.output_directory.parent.glob(".*-backup"))
