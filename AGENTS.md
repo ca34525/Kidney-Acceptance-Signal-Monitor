@@ -1,6 +1,10 @@
 # Working Agreement
 
-This file governs implementation of the Kidney Acceptance Signal Monitor. It is intentionally stricter than a generic coding guide because methodological shortcuts can change the meaning of the result.
+This file sets the rules for changing the Kidney Acceptance Signal Monitor. The rules protect
+what each study's results mean: which programs and periods are counted, what was public when a
+prediction could have been made, and which claims the evidence supports. A study contract means
+its specification together with its fixed configuration; passing software tests cannot replace
+following that contract.
 
 ## 1. Source of truth
 

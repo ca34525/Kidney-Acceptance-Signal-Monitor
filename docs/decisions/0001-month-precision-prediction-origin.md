@@ -3,6 +3,15 @@
 **Status:** accepted  
 **Date:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This V1 decision answers how much of the target calendar year had already passed when its
+prediction could be made. The "prediction origin" is the public release time of the input report.
+If only July is known, six complete months have passed, so the recorded fraction is `0.5`;
+this does not assert a July 1 publication date. The value explains reporting delay to the reader.
+It is not an input used to fit the model. The exact day- and month-precision rules below remain
+the accepted calculation.
+
 ## Context
 
 The canonical model panel must record both the prediction origin and the fraction of the target

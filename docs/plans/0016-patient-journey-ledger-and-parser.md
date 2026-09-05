@@ -4,6 +4,22 @@
 **Status:** done
 **Started:** 2026-09-04
 
+## Reading this historical record — 2026-09-05
+
+This completed V2 step recorded what each source field means and when its measurements were
+available. The methodology ledger is that release-by-release record. `SAL_N_C` counts the
+original listing group; `SAL_TOTFTX_C18` is its published percentage known to be alive with a
+functioning transplant 18 months after listing. Reconstructed successes and the empirical logit
+are model calculations derived from that percentage and count, not additional published outcomes.
+Wait-time markers such as `>72` remain unknown numeric values with their source text retained.
+The two releases `2505` and `2605` contain overlapping listing cohorts, so they cannot simply
+be treated as independent successive outcome groups.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+Those core-coverage results cover the V1 data, modeling, and reporting directories, not V2.
+Plan 0021 later added V2 to the combined check and enforced its own coverage floor.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

@@ -2,12 +2,14 @@
 
 **Milestone:** M14 V2 follow-up and 20-minute interview presentation
 
-**Status:** planning complete; analysis and presentation work not started
+**Status:** P0a complete; P1/P2 next; analysis and presentation work not started
 
 **Current work order, 2026-09-04 (2026-09-05 UTC):** The user-authorized hardening in
 [Plan 0021](0021-focused-ai-coding-hardening.md) is complete, including local and CI Docker
-verification for commit `5f26ec9`. P0a is the next work item. The hardening does not start this
-plan's new analyses.
+verification for commit `5f26ec9`. The next substantial batch, authorized on 2026-09-04
+(2026-09-05 UTC), completed P0a's documentation and code-explanation pass and remains uncommitted.
+Next, record the follow-up specification and typed configuration before the P1/P2 diagnosis and
+fixed revised comparison. The hardening and P0a did not start new analyses.
 
 **Started:** 2026-09-04
 
@@ -30,8 +32,9 @@ asks two narrower questions:
 2. How much can we learn by separating living-donor outcomes, deceased-donor outcomes, and unknown
    follow-up status within the published patient-journey outcome?
 
-The current request authorizes this planning and documentation package. It does not start new
-model runs, change application behavior, or publish a revised analytical release.
+The initial request authorized the planning and documentation package. The later implementation
+request authorized the P0a pass recorded below. No new model run, changed application behavior,
+or revised analytical release is included in that completed batch.
 
 ## Read this first
 
@@ -128,8 +131,10 @@ is part of P0.
 
 ### P0a Make the existing documentation understandable
 
-**Status:** not started; first implementation pass. **Effort:** inventory first, then estimate
-from the actual reading and rewriting needed. Do not treat this as optional presentation polish.
+**Status:** complete, 2026-09-05 UTC. The inventory covers root guidance, every
+existing document under `docs/`, and Python explanations under `src/kasm/`, `app/`, and tests.
+Independent reviews cover historical records, study documents, and V2 code explanations; the
+main review covers root guidance and remaining modules and integrates the accuracy checks.
 
 Read and revise existing documentation in the order below. This table defines the scope; maintain
 a per-file checklist here as the pass proceeds. Each file must end as `rewritten`, `already clear`,
@@ -138,11 +143,11 @@ does not complete the pass.
 
 | Order | Existing material to cover | Status |
 |---|---|---|
-| 1 | README, project guide, AGENTS, main SPEC and PLAN | not started |
-| 2 | V1/V2 specifications, data/model cards, and reproduction guides | not started |
-| 3 | Existing rehearsal guide, presentation explanations, audits, and accessibility checklist | not started |
-| 4 | Past plans and decisions in `docs/plans/` and `docs/decisions/`, read one at a time | not started |
-| 5 | Existing explanatory comments/docstrings under `src/kasm/`, `app/`, and tests, reviewed by module | not started |
+| 1 | README, project guide, AGENTS, main SPEC and PLAN | complete |
+| 2 | V1/V2 specifications, data/model cards, and reproduction guides | complete |
+| 3 | Existing rehearsal guide, presentation explanations, audits, and accessibility checklist | complete |
+| 4 | Past plans and decisions in `docs/plans/` and `docs/decisions/`, read one at a time | complete |
+| 5 | Existing explanatory comments/docstrings under `src/kasm/`, `app/`, and tests, reviewed by module | complete |
 
 Rewrite explanatory prose in ordinary language where its original meaning stays the same. Explain
 purpose first, then population, dates, denominator, units, unknown values, and reasons for important
@@ -319,7 +324,8 @@ V2 evidence intact.
 Branch setup evidence: fetched `cta/main`, verified its merge commit and unchanged tree relative
 to the completed V2 branch, then created `codex/v2-follow-up` from it. All ten uncommitted
 documentation files were preserved byte-for-byte during the switch before updating this section.
-The documentation rewrite and analytical passes have not started. No commit or push was made.
+At that branch-setup checkpoint, the documentation rewrite and analytical passes had not started.
+No commit or push was made during branch setup. The later P0a completion is recorded below.
 
 ## Priorities and open questions
 
@@ -392,6 +398,101 @@ For this documentation request:
 Future P0a–P4 command evidence belongs below, with input identities and limitations. The earlier
 conversation is not a substitute for a reproducible calculation.
 
+### P0a execution — 2026-09-05 UTC
+
+- Starting worktree clean on `codex/v2-follow-up`. The user requested the next substantial related
+  batch, left uncommitted, and authorized subagents for independent review.
+- Acceptance scope: complete P0a's file inventory, readability revisions and historical
+  explanations, without changing executable statements, configurations, source inputs, released
+  results, or presentation/media payloads. P1–P4 remain later work.
+- Documentation-only failing-test exception: wording and docstrings do not add executable
+  behavior. Verify Python syntax trees with docstrings removed against `HEAD`, resolve local
+  links, compare protected-file hashes, and run the required locked install, lint, type, and
+  coverage commands. Do not add tests that merely assert prose.
+- Original-data builds, real-data model evaluation, app/container rebuilds, and the V1 frozen
+  replay are outside this documentation-only pass; existing tests still check offline flows.
+- The per-file checklist below accounts for 112 files: 43 Markdown documents, 64 Python modules,
+  and five retained presentation/image files. Outcomes are 36 rewritten, 37 already clear, and
+  39 preserved with dated explanation. Files without explanatory prose were explicitly reviewed;
+  they did not receive artificial comments merely to create a diff.
+- Independent review covered historical records, study documents, and V2 module explanations.
+  A separate review of the root/V1 changes corrected an overstatement of source-loader checks
+  and documented the wholly missing training-column fill. The final V1 historical notes distinguish
+  the fixed replay comparison from the earlier planning inspection of 2025 outcomes.
+- Dated factual clarifications preserve earlier evidence: failure of the V1 display rule does
+  not establish clinical safety; candidate counts have several fixed V2 uses; installation can
+  download packages even though project data commands run offline; and historical coverage
+  percentages combine statement and branch counts, with their original directory scope retained.
+- The first full suite found one documentation-contract failure (352 passed, one failed): the
+  V1 data card no longer contained `Grain`. Restored the term beside its ordinary-language
+  explanation; the focused documentation check passed, then the full suite passed. No assertion
+  was weakened. Initial formatting checks identified two files; formatting was corrected before
+  the successful final checks.
+
+Required command evidence, run with `UV_CACHE_DIR` set to the repository's `.uv-cache`:
+
+| Command | Result on 2026-09-05 UTC |
+|---|---|
+| `uv sync --frozen` | Passed; 68 packages checked |
+| `uv run ruff format --check .` | Passed; 64 files already formatted |
+| `uv run ruff check .` | Passed, including the configured security rules |
+| `uv run mypy src/kasm` | Passed; 30 source files |
+| `uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80` | Passed; 353 tests; 82.48% combined statement/branch coverage |
+| `uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2` | Passed; 80.44% V2 statement/branch coverage |
+| `uv run pytest -q tests/unit/test_repository_config.py::test_required_release_documentation_and_diagrams_are_present` | Passed after restoring the explanatory heading's original term |
+| `git diff --check` | Passed |
+
+Preservation checks compared all 64 Python syntax trees with `HEAD`, ignoring only comments and
+docstrings; executable statements, strings, types, and test assertions match. All compile in
+memory, and existing lint/type/coverage directives are unchanged. The 27 delegated historical
+records retain their complete original text after removing just the newly added dated notes.
+Protected configuration, release, dependency, and media paths have no diff. All 176 local Markdown
+file links and nine local heading anchors resolve. Final independent review found no missing or
+duplicate checklist entries and no conflicting current work status. No source refresh, real-data
+model run, output rebuild, app/container rebuild, or canonical
+replay ran. The tests exercised their existing local fixtures and offline flows.
+
+To repeat the key executable-preservation check while this batch is uncommitted, run from the
+repository root in PowerShell. The temporary review helpers under `.uv-cache` are not required:
+
+```powershell
+@'
+import ast
+from pathlib import Path
+import subprocess
+
+def code_tree(text):
+    tree = ast.parse(text, type_comments=True)
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
+            if ast.get_docstring(node) is not None:
+                node.body = node.body[1:]
+        if isinstance(node, ast.TypeIgnore):
+            node.lineno = 0
+    return ast.dump(tree, include_attributes=False)
+
+paths = subprocess.check_output(['git', 'ls-files', '-z']).decode().strip('\0').split('\0')
+checked = 0
+for name in paths:
+    if not name.endswith('.py') or not name.startswith(('src/', 'app/', 'tests/')):
+        continue
+    before = subprocess.check_output(['git', 'show', f'HEAD:{name}']).decode('utf-8')
+    after = Path(name).read_text(encoding='utf-8')
+    assert code_tree(before) == code_tree(after), name
+    compile(after, name, 'exec')
+    checked += 1
+print(f'{checked} Python files: executable syntax unchanged; compilation passed')
+'@ | uv run python -
+git diff --exit-code HEAD -- configs artifacts uv.lock pyproject.toml Dockerfile .github docs/demo docs/presentation/*.pptx
+git diff --check
+```
+
+P0a is complete. P1/P2 next requires the separate follow-up specification, typed configuration,
+analysis identity, protected output paths, and failing behavior tests before any diagnostic or
+revised model runs. Report-count observations are still investigation leads. The donor/unknown
+components, new deck, author walkthrough, and timed rehearsal remain P3/P4 work. No commit or push
+was made for this batch.
+
 ### AI coding practices recheck — 2026-09-04
 
 The user requested a second check of the project's AI coding practices. This bounded review
@@ -436,3 +537,148 @@ Final documentation verification: `git diff --check` passed; all 15 local links 
 review documents resolve; exactly those two Markdown files changed. Independent review found
 no necessary corrections and confirmed that completed checks, inspected controls, open fixes,
 and the limits of the synthetic reproductions are distinguished. No commit was created.
+
+### P0a per-file checklist — 2026-09-05 UTC
+
+All 112 files in the existing scope are accounted for below. Historical plans were
+read individually. Python reviews cover explanatory comments and actual docstrings, not
+string literals used as fixtures or user-interface content. Such executable strings and
+all assertions remain unchanged. The retained media are explained by the rehearsal notes;
+this pass neither alters their bytes nor claims a new visual audit or author rehearsal.
+
+#### 1. Root guidance and project explanation
+
+| File | Outcome | Reason | Review evidence |
+|---|---|---|---|
+| [AGENTS.md](../../AGENTS.md) | rewritten | Explains why study contracts protect the meaning of results; all rules retained. | Reviewed against source contracts and original facts; diff and local-link checks. |
+| [PLAN.md](../../PLAN.md) | rewritten | Dates the safer-wording correction and records P0a completion without rewriting historical evidence. | Reviewed against source contracts and original facts; diff and local-link checks. |
+| [README.md](../../README.md) | rewritten | Explains the product, error result, study boundaries, timing and next work. | Reviewed against source contracts and original facts; diff and local-link checks. |
+| [SPEC.md](../../SPEC.md) | rewritten | Explains ratio units, input/target rows, Ridge and error metrics beside unchanged requirements. | Reviewed against source contracts and original facts; diff and local-link checks. |
+| [docs/project-guide.md](../project-guide.md) | rewritten | Original examples and terms already clear; updates P0a completion and remaining work. | Reviewed against source contracts and original facts; diff and local-link checks. |
+
+#### 2. Study contracts, cards and reproduction
+
+| File | Outcome | Reason | Review evidence |
+|---|---|---|---|
+| [docs/data_card.md](../data_card.md) | preserved with dated explanation | Explains program-year/group rows, offer-ratio units, overlapping donor groups, missingness, and public versus analytic eligibility. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
+| [docs/model_card.md](../model_card.md) | preserved with dated explanation | Retains V1 numeric results and defines log-OAR error, temporal folds, preprocessing, bootstrap, quartiles, display decision, and replay restrictions. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
+| [docs/patient_journey_v2_data_card.md](../patient_journey_v2_data_card.md) | preserved with dated explanation | Explains original listing denominator, unknown outcomes, nested eligibility sets, and separate safety populations; dates correction of too-narrow SAL_N_C use claim. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
+| [docs/patient_journey_v2_model_card.md](../patient_journey_v2_model_card.md) | preserved with dated explanation | Defines baseline versus fitted history, input groups, outcome/logit scale, publication timing, error units, weighting, and the 4.14 versus 0.26 point comparisons. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
+| [docs/patient_journey_v2_reproduction_log.md](../patient_journey_v2_reproduction_log.md) | preserved with dated explanation | Retains canonical build identities and commands; explains row units, provenance, trusted offline bundle, and separates environment downloads from offline project commands. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
+| [docs/reproduction_log.md](../reproduction_log.md) | preserved with dated explanation | Retains dated V1 commands and evidence; explains different row units, canonical versus audit, exact-byte identities, and write-once replay boundary. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
+| [docs/specs/patient-journey-v2.md](../specs/patient-journey-v2.md) | preserved with dated explanation | Preserves scientific requirements and equations; adds local denominator, timing, eligibility, model/error definitions and dated count-use clarification supported by fixed contract and code. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
+
+#### 3. Presentation, audits, accessibility and retained media
+
+| File | Outcome | Reason | Review evidence |
+|---|---|---|---|
+| [docs/accessibility_checklist.md](../accessibility_checklist.md) | preserved with dated explanation | Keeps the original V1 evidence and scope while explaining keyboard focus, contrast, WCAG, AppTest, and gap meaning; no new accessibility claim. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
+| [docs/ai-code-and-context-audit.md](../ai-code-and-context-audit.md) | preserved with dated explanation | Keeps historical findings, citations, command evidence and fixes; explains audit terms and directs readers from historical open status to completed hardening. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
+| [docs/demo/model-evaluation.png](../demo/model-evaluation.png) | preserved with dated explanation | Retained V1 media; its story is explained in the dated rehearsal notes. | Unchanged tracked bytes; no new visual audit or author rehearsal claimed. |
+| [docs/demo/persistence-projection.png](../demo/persistence-projection.png) | preserved with dated explanation | Retained V1 media; its story is explained in the dated rehearsal notes. | Unchanged tracked bytes; no new visual audit or author rehearsal claimed. |
+| [docs/demo/program-monitor-top.png](../demo/program-monitor-top.png) | preserved with dated explanation | Retained V1 media; its story is explained in the dated rehearsal notes. | Unchanged tracked bytes; no new visual audit or author rehearsal claimed. |
+| [docs/demo/program-monitor.png](../demo/program-monitor.png) | preserved with dated explanation | Retained V1 media; its story is explained in the dated rehearsal notes. | Unchanged tracked bytes; no new visual audit or author rehearsal claimed. |
+| [docs/presentation/interview-rehearsal-guide.md](../presentation/interview-rehearsal-guide.md) | rewritten | Rewrites spoken explanations while retaining slide names/results and the old deck; dates timing and nonpromotion clarifications and keeps V2 P4 rehearsal separate. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
+| [docs/presentation/kidney-acceptance-signal-monitor-interview.pptx](../presentation/kidney-acceptance-signal-monitor-interview.pptx) | preserved with dated explanation | Retained V1 media; its story is explained in the dated rehearsal notes. | Unchanged tracked bytes; no new visual audit or author rehearsal claimed. |
+
+#### 4. Plans and decisions
+
+| File | Outcome | Reason | Review evidence |
+|---|---|---|---|
+| [docs/decisions/0001-month-precision-prediction-origin.md](../decisions/0001-month-precision-prediction-origin.md) | preserved with dated explanation | Explain prediction origin and elapsed-year metadata without inventing a publication day. | Full file read; original text preserved; dated-note review. |
+| [docs/decisions/0002-attempt-forecast-activation.md](../decisions/0002-attempt-forecast-activation.md) | preserved with dated explanation | Distinguish the original decision to attempt activation from the completed nonpromotion outcome. | Full file read; original text preserved; dated-note review. |
+| [docs/decisions/0003-tracked-release-bundle.md](../decisions/0003-tracked-release-bundle.md) | preserved with dated explanation | Explain bundle fingerprints, precomputed offline behavior, and the decision's V1-only one-bundle scope. | Full file read; original text preserved; dated-note review. |
+| [docs/decisions/0004-patient-journey-v2-scientific-and-path-boundaries.md](../decisions/0004-patient-journey-v2-scientific-and-path-boundaries.md) | preserved with dated explanation | Explain the listing denominator, published-versus-unknown outcome, missing patient detail, and separate safety comparisons. | Full file read; original text preserved; dated-note review. |
+| [docs/decisions/0005-v2-nonoverlapping-strict-vintage-design.md](../decisions/0005-v2-nonoverlapping-strict-vintage-design.md) | preserved with dated explanation | Explain the distinct cohort-overlap and publication-timing protections and limited evaluation evidence. | Full file read; original text preserved; dated-note review. |
+| [docs/decisions/0006-v2-modeling-and-nonpromotion-freeze.md](../decisions/0006-v2-modeling-and-nonpromotion-freeze.md) | preserved with dated explanation | Explain common-row comparisons, model transform versus reported units, resampling, and nonpromotion. | Full file read; original text preserved; dated-note review. |
+| [docs/decisions/0007-preserve-v2-and-plan-explanatory-follow-up.md](../decisions/0007-preserve-v2-and-plan-explanatory-follow-up.md) | already clear | Explains preservation, the two follow-up questions, P0a-first work order, and why inspected data cannot become fresh validation in ordinary language. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0001-repository-scaffold-and-cache-verification.md](0001-repository-scaffold-and-cache-verification.md) | preserved with dated explanation | Explain the locked tool environment and local source verification; distinguish the original missing-cache result from later completion. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0002-verified-atomic-source-sync.md](0002-verified-atomic-source-sync.md) | preserved with dated explanation | Explain temporary-file verification, immutable cache, and why repeat downloads are skipped. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0003-schema-aware-workbook-parser.md](0003-schema-aware-workbook-parser.md) | preserved with dated explanation | Explain workbook parsing, composite identity, the row unit, and the release-code meaning of 2006. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0004-canonical-panel-and-qa.md](0004-canonical-panel-and-qa.md) | preserved with dated explanation | Explain the two row units, evaluation versus display eligibility, and rounding checks. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0005-historical-service-and-walking-skeleton.md](0005-historical-service-and-walking-skeleton.md) | preserved with dated explanation | Explain the first complete offline user flow and why the display reads stored eligibility. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0006-ci-pytest-fresh-checkout.md](0006-ci-pytest-fresh-checkout.md) | preserved with dated explanation | Retain the clear temporary-directory fix and clarify the historical coverage denominator. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0007-baseline-temporal-backtest.md](0007-baseline-temporal-backtest.md) | preserved with dated explanation | Explain simple comparisons, forward-year evaluation, the error scale, and equal year weighting. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0008-ridge-pre-replay-backtest.md](0008-ridge-pre-replay-backtest.md) | preserved with dated explanation | Explain Ridge shrinkage, the alpha tie rule, training-only preprocessing, and the limited candidate gate. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0009-pre-replay-activation-freeze.md](0009-pre-replay-activation-freeze.md) | preserved with dated explanation | Explain prediction-error band calibration, resampling whole programs, separate display gates, and historical authorization state. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0010-frozen-2025-replay.md](0010-frozen-2025-replay.md) | preserved with dated explanation | Explain why lower average error did not meet all promotion requirements and clarify the band result. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0011-offline-product-flow.md](0011-offline-product-flow.md) | preserved with dated explanation | Explain the completed screen flow, matching evidence to displayed data, and preserved nonpromotion behavior. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0012-release-hardening-and-container.md](0012-release-hardening-and-container.md) | preserved with dated explanation | Explain the offline release bundle, separate reproduction evidence, and container permissions. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0013-interview-presentation-package.md](0013-interview-presentation-package.md) | preserved with dated explanation | Distinguish the retained four-minute V1 package from the planned V2 presentation and actual rehearsal readiness. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0014-ai-code-and-context-hardening.md](0014-ai-code-and-context-hardening.md) | preserved with dated explanation | Explain executable security checks, complexity limits, negative tests, and bounded historical audit claims. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0015-patient-journey-v2-foundation.md](0015-patient-journey-v2-foundation.md) | preserved with dated explanation | Explain V2's distinct observed outcome and how separate output locations protect V1. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0016-patient-journey-ledger-and-parser.md](0016-patient-journey-ledger-and-parser.md) | preserved with dated explanation | Explain release-specific definitions, target denominator, model-only transforms, missing wait-time values, and overlap. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0017-patient-journey-temporal-panel.md](0017-patient-journey-temporal-panel.md) | preserved with dated explanation | Explain feature-to-outcome pairs, publication-aware training, missing later reports, and listing-count thresholds. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0018-patient-journey-artifact-publication.md](0018-patient-journey-artifact-publication.md) | preserved with dated explanation | Explain source-bound saved data, semantic checks beyond hashes, and development versus canonical provenance. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0019-patient-journey-v2-completion.md](0019-patient-journey-v2-completion.md) | preserved with dated explanation | Explain one-period evidence, percentage-point errors, differing comparison populations, and clean-source versus development release identities. | Full file read; original text preserved; dated-note review. |
+| [docs/plans/0020-v2-follow-up-and-interview-story.md](0020-v2-follow-up-and-interview-story.md) | rewritten | Records batch scope, file reviews, evidence and the next analytical prerequisites. | Reviewed against source contracts and original facts; diff and local-link checks. |
+| [docs/plans/0021-focused-ai-coding-hardening.md](0021-focused-ai-coding-hardening.md) | already clear | Recent bounded engineering record already explains every fix, coverage denominator, null-evidence representation, and corrected Docker conclusion. | Full file read; original text preserved; dated-note review. |
+
+#### 5. Module and test explanations
+
+| File | Outcome | Reason | Review evidence |
+|---|---|---|---|
+| [app/patient_journey_v2.py](../../app/patient_journey_v2.py) | rewritten | Adds the original V2 offline-view purpose and separation from fitting/source logic. | Reviewed 1 docstrings and 0 comments; AST/compile checks. |
+| [app/streamlit_app.py](../../app/streamlit_app.py) | already clear | Existing docstring clearly identifies the trusted offline V1 view; no other prose comments. | Reviewed 1 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/__init__.py](../../src/kasm/__init__.py) | already clear | Package name already clear; no analytical explanation to rewrite. | Reviewed 1 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/cli.py](../../src/kasm/cli.py) | already clear | Existing short docstrings explain command parsing, exit status and entry points. | Reviewed 4 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/config.py](../../src/kasm/config.py) | rewritten | Explains source metadata and file fingerprints without overstating loader enforcement. | Reviewed 7 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/data/__init__.py](../../src/kasm/data/__init__.py) | rewritten | States download and validation purpose. | Reviewed 1 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/data/build.py](../../src/kasm/data/build.py) | rewritten | Explains row units, missing future targets, stored eligibility and rounding QA. | Reviewed 14 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/data/cache.py](../../src/kasm/data/cache.py) | rewritten | Explains unchanged source identity and rejection before archive opening. | Reviewed 5 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/data/download.py](../../src/kasm/data/download.py) | rewritten | Explains temporary downloads, verification and completed-file publication. | Reviewed 8 docstrings and 6 comments; AST/compile checks. |
+| [src/kasm/data/parse.py](../../src/kasm/data/parse.py) | rewritten | Explains named-field parsing, program/year/group rows and null source values. | Reviewed 12 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/modeling/__init__.py](../../src/kasm/modeling/__init__.py) | rewritten | States earlier-information and year-order purpose. | Reviewed 1 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/modeling/activation.py](../../src/kasm/modeling/activation.py) | rewritten | Explains log-scale band width, coverage denominator and paired program resampling. | Reviewed 11 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/modeling/backtest.py](../../src/kasm/modeling/backtest.py) | rewritten | Explains intact evaluation years, volume groups and error averaging units. | Reviewed 11 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/modeling/challenger.py](../../src/kasm/modeling/challenger.py) | rewritten | Explains fixed penalty selection and training-only median/empty-column treatment. | Reviewed 15 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/modeling/experiment.py](../../src/kasm/modeling/experiment.py) | rewritten | Explains fixed configuration and disruption-year exclusions. | Reviewed 7 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/modeling/features.py](../../src/kasm/modeling/features.py) | rewritten | Explains the matrix and exact allowed input list. | Reviewed 4 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/modeling/replay.py](../../src/kasm/modeling/replay.py) | rewritten | Explains fixed fitting years, separate band role and already-inspected replay limits. | Reviewed 13 docstrings and 3 comments; AST/compile checks. |
+| [src/kasm/patient_journey/__init__.py](../../src/kasm/patient_journey/__init__.py) | rewritten | Explain the V2 study purpose and separate nonpromotion boundary. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [src/kasm/patient_journey/artifacts.py](../../src/kasm/patient_journey/artifacts.py) | rewritten | Explain complete-bundle staging, file hashes, build identity, and protected V1 output. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [src/kasm/patient_journey/config.py](../../src/kasm/patient_journey/config.py) | rewritten | Explain fixed input-report/outcome-report relationships, count thresholds, error units, and program resampling. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [src/kasm/patient_journey/evaluation.py](../../src/kasm/patient_journey/evaluation.py) | rewritten | Explain percentage-point errors, equal-release averaging, candidate weighting, paired program resampling, and descriptive limits. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [src/kasm/patient_journey/ledger.py](../../src/kasm/patient_journey/ledger.py) | rewritten | Explain source definitions, measurement/follow-up/publication dates, workbook contracts, and cohort overlap. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [src/kasm/patient_journey/model_artifacts.py](../../src/kasm/patient_journey/model_artifacts.py) | rewritten | Explain original fixed comparisons, the single usable Ridge period, expected-calculation checks, and nonpromotion. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [src/kasm/patient_journey/modeling.py](../../src/kasm/patient_journey/modeling.py) | rewritten | Explain Ridge purpose, retained missing predictors, exact log transforms, training-only preprocessing, and simple baselines. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [src/kasm/patient_journey/panel.py](../../src/kasm/patient_journey/panel.py) | rewritten | Explain program/listing-cohort rows, publication cutoffs, report count, calculated available-cohort reference, and missing later reports. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [src/kasm/patient_journey/parse.py](../../src/kasm/patient_journey/parse.py) | rewritten | Explain listed-candidate denominator, published versus reconstructed outcomes, suppression, composite identity, and exact empirical-logit transform. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [src/kasm/patient_journey/product.py](../../src/kasm/patient_journey/product.py) | rewritten | Explain offline saved results, explicit unreported values, and included measurement spans. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [src/kasm/patient_journey/release.py](../../src/kasm/patient_journey/release.py) | rewritten | Explain the four-file offline bundle, shared build identity, staged validation, and absence of future forecasts. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [src/kasm/reporting/__init__.py](../../src/kasm/reporting/__init__.py) | rewritten | States saved-result display purpose. | Reviewed 1 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/reporting/artifacts.py](../../src/kasm/reporting/artifacts.py) | rewritten | Explains the tracked bundle, fingerprints and recorded origins. | Reviewed 5 docstrings and 1 comments; AST/compile checks. |
+| [src/kasm/reporting/history.py](../../src/kasm/reporting/history.py) | rewritten | Explains published history, missingness, stored eligibility and interval labels. | Reviewed 22 docstrings and 0 comments; AST/compile checks. |
+| [src/kasm/reporting/product.py](../../src/kasm/reporting/product.py) | rewritten | Explains saved error comparisons and unchanged display rules. | Reviewed 6 docstrings and 0 comments; AST/compile checks. |
+| [tests/integration/test_baseline_backtest.py](../../tests/integration/test_baseline_backtest.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/integration/test_data_build.py](../../tests/integration/test_data_build.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/integration/test_frozen_replay.py](../../tests/integration/test_frozen_replay.py) | already clear | Existing comment explains the offline test boundary; assertions unchanged. | Reviewed 0 docstrings and 1 comments; AST/compile checks. |
+| [tests/integration/test_historical_app.py](../../tests/integration/test_historical_app.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/integration/test_release_bundle.py](../../tests/integration/test_release_bundle.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/integration/test_ridge_backtest.py](../../tests/integration/test_ridge_backtest.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_activation.py](../../tests/unit/test_activation.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_baselines.py](../../tests/unit/test_baselines.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_build.py](../../tests/unit/test_build.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_cache.py](../../tests/unit/test_cache.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_cli.py](../../tests/unit/test_cli.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_config.py](../../tests/unit/test_config.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_download.py](../../tests/unit/test_download.py) | already clear | Existing comment explains the offline test boundary; assertions unchanged. | Reviewed 0 docstrings and 1 comments; AST/compile checks. |
+| [tests/unit/test_experiment.py](../../tests/unit/test_experiment.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_history.py](../../tests/unit/test_history.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_modeling_features.py](../../tests/unit/test_modeling_features.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_parse.py](../../tests/unit/test_parse.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_patient_journey_config.py](../../tests/unit/test_patient_journey_config.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [tests/unit/test_patient_journey_evaluation.py](../../tests/unit/test_patient_journey_evaluation.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [tests/unit/test_patient_journey_ledger.py](../../tests/unit/test_patient_journey_ledger.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [tests/unit/test_patient_journey_model_artifacts.py](../../tests/unit/test_patient_journey_model_artifacts.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [tests/unit/test_patient_journey_modeling.py](../../tests/unit/test_patient_journey_modeling.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [tests/unit/test_patient_journey_panel.py](../../tests/unit/test_patient_journey_panel.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [tests/unit/test_patient_journey_parse.py](../../tests/unit/test_patient_journey_parse.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [tests/unit/test_patient_journey_product.py](../../tests/unit/test_patient_journey_product.py) | already clear | Existing explanation already states the missing-value and malformed-timing regression purpose in ordinary language. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [tests/unit/test_patient_journey_release.py](../../tests/unit/test_patient_journey_release.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [tests/unit/test_patient_journey_v2_app.py](../../tests/unit/test_patient_journey_v2_app.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
+| [tests/unit/test_product.py](../../tests/unit/test_product.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_release_artifacts.py](../../tests/unit/test_release_artifacts.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_replay.py](../../tests/unit/test_replay.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_repository_config.py](../../tests/unit/test_repository_config.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+| [tests/unit/test_ridge.py](../../tests/unit/test_ridge.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |

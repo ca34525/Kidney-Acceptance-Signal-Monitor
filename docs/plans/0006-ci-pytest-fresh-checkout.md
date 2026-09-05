@@ -4,6 +4,15 @@
 **Status:** done  
 **Started:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This completed fix made test setup work on a fresh checkout, where ignored temporary folders
+do not yet exist. Pytest now creates the top-level disposable folder itself. The failure counts
+and passing rerun below record that specific problem and its correction.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

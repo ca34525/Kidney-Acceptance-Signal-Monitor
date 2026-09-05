@@ -3,6 +3,15 @@
 **Status:** accepted  
 **Date:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This V1 decision makes the demo usable without the original workbooks or a network connection.
+The tracked bundle is a small approved collection of prepared data and fixed results. Its manifest
+lists the contents and file fingerprints so a reader can detect changed or mixed files before
+showing them. The "one bundle" rule here refers to the original V1 release at `artifacts/release/`;
+V2 later received a separate explicitly approved release location. Building a reproducible release
+and opening the saved demo are different activities: only the former needs the verified raw cache.
+
 ## Context
 
 The application must open from a clean checkout without raw SRTR workbooks, live network access,

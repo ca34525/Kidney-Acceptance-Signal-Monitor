@@ -1,4 +1,9 @@
-"""Canonical data construction from validated annual SRTR releases."""
+"""Build the V1 study's standard tables from checked annual SRTR reports.
+
+The signal table has one row per program, calendar year, and offer group. The model
+panel pairs each program's inputs with its next annual published ratio. Published
+values remain authoritative; rounding checks report discrepancies without replacing them.
+"""
 
 from __future__ import annotations
 
@@ -121,7 +126,7 @@ class DirectoryEntry:
 
 @dataclass(frozen=True)
 class CanonicalSignal:
-    """One typed canonical program-year and offer-group signal."""
+    """One program's annual offer-group signal with checked types and display fields."""
 
     program_key: str
     center_code: str
@@ -151,7 +156,7 @@ class CanonicalSignal:
 
 @dataclass(frozen=True)
 class ModelPanelRow:
-    """One feature-cohort row with an explicitly aligned next-year target."""
+    """One program's annual inputs, next-year outcome, and stored eligibility flags."""
 
     program_key: str
     feature_cohort_year: int
@@ -395,7 +400,12 @@ def _share(numerator: int | None, denominator: int) -> float | None:
 def build_model_panel(
     signals: tuple[CanonicalSignal, ...], sources: tuple[SourceRecord, ...]
 ) -> tuple[ModelPanelRow, ...]:
-    """Construct adjacent annual feature-to-target rows without future-value imputation."""
+    """Pair each program's annual inputs with its next year's published OAR.
+
+    A missing next report leaves the target unknown. Earlier history and subgroup
+    gaps stay explicit; future outcomes never fill earlier inputs. Eligibility is
+    stored here so the view does not invent its own rule.
+    """
     _validate_canonical_rows(signals)
     sources_by_year = {source.cohort_year: source for source in sources}
     if len(sources_by_year) != len(sources):
@@ -652,7 +662,12 @@ def build_qa_report(
     sources: tuple[SourceRecord, ...],
     directory: dict[str, DirectoryEntry],
 ) -> dict[str, Any]:
-    """Reconcile canonical counts and retain every nonblocking discrepancy."""
+    """Record row counts, missing values, program changes, and rounding checks.
+
+    The QA (quality assurance) report retains discrepancies for review. Programs
+    absent from a later source are unmatched records, not proven program closures.
+    Published ratios are never replaced by the rounding reconstruction.
+    """
     _validate_canonical_rows(signals)
     sources_by_year = {source.cohort_year: source for source in sources}
     if len(sources_by_year) != len(sources):

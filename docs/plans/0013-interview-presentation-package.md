@@ -4,6 +4,19 @@
 **Status:** in_progress  
 **Started:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This record concerns the original four-minute V1 presentation, which remains a retained
+deliverable. Its result story is that Ridge lowered average absolute prediction error but failed
+the fixed average directional-error rule, so the application kept persistence. The alternative
+positive story in the rehearsal guide is hypothetical, not the released outcome. The completed
+deck and 3:55 script document package preparation; they do not establish that the author has
+personally rehearsed or can explain the later V2 investigation. That walkthrough and the new
+20-minute package belong to Plan 0020. The pending release tag below remains a separate action.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

@@ -1,4 +1,9 @@
-"""Deterministic rolling-origin evaluation for prespecified baseline models."""
+"""Compare simple V1 prediction rules on successive later calendar years.
+
+Each evaluation period (fold) keeps all programs from a target year together and
+uses only earlier years for training. Errors compare the next published OAR with
+neutral, latest-value, and historical-average predictions, on named OAR or log-OAR scales.
+"""
 
 from __future__ import annotations
 
@@ -148,7 +153,11 @@ def build_rolling_origin_folds(
     evaluation_target_years: Sequence[int] = DEFAULT_EVALUATION_TARGET_YEARS,
     training_target_year_start: int = 2018,
 ) -> tuple[TemporalFold, ...]:
-    """Build expanding folds without exposing a random row-split interface."""
+    """Keep each evaluation year intact and collect its earlier training years.
+
+    Training history grows for each later evaluation (an expanding fold). A random
+    row split would mix information from the same year across training and evaluation.
+    """
     _validate_panel_alignment(rows)
     if tuple(evaluation_target_years) != tuple(sorted(set(evaluation_target_years))):
         raise BacktestError("Evaluation target years must be unique and increasing.")
@@ -198,7 +207,11 @@ def build_rolling_origin_folds(
 def assign_volume_quartiles(
     rows: Sequence[Mapping[str, object]],
 ) -> dict[tuple[str, int], int]:
-    """Assign deterministic within-target-year expected-acceptance quartiles."""
+    """Divide each evaluation year's programs into four groups by earlier offer volume.
+
+    Volume means feature-period expected acceptances, not observed target outcomes.
+    Sort by that value and program key so ties have a reproducible group (quartile).
+    """
     _validate_panel_alignment(rows)
     rows_by_year: dict[int, list[Mapping[str, object]]] = {}
     for row in rows:
@@ -361,7 +374,12 @@ def evaluate_baselines(
     *,
     summary_target_years: Sequence[int] | None = None,
 ) -> dict[str, object]:
-    """Calculate year-specific, quartile, paired, and year-balanced baseline metrics."""
+    """Summarize error size and direction by year and by expected-acceptance group.
+
+    MAE is the average absolute error on the named OAR or log-OAR scale. The primary
+    summary gives each selected target year equal weight; the pooled-row result is
+    secondary. Paired differences compare predictions for the same program-year.
+    """
     if not predictions:
         raise BacktestError("Baseline evaluation requires at least one prediction.")
     target_years = tuple(sorted({row.target_cohort_year for row in predictions}))

@@ -4,6 +4,18 @@
 **Status:** done
 **Started:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This completed V1 step added an explicit download command for the nine agreed source releases.
+"Atomic publication" means a temporary download becomes the usable cache file only after its
+size, fingerprint, file type, and required archive member pass verification. Existing files are
+kept unchanged; a bad existing file is reported for review. The second download command below
+therefore fetched nothing. These checks established the original acquisition behavior; later
+network and archive protections are recorded in Plan 0021.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

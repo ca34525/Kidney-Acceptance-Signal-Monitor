@@ -4,6 +4,19 @@
 **Status:** done  
 **Started:** 2026-09-04
 
+## Reading this historical record — 2026-09-05
+
+This completed V1 review added checks that can reject unsafe code or inputs during testing.
+A negative test deliberately supplies an invalid input: here, an unsafe URL scheme had to fail
+before any download opener ran, even when the caller bypassed the manifest loader. Ruff checks
+source code for specified security, complexity, and test-style issues. The complexity limit bounds
+the number of independent control-flow paths within a function; it is not a measure of scientific
+validity. The recorded fixes and passing tests are evidence for this bounded review, not proof
+that no risks remained. Later findings and fixes are recorded in Plan 0021.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

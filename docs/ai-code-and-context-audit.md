@@ -5,6 +5,23 @@
 **Scientific scope:** unchanged; frozen experiment inputs, outputs, and promotion decisions were
 not modified
 
+**Reading note, 2026-09-05:** This document asks whether AI-assisted implementation was checked
+against the repository's requirements and whether malformed inputs can bypass its safeguards.
+It preserves two historical reviews and their later fixes. The six findings labeled open in the
+second review were subsequently fixed; read
+[the dated follow-through](#focused-hardening-follow-through--2026-09-04-2026-09-05-utc) for their
+completion evidence. The earlier test counts and source line references describe the revisions
+reviewed then, not the current line numbers or a new test run.
+
+For the technical terms below: a boundary is where code accepts an external file, URL, or other
+input. A negative test gives it a bad input and checks that it rejects it. "Fail closed" means
+stop on an invalid condition instead of continuing with partly trusted data. Static analysis
+checks code without running the application; lint checks selected code rules, and type checking
+checks how declared kinds of values are used. Continuous integration (CI) runs automated checks
+for repository changes. Coverage reports how much code and its possible branches a test run
+exercises; it does not prove the analysis or source meaning correct. A dependency lock records
+exact package versions for reproducible installation. None of this audit adds a new model result.
+
 ## Executive finding
 
 The repository did not exhibit the usual high-risk form of "vibe-coded" software: its behavior is

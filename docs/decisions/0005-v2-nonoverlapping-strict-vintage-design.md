@@ -3,6 +3,16 @@
 **Status:** accepted
 **Date:** 2026-09-04
 
+## Reading this historical record — 2026-09-05
+
+This decision prevents two different timing errors. Non-overlapping listing cohorts avoid
+counting the same listing period in successive outcome groups. Publication-vintage checks then
+ask whether an earlier outcome report actually existed when a later prediction would have been
+made. Ordering cohorts alone does not answer that second question. The release codes below
+identify source files, and each arrow links an input release to its later outcome release. Four
+pairs can describe the data, but only one has a usable earlier training pair. That is why the
+original Ridge results describe feasibility in one period and cannot support model promotion.
+
 ## Context
 
 The v2 source ledger proves that target releases `2505` and `2605` overlap for six months because

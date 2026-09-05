@@ -1,3 +1,9 @@
+"""Display the original V2 saved study and each selected program's reported history.
+
+The app reads the trusted offline release. Model fitting, source parsing, and
+eligibility rules belong in importable modules; this view exposes no future forecast.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path

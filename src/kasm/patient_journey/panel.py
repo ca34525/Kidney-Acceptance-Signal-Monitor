@@ -1,4 +1,10 @@
-"""Leakage-safe canonical panel construction for the patient-journey v2 study."""
+"""Join earlier public reports to later listing-cohort outcomes for original V2.
+
+Each row represents one program and one target listing cohort, with inputs from
+the configured earlier report. Programs are selected from that earlier report;
+an absent later outcome stays null. Measurement, follow-up, and publication
+checks keep later information out of model inputs and training outcomes.
+"""
 
 from __future__ import annotations
 
@@ -73,7 +79,7 @@ class PatientJourneyPanelError(ValueError):
 
 @dataclass(frozen=True)
 class StrictVintageFold:
-    """One evaluation pair and labels genuinely available at its origin."""
+    """One evaluation period and earlier outcomes public by its prediction date."""
 
     evaluation_pair: PatientJourneyPair
     training_pairs: tuple[PatientJourneyPair, ...]
@@ -81,7 +87,12 @@ class StrictVintageFold:
 
 @dataclass(frozen=True)
 class PatientJourneyPanelRow:
-    """One feature-release program and its later published patient-journey target."""
+    """One earlier-report program and the outcome for its later listing cohort.
+
+    ``target_n`` counts the original listed candidates, not transplant recipients.
+    The target percentage is published; its proportion divides by 100. Dates and
+    missingness flags keep availability and unknown outcomes explicit.
+    """
 
     program_key: str
     center_code: str
@@ -177,7 +188,7 @@ class PatientJourneyPanelRow:
 
 @dataclass(frozen=True)
 class PatientJourneyRowHistoryEvidence:
-    """Source-derived history needed to revalidate row-level baseline fields."""
+    """Earlier reported outcomes used to check each program's simple predictions."""
 
     program_key: str
     release_codes: tuple[str, ...]
@@ -187,7 +198,7 @@ class PatientJourneyRowHistoryEvidence:
 
 @dataclass(frozen=True)
 class PatientJourneyPairSummary:
-    """Pair-level QA for prediction-universe and target availability."""
+    """Count earlier-report programs, later matches, missing outcomes, and additions."""
 
     feature_release_code: str
     target_release_code: str
@@ -489,7 +500,7 @@ def validate_temporal_design(
     ledger: MethodologyLedger,
     sources: tuple[SourceRecord, ...],
 ) -> None:
-    """Reject unknown, leaky, or overlapping primary release pairs."""
+    """Reject unknown report pairs, unavailable inputs, and overlapping listing cohorts."""
     order, releases, source_by_code = _release_maps(ledger, sources)
     target_cohorts = [
         (
@@ -511,7 +522,12 @@ def validate_temporal_design(
 def strict_vintage_folds(
     config: PatientJourneyConfig, ledger: MethodologyLedger
 ) -> tuple[StrictVintageFold, ...]:
-    """Derive training pairs whose truth was public at each evaluation origin."""
+    """Find earlier training outcomes already public by each prediction date.
+
+    This is the strict-vintage rule: finishing an outcome's follow-up period is
+    insufficient if its report had not yet been published. A period with no
+    eligible earlier report remains visible with an empty training-pair list.
+    """
     order = {release.release_code: index for index, release in enumerate(ledger.releases)}
     folds: list[StrictVintageFold] = []
     for evaluation_pair in config.temporal_design.primary_pairs:
@@ -564,7 +580,7 @@ def _canonical_json_value(value: object) -> str:
 
 
 def methodology_ledger_identity(ledger: MethodologyLedger) -> str:
-    """Return the semantic identity used in every row and processed artifact."""
+    """Hash the ledger's parsed definitions and dates for every row and saved bundle."""
     payload = json.dumps(
         asdict(ledger),
         default=_canonical_json_value,
@@ -1304,6 +1320,11 @@ def _history(
     ordered_releases: tuple[ParsedPatientJourneyRelease, ...],
     indexes: dict[str, _PatientReleaseIndex],
 ) -> tuple[PatientJourneyOutcome | None, tuple[PatientJourneyOutcome, ...]]:
+    """Collect valid outcomes public through the input report, including that report.
+
+    Their count becomes ``historical_target_count``: the number of available
+    outcome reports, not years in operation or patients treated.
+    """
     observed: list[PatientJourneyOutcome] = []
     for release in ordered_releases[: feature_index + 1]:
         outcome = indexes[release.release_code].outcomes.get(program_key)
@@ -1320,6 +1341,12 @@ def _available_cohort_counts(index: _PatientReleaseIndex) -> tuple[int, int]:
 
 
 def _available_cohort_proportion(index: _PatientReleaseIndex) -> float | None:
+    """Pool reconstructed counts from valid outcomes in the earlier input report.
+
+    Divide their reconstructed successes by their total listed-candidate count.
+    This available-cohort reference is calculated here; it is neither a published
+    national statistic nor a value from the later outcome report.
+    """
     successes, total_n = _available_cohort_counts(index)
     if total_n == 0:
         return None
@@ -1606,7 +1633,7 @@ def build_patient_journey_panel(
     ledger: MethodologyLedger,
     sources: tuple[SourceRecord, ...],
 ) -> PatientJourneyPanel:
-    """Build v2 rows from feature-release programs without conditioning on future reports."""
+    """Start with earlier-report programs and retain rows whose later outcome is missing."""
     validate_temporal_design(config, ledger, sources)
     order, methods, source_by_code = _release_maps(ledger, sources)
     patient_by_code: dict[str, ParsedPatientJourneyRelease] = {}
@@ -1679,8 +1706,8 @@ def build_patient_journey_panel(
             for identity in sorted(feature.identities.values(), key=lambda row: row.program_key)
         )
         summaries.append(
-            # Target-only identities are retained as auditable pair evidence; they never
-            # enter the feature-release prediction universe.
+            # Count programs present only in the later outcome report for review;
+            # they were absent from the earlier report defining the prediction group.
             _pair_summary(
                 pair,
                 pair_rows,
@@ -1760,7 +1787,7 @@ def patient_journey_panel_table(rows: tuple[PatientJourneyPanelRow, ...]) -> pa.
 def patient_journey_safety_table(
     measures: tuple[PublishedSafetyMeasure, ...],
 ) -> pa.Table:
-    """Return all ledgered safety measures without collapsing their distinct meanings."""
+    """Keep each recorded safety measure's population, dates, and denominator separate."""
     keys = [(row.release_code, row.family, row.program_key) for row in measures]
     if len(keys) != len(set(keys)):
         raise PatientJourneyPanelError("Published safety program-family keys must be unique.")

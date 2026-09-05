@@ -17,6 +17,10 @@
 > its own specification and configuration before implementation. It may not overwrite either
 > original study or present already-inspected outcomes as fresh validation.
 
+**Reading update, 2026-09-05:** Plan 0020 P0a adds ordinary-language explanations to this
+retained V1 specification. Its source fields, formulas, experiment choices, promotion rules,
+and original release requirements remain unchanged.
+
 ## 1. Decision summary
 
 Build a public-data prototype that helps a kidney transplant program review its longitudinal, risk-adjusted offer-acceptance signals and compare them with national expectation. The guaranteed product is a historical monitor. An experimental model projects the program's **next same-cadence calendar-year PSR signal** and must meet prespecified descriptive promotion criteria against simple persistence before it can appear in the interface.
@@ -91,6 +95,11 @@ Use the result to decide where additional internal review may be worthwhile. A s
 - Deep learning, boosted-tree model search, SHAP, or automated feature discovery
 
 ## 5. Source measure and terminology
+
+This section describes a program's offers during one calendar year. The offer-acceptance ratio
+compares observed acceptances with a risk-adjusted expectation; it is not the percentage of offers
+accepted. The 95% credible interval is SRTR's published uncertainty about that ratio. It is a
+different quantity from the project's range around a prediction of a later report.
 
 For a program and annual cohort, SRTR publishes:
 
@@ -197,6 +206,11 @@ Required fields:
 
 ### `model_panel.parquet`
 
+This table lines up each program's earlier report with its next annual outcome. The earlier
+values are model inputs, also called features or predictors. The later published ratio is the
+target. A missing later report means the outcome is unknown, so that row cannot measure prediction
+accuracy; it does not mean the program had zero acceptances.
+
 Wide grain: one row per `program_key × feature_cohort_year`. Analytic evaluation rows require a current overall OAR and an observed next-calendar-year target. Public forecast eligibility is stored as an explicit boolean; the UI never infers it.
 
 Required fields include feature year, target year, `prediction_as_of`, `target_cohort_end`, `truth_published_value`, `truth_published_precision`, elapsed target-cohort fraction at prediction, prespecified features, target OAR, target log OAR, `analytic_eligible`, `public_forecast_eligible`, `first_observed_program`, and predictor missingness indicators. A program absent from the target release has a missing target; it is never labeled as a zero or negative outcome. First-observed programs may enter a separately reported analytic stratum through prespecified missingness handling, but the P0 UI withholds their projection. Public eligibility requires a current overall OAR and at least two annual observations through the feature year.
@@ -228,6 +242,10 @@ Agreement between published OAR and `(acceptances + 2) / (expected_acceptances +
 ## 9. Modeling specification
 
 ### Unit and estimand
+
+The prediction question concerns the next published ratio for the same program. "Estimand" below
+names the exact quantity being estimated and the population to which it applies. Programs without
+a later report have no observed target for this comparison.
 
 The unit is a kidney transplant program-year. The estimand is the expected next same-cadence calendar-year published log OAR among programs that continue to have a report, conditional on the program's prior public aggregate history.
 
@@ -276,6 +294,11 @@ Rules:
 
 ### Challenger
 
+The challenger is Ridge regression: a fitted prediction formula whose input weights are limited
+by a penalty. The penalty strength is `alpha`; larger values discourage large weights more
+strongly. Filling missing inputs (imputation) and putting inputs on comparable scales must learn
+from the training programs and years alone, so later outcomes cannot influence those steps.
+
 A scikit-learn pipeline containing:
 
 1. missingness-preserving preprocessing;
@@ -312,6 +335,13 @@ The 80% rate is marginal across programs, not conditional coverage for any cente
 After the replay, a calendar-year 2026 point nowcast may be refit through target year 2025 with the frozen alpha. Validation and replay residuals may be pooled for a release-time empirical band only if the artifact says that refitting breaks a strict out-of-sample coverage claim; the 2025 coverage result must not be relabeled as prospective.
 
 ### Primary evaluation metrics
+
+Mean absolute error (MAE) is the average size of the prediction error, ignoring its direction.
+The log-OAR and original-OAR versions below have different units and must be labeled separately.
+Mean signed error retains direction: positive means predictions are too high on average. A
+calibration slope describes how observed values vary with predictions; it is not a causal effect.
+The resampling interval below compares the two models on the same programs. Resampling does not
+create evidence about a new year.
 
 - MAE on log OAR
 - MAE on the original OAR scale

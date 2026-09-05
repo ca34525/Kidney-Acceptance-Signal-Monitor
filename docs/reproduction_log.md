@@ -5,6 +5,20 @@
 **Purpose:** verify the tracked offline bundle, immutable-cache reproduction, quality gates, and
 non-root container contract without changing the frozen experiment
 
+**Reading note, 2026-09-05:** This is the original V1 verification record, with command outcomes
+and software versions as checked on the date above. It is not a fresh test run. A release bundle
+is the small set of derived files the app reads offline. A checksum (SHA-256) identifies exact
+file bytes; the manifest records those identities and their source/configuration history.
+"Canonical" identifies the original accepted build, while "audit" identifies a separate
+reproduction used for comparison. A non-root container runs the app without administrator-level
+Linux privileges. The checks below establish those engineering properties, not clinical validity.
+
+The signal table counts one program, calendar year, and offer group per row. The model panel
+counts one program-year per row, and a prediction row adds a named comparison method and target
+year. Thus the different row totals below count different records, not different patient
+populations. The original data cover calendar-year offer cohorts from 2017–2025; its frozen replay
+measures error against published 2025 program ratios.
+
 ## Release identity
 
 - Payload files: 12
@@ -21,6 +35,11 @@ non-root container contract without changing the frozen experiment
   `9783d6fc61d5c69012494519e674b5c17c0f346ba1923a4758c38fcdc573a687`
 
 ## Commands and evidence
+
+The confirmed replay audit in this historical record wrote to a separate location. It did not
+overwrite the original write-once replay. This documentation review does not authorize a new
+replay. Current required checks are in [AGENTS.md](../AGENTS.md#8-required-verification); the
+historical test counts and percentages below remain evidence about their recorded revision.
 
 | Command or check | Result |
 |---|---|

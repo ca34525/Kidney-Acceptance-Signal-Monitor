@@ -4,6 +4,19 @@
 **Status:** done  
 **Started:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This completed V1 step made the historical monitor and model results usable without a network.
+For an eligible program, persistence projects the next calendar-year published ratio by carrying
+forward the latest ratio. The view reads saved eligibility and release decisions; it does not
+fit a model while the user browses. Matching file fingerprints ensure that the historical charts
+and model comparisons describe the same prepared data. The 2021–2024 yearly comparisons and
+2025 fixed replay are displayed separately because they served different evaluation purposes.
+Ridge's failed promotion rule and hidden forecast band remain part of the released result.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

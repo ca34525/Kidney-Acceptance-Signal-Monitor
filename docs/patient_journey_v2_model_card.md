@@ -6,6 +6,14 @@ requirements are recorded separately in [Plan 0020](plans/0020-v2-follow-up-and-
 No revised model result is included here. See [the project guide](project-guide.md) for the
 ordinary-language explanation and the distinction between the two history-based comparisons.
 
+**How to read this result, 2026-09-05:** The question is whether earlier public reports help predict
+the later published percentage of listed candidates known alive with a functioning transplant
+18 months after listing. Each record is one program and one July–June listing group. The
+denominator is everyone in that listing group, not just transplant recipients, and the outcome
+is a percentage rather than a risk-adjusted ratio. Unknown follow-up status is not evidence of
+death or a functioning transplant. This original model uses the published total without
+separating those unknown outcomes.
+
 ## Evidence status and intended use
 
 This is retrospective exploratory feasibility evidence. It compares prespecified baselines and
@@ -31,31 +39,74 @@ Three baselines are evaluated across all four target releases:
   program outcomes; and
 - historical mean: the program's mean earlier published outcome.
 
+These baselines are simple comparison predictions. Persistence carries forward the latest
+available outcome; historical mean averages the program's earlier available outcomes. The
+available-cohort reference pools reconstructed outcomes with candidate-count weights from the
+feature release, meaning the report available when the prediction is made. It is a source-derived
+comparison, not a published national statistic or the later outcome release's average.
+
 Five Ridge groups are fixed in this order: history; history plus acceptance; history plus access;
 history plus access and acceptance; and the full group plus waiting-list mortality safety context.
 Identity and location fields, future outcomes, future-report availability, and unlisted fields are
 hard-rejected as predictors.
+
+Ridge fits input weights while limiting their size. Its history group includes the latest outcome,
+the earlier-outcome average, prior candidate count, and the number of earlier available reports
+(`historical_target_count`). This fitted history group is different from the simple historical-mean
+baseline. Access inputs describe transplant rate and waiting time; acceptance inputs describe
+published offer-acceptance ratios and their supporting counts and intervals. Adding a group tests
+a specified prediction comparison; it does not isolate a causal effect of that part of care.
 
 Ridge uses the empirical-logit target, `alpha=1.0`, solver `lsqr`, tolerance `1e-8`, and at most
 10,000 iterations. Median imputation and standard scaling are fit inside the training fold only.
 Predictions are inverse-logit transformed and evaluated against the authoritative published
 percentage.
 
+The empirical logit converts the percentage to log odds with a fixed small adjustment to keep
+0% and 100% finite. The inverse logit converts the fitted prediction back to a proportion between
+0 and 1. Imputation replaces a missing input with the training group's median for calculation;
+scaling uses that same training group's means and standard deviations. Published missing values
+remain missing in the data and display.
+
+If the whole training column is missing, `keep_empty_features=True` keeps the column and uses
+zero as a numerical fallback. That value is internal to model fitting; it does not mean the
+source reported zero or justify showing missing data as zero.
+
 Strict publication vintage leaves one Ridge fold: train only on `1905→2205`, then evaluate all five
 groups on the common eligible `2205→2505` population. It would be anachronistic to use outcomes
 that were not public at an earlier prediction origin. The baselines and Ridge aggregates therefore
 have different scopes.
 
+In calendar terms, the fitted training outcome describes listings from 2019-07-01 through
+2020-06-30 and was published in July 2022 (`2205`). Evaluation concerns listings from 2022-07-01
+through 2023-06-30, published on 2025-07-08 (`2505`). "Strict publication vintage" means that
+both input reports and any outcomes used to train the model must already be public at the
+prediction origin. Earlier evaluation origins do not have a qualifying earlier training outcome.
+
 ## Metrics and uncertainty
 
-The primary metric is unweighted mean target-release MAE in percentage points. Secondary metrics
-are candidate-volume-weighted MAE, median absolute error, and mean signed error defined as
+The primary metric is the average size of the prediction error, or mean absolute error (MAE),
+first calculated within each target release and then averaged with equal weight per release.
+Errors are in percentage points: a hypothetical prediction of 45% versus an observed 40% has
+an absolute error of 5 percentage points. Secondary metrics are candidate-volume-weighted MAE,
+median absolute error, and mean signed error defined as
 prediction minus observed. Calibration follows `observed = intercept + slope × predicted`.
+
+Volume weighting gives larger listing groups more influence on the program-level error summary;
+it does not measure individual patient accuracy. Positive mean signed error means predictions
+are too high on average. Calibration describes the fitted straight-line relation between observed
+and predicted percentages, with both quantities on the percentage-point scale.
 
 Prespecified sensitivity summaries use target `N ≥ 20` and `N ≥ 30`, deterministic within-release
 target-volume quartiles, and missingness strata. Paired contrasts resample whole programs, retaining
 all repeated program rows, with 2,000 bootstrap replicates, seed `20260904`, and linear 2.5th and
 97.5th percentiles.
+
+Here `N` is the number of candidates in the target listing group. Quartiles divide programs into
+four roughly equal-sized groups ordered by N. A paired bootstrap repeatedly draws whole programs
+and compares both models on the same draw, keeping repeated records together. The resulting
+interval describes variability across the observed programs; it cannot establish performance in
+a new time period.
 
 ## Results
 
@@ -81,6 +132,11 @@ For scope-matched context on `2205→2505`, historical-mean MAE is 7.61, persist
 and available-cohort-reference MAE is 9.87. History plus acceptance is numerically lowest among the
 five fixed Ridge groups at 7.35, but one retrospective fold cannot establish temporal stability or
 justify promotion.
+
+**Comparison explanation, 2026-09-05:** On these same 218 programs, the 4.14-point reduction is
+from history-only Ridge (11.49) to history plus acceptance (7.35). The reduction relative to the
+simple historical mean (7.61) is 0.26 points. Those are different questions and comparators.
+The later report-count investigation in Plan 0020 is still separate from these frozen results.
 
 Prespecified paired MAE contrasts are challenger minus comparator; negative values favor the
 challenger within this fold:

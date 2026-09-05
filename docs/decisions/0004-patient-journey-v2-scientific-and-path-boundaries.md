@@ -3,6 +3,16 @@
 **Status:** accepted
 **Date:** 2026-09-04
 
+## Reading this historical record — 2026-09-05
+
+This decision keeps two different questions and their files separate. V2's denominator is the
+original group of newly listed candidates, and its outcome is the published percentage known
+to be alive with a functioning transplant 18 months after listing. Unknown follow-up is not proof
+that a candidate was alive or had died. Program totals lack the patient-level details needed to
+adjust individual risk. Safety measures describe different groups or follow-up periods and cannot
+be substituted for parts of this outcome. A secondary "ablation" means a fixed comparison with
+an additional earlier input group; it does not identify the effect of an intervention.
+
 ## Context
 
 V1 forecasts the next published offer-acceptance ratio and has completed, hash-bound retrospective

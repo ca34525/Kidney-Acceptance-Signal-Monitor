@@ -3,6 +3,17 @@
 **Checked:** 2026-09-03  
 **Scope:** critical program-selection and model-evaluation flow
 
+**Reading note, 2026-09-05:** This checklist preserves the original V1 release review. It asks
+whether users can select a program, read its history, and understand the displayed model status
+without relying on a mouse or color alone. "Visible focus" is the outline showing which control
+will receive a keyboard action; "contrast" measures how clearly a mark or text differs from its
+background. WCAG means Web Content Accessibility Guidelines; AA names the stated level of those
+guidelines. AppTest is the automated Streamlit application test used for the recorded critical
+flow. Chart gaps mean a value is unavailable, not zero.
+
+The dates, contrast ratios, and statuses below describe that review. This wording pass did not
+repeat an accessibility audit or establish V2 accessibility by inference from V1.
+
 | Check | Evidence | Status |
 |---|---|---|
 | Keyboard operation | The critical flow uses native Streamlit selectbox, tab, expander, and scroll interactions; no pointer-only custom control is introduced | verified |
@@ -16,4 +27,3 @@
 
 The application relies on Streamlit’s native semantic controls. This bounded review does not claim
 a complete WCAG conformance audit across every browser, operating system, or assistive technology.
-

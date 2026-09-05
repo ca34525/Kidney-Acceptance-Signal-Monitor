@@ -4,6 +4,21 @@
 **Status:** done
 **Started:** 2026-09-04
 
+## Reading this historical record — 2026-09-05
+
+This completed foundation step gave V2 its own study rules and output locations. V1 describes
+published offer-acceptance ratios; V2 studies the published percentage of a listing group known
+to be alive with a functioning transplant 18 months after listing. That observed percentage is
+not a risk-adjusted measure of program quality. Separate configuration and output paths keep the
+new study from changing V1 files. Path validation rejects both direct overlap and routes through
+parent directories, because either could overwrite protected evidence. Parsing, modeling, and
+the optional screen described as later work here were addressed in subsequent V2 plans.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+Those core-coverage results cover the V1 data, modeling, and reporting directories, not V2.
+Plan 0021 later added V2 to the combined check and enforced its own coverage floor.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

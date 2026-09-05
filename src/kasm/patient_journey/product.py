@@ -1,4 +1,9 @@
-"""Offline product service for the optional patient-journey V2 interface."""
+"""Prepare saved V2 history and evaluation results for the optional offline view.
+
+Load the verified release bundle and select one program by its code/type key.
+The view uses historical predictions already in that bundle. Missing values
+stay visibly unreported, and safety measures keep their separate timing.
+"""
 
 from __future__ import annotations
 
@@ -49,7 +54,7 @@ class ProgramOption:
 
 
 def reported_value(value: object, *, digits: int = 1) -> str:
-    """Render a nullable published value without conflating missingness with zero."""
+    """Display missing values as 'Not reported' and preserve a reported zero."""
     if value is None:
         return "Not reported"
     if isinstance(value, int | float):
@@ -84,7 +89,7 @@ def publication_value_text(value: object, precision: object) -> str:
 
 
 def measurement_segments_text(value: object) -> str:
-    """Render every effective measurement segment, including exclusion gaps."""
+    """Show each included date span separately so excluded periods remain visible."""
     if not isinstance(value, str):
         raise PatientJourneyProductError("Measurement segments must be JSON text.")
     try:

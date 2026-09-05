@@ -1,5 +1,17 @@
 # Patient-journey V2 reproduction log
 
+**Reading note, 2026-09-05:** This log explains how the completed original V2 release was built
+and checked. It retains the original commands, byte identities, and test evidence; it does not
+report a new model run or a follow-up result. The app can open the checked-in release without
+rebuilding it. Rebuilding requires the verified cached source workbooks as well as the installed
+environment.
+
+One panel row is a program and July–June listing group; the outcome is the published percentage
+of that original group known alive with a functioning transplant 18 months after listing. A safety
+row describes a different published measure and keeps that measure's own population and dates.
+A prediction row adds the method used to predict a historical outcome. These row counts are not
+counts of individual patients. Missing outcomes remain unavailable for scoring, not zero.
+
 ## Environment and fixed inputs
 
 - Python: 3.12.13
@@ -33,7 +45,19 @@ uv run streamlit run app/patient_journey_v2.py
 Only `data sync` is networked. The commands above consume the verified cache and do not change V1
 processed, modeling, release, frozen-configuration, or default-app assets.
 
+**Environment clarification, 2026-09-05:** The preceding network statement concerns the project
+data/model/application commands. `uv sync --frozen` can need package downloads when setting up
+an environment. Install the locked environment first, as described in the
+[offline demo instructions](presentation/interview-rehearsal-guide.md#offline-demo-path), before
+requiring operation without a network. The V2 build commands then read the verified cache.
+
 ## Generated identities
+
+A SHA-256 is a fingerprint of exact file bytes. The processed, modeling, and release identities
+refer to different stages: validated data, saved historical predictions and evaluation, and the
+small app bundle. Provenance records which sources, settings, code, and environment produced
+those files. "Canonical" denotes the clean accepted source build; "dirty" would mean its source
+checkout contained uncommitted changes. Those terms describe reproducibility, not model accuracy.
 
 | Stage | Evidence |
 |---|---|

@@ -4,6 +4,19 @@
 **Status:** done  
 **Started:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This completed V1 step saved the reusable data tables. A signal row is one program, calendar
+year, and offer group; a panel row is one program's feature year paired with the next year's
+published outcome when available. "Analytic eligibility" means a row has the observed values
+needed to measure prediction error. "Public-forecast eligibility" separately means the stored
+history permits displaying a projection. Thus the 2025 example below can support a 2026
+projection while lacking a 2026 outcome for evaluation. The quality-assurance (QA) report checks
+missing records and rounding; it never replaces the published ratio with a recalculation.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

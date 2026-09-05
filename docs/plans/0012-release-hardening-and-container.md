@@ -4,6 +4,19 @@
 **Status:** done
 **Started:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This completed V1 step packaged the saved results so a fresh checkout could open the application
+without downloading workbooks or training models. The release bundle contains approved data and
+result files plus a manifest recording where they came from and their fingerprints. Reproduction
+checked that the same cached inputs produced the same analytical values; a separate audit kept
+its own run history rather than overwriting the original replay. Docker packages the application
+and its runtime; the non-root check verifies that it runs without administrator-like privileges.
+The software versions, checks, and fingerprints below describe this historical release verification.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

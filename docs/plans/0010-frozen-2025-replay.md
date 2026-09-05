@@ -4,6 +4,20 @@
 **Status:** done
 **Started:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This completed V1 step evaluated the fixed model on 229 program outcomes for calendar year
+2025. Ridge reduced the average absolute error by 10.13% relative to persistence, but failed the
+separate rule for average directional error: its average prediction was farther from the observed
+average. The rules therefore retained persistence. This is a product-selection result, not proof
+that persistence is clinically safer. Error values below use log-OAR units. The proposed band's
+coverage describes the share of these programs whose observed outcome lay inside it; it does not
+guarantee coverage for a particular program. The band remains hidden because Ridge was not
+promoted. These are preserved retrospective results, not a new validation.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

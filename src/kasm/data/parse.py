@@ -1,4 +1,8 @@
-"""Schema-aware parsing for pinned SRTR offer-acceptance workbooks."""
+"""Read published offer-acceptance values by machine field name from approved reports.
+
+Each signal describes one program, calendar year, and offer group. Counts and SRTR's
+published ratios remain separate; missing or suppressed values remain None, never zero.
+"""
 
 from __future__ import annotations
 
@@ -47,7 +51,7 @@ class ParseError(ValueError):
 
 @dataclass(frozen=True)
 class WorkbookSheet:
-    """Small adapter-neutral representation of one workbook sheet."""
+    """One sheet's cells and dimensions, independent of the workbook-reading library."""
 
     name: str
     rows: tuple[tuple[object, ...], ...]
@@ -56,7 +60,7 @@ class WorkbookSheet:
 
 @dataclass(frozen=True)
 class ProgramSignal:
-    """One center-level published signal at program-year and offer-group grain."""
+    """One program's published counts, ratio, and interval for a year and offer group."""
 
     program_key: str
     center_code: str
@@ -138,7 +142,7 @@ def _cell_value(book: xlrd.book.Book, cell: xlrd.sheet.Cell) -> object:
 
 
 def read_workbook_sheets(payload: bytes) -> tuple[WorkbookSheet, ...]:
-    """Read legacy XLS bytes into an adapter-neutral sheet representation."""
+    """Read XLS bytes into sheet cells that the parser and local fixtures can share."""
     try:
         book = xlrd.open_workbook(file_contents=payload, on_demand=True)
     except xlrd.XLRDError as error:

@@ -12,13 +12,13 @@ buffer. The day-by-day plan below is retained as the original work record.
 The six engineering fixes in [Plan 0021](docs/plans/0021-focused-ai-coding-hardening.md) are
 complete, with both studies' frozen evidence preserved. Docker build, non-root startup, and
 application health now pass locally and in CI for commit `5f26ec9`. The next work is
-[Plan 0020](docs/plans/0020-v2-follow-up-and-interview-story.md). First, rewrite
-existing documentation and explanatory comments/docstrings in ordinary language (P0a), retaining
-the original facts and scientific requirements. Then investigate the report-count input, explain
-the living/deceased-donor and unknown-status parts of the outcome, and prepare a 20-minute
-interview story. Planning and the initial guide are complete; the existing-documentation pass,
-new analysis, and presentation implementation have not started. This follow-up has its own work
-order and retains the original V1 and V2 evidence.
+[Plan 0020](docs/plans/0020-v2-follow-up-and-interview-story.md). Its existing-documentation and
+code-explanation pass (P0a) is complete as of 2026-09-05 UTC, with the original facts, scientific
+requirements, and executable behavior preserved. Next, give the follow-up its own specification
+and typed configuration, then reproduce the report-count diagnosis and fixed revised comparison
+(P1/P2). Outcome components and the 20-minute interview story follow in P3/P4. The new analyses
+and presentation implementation have not started. This follow-up retains the original V1 and V2
+evidence.
 
 Understanding and explaining the project in ordinary language is a top priority, including in
 comments and docstrings. Start with [the project guide](docs/project-guide.md), then use exact
@@ -38,7 +38,12 @@ For every behavior:
 
 If the scope or statistical method changes, update `SPEC.md` and this plan before changing production code. Record material choices in `docs/decisions/`.
 
-The historical monitor is the guaranteed product. The ridge challenger is allowed to lose. A tested conclusion that persistence is safer is a valid, presentation-worthy result.
+The historical monitor is the guaranteed product. The ridge challenger is allowed to lose.
+Keeping persistence because Ridge failed a fixed display rule is a valid result to present.
+
+**Wording correction, 2026-09-05:** The earlier sentence called persistence "safer." The
+[frozen result](docs/model_card.md) establishes failure of a prediction-bias rule, not clinical
+safety. The result and promotion requirements are unchanged.
 
 ## 2. Start condition for the seven-day clock
 
@@ -81,7 +86,7 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 | M11 | V2 temporal design and canonical panel | done | Plan 0017: four non-overlapping pairs, strict-vintage folds, deterministic 966-row in-memory panel, 181 tests, and required quality gates pass |
 | M12 | V2 canonical artifact publication | done | Plan 0018: config-owned processed bundle, source-derived QA evidence, provenance contract, trusted validation, and isolated offline build command; 214 tests pass and the real cache build publishes 966 rows |
 | M13 | V2 exploratory study and optional product | done | Plan 0019: canonical 679 KB bundle built from clean `cdea5c4` and published at `0353f99`; 236-test/83.93% suite, offline V2 flow, V1 isolation, and both remote CI jobs pass; no model promoted |
-| M14 | V2 follow-up and 20-minute interview story | in_progress | Plan 0020: planning complete; first implementation step is P0a existing-documentation rewrite; original V2 retained; P0a and analytical/presentation passes not started |
+| M14 | V2 follow-up and 20-minute interview story | in_progress | Plan 0020: P0a complete with per-file review, unchanged executable ASTs, 353 passing tests, 82.48% combined coverage and 80.44% V2 coverage; P1/P2 next; original evidence retained |
 
 ## 5. Day-by-day execution
 

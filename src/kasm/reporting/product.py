@@ -1,4 +1,8 @@
-"""Validated product-view services over frozen, precomputed model artifacts."""
+"""Read checked V1 model results and the saved display decision for the offline app.
+
+The service reports the original error comparisons and reasons for withholding Ridge
+or its band. It neither refits a model nor changes the fixed promotion rules.
+"""
 
 from __future__ import annotations
 

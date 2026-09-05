@@ -1,4 +1,8 @@
-"""Verified, atomic acquisition for immutable public source files."""
+"""Download approved public reports and publish a file only after verification.
+
+Downloads stay in temporary files until their size, type, and SHA-256 fingerprint
+match the manifest. An atomic move makes only the completed file available to readers.
+"""
 
 from __future__ import annotations
 

@@ -1,4 +1,8 @@
-"""Typed loading and validation for project configuration manifests."""
+"""Read and validate the approved source-report metadata.
+
+The manifest records each report's URL, size, SHA-256 fingerprint, and publication
+precision. Those checks identify the exact input; they do not assess program quality.
+"""
 
 from __future__ import annotations
 

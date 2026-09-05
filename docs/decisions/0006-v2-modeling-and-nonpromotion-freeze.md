@@ -3,6 +3,17 @@
 **Status:** accepted
 **Date:** 2026-09-04
 
+## Reading this historical record — 2026-09-05
+
+This decision fixed the original V2 comparison before its errors were inspected. Every Ridge
+version uses the same programs, so a difference reflects the specified inputs rather than a
+changed comparison population. The empirical logit is the configured transformation used for
+fitting near the 0% and 100% boundaries; reported accuracy compares predictions with the
+published percentages in percentage points. Repeatedly sampling whole programs estimates how
+the paired comparison varies within these data; it cannot provide evidence from another period.
+The available-cohort reference is reconstructed, not a published national statistic. Permanent
+nonpromotion preserves the distinction between this exploratory comparison and a usable forecast.
+
 ## Context
 
 The patient-journey panel contains four contiguous, non-overlapping July–June target cohorts, but

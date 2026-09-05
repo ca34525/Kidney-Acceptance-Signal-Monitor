@@ -1,4 +1,11 @@
-"""Percentage-point evaluation for the exploratory patient-journey V2 study."""
+"""Compare V2 predictions with published outcomes in percentage points.
+
+One prediction represents a program and listing cohort, not a patient. In a
+hypothetical example, predicting 40% against a published 35% gives an absolute
+error of 5 percentage points and a signed error of +5. Summaries and program
+resampling describe the original exploratory study; they do not establish
+future accuracy.
+"""
 
 from __future__ import annotations
 
@@ -16,7 +23,7 @@ class PatientJourneyEvaluationError(ValueError):
 
 @dataclass(frozen=True)
 class EvaluationPrediction:
-    """One program/release prediction on the authoritative published scale."""
+    """One program/listing cohort prediction and its calculated percentage-point error."""
 
     program_key: str
     feature_release_code: str
@@ -36,7 +43,12 @@ class EvaluationPrediction:
 
 @dataclass(frozen=True)
 class EvaluationSummary:
-    """Named-scale summary for one model and one or more target releases."""
+    """Error sizes and prediction-versus-outcome agreement for one model.
+
+    Error measures use percentage points. ``n`` counts program/cohort rows;
+    candidate-volume weighting emphasizes larger listing groups without
+    measuring patient-level prediction accuracy.
+    """
 
     n: int
     target_releases: tuple[str, ...]
@@ -53,7 +65,12 @@ class EvaluationSummary:
 
 @dataclass(frozen=True)
 class BootstrapInterval:
-    """Program-clustered percentile interval for a paired MAE contrast."""
+    """Interval for the difference in average absolute error on the same programs.
+
+    Values are challenger minus comparator in percentage points, so negative
+    values favor the challenger. Whole programs are resampled, keeping all of
+    each program's repeated cohort rows together.
+    """
 
     point_estimate: float
     lower: float
@@ -79,7 +96,11 @@ def _integer(row: Mapping[str, object], field: str) -> int:
 def assign_within_release_volume_quartiles(
     rows: Sequence[Mapping[str, object]],
 ) -> dict[tuple[str, str], int]:
-    """Assign deterministic target-N quartiles within each target release."""
+    """Group each release's programs into four ordered listing-count groups.
+
+    Sort by ``target_n`` (listed candidates) and then program key to break ties.
+    These quartiles describe volume, not program performance.
+    """
     if not rows:
         raise PatientJourneyEvaluationError("Volume strata require at least one row.")
     by_release: dict[str, list[Mapping[str, object]]] = {}
@@ -158,7 +179,15 @@ def _calibration(
 def summarize_predictions(
     predictions: Sequence[EvaluationPrediction],
 ) -> EvaluationSummary:
-    """Summarize one model on the frozen percentage-point metric contract."""
+    """Measure one model's errors using the original fixed averaging rules.
+
+    The primary mean absolute error (MAE) averages each target release's MAE
+    equally. Other summaries pool rows or weight errors by listed-candidate
+    count. Positive signed error means predictions are too high on average.
+    Calibration fits observed = intercept + slope * predicted in percentage
+    points, with each release given equal total weight; constant predictions
+    leave this check unavailable with a reason.
+    """
     if not predictions:
         raise PatientJourneyEvaluationError("Prediction summary requires at least one row.")
     if len({row.model for row in predictions}) != 1:
@@ -229,7 +258,13 @@ def paired_clustered_bootstrap_interval(
     seed: int,
     percentiles: tuple[float, float],
 ) -> BootstrapInterval:
-    """Resample programs with all repeated rows and recompute balanced MAE contrasts."""
+    """Resample whole programs to describe uncertainty in their paired error difference.
+
+    Each sampled program brings all its cohort rows into both models' samples.
+    For each sample, subtract comparator from challenger MAE, giving each target
+    release equal weight. The resulting percentile interval stays descriptive;
+    resampling these programs does not create a new evaluation period.
+    """
     if resamples <= 0:
         raise PatientJourneyEvaluationError("Bootstrap resamples must be positive.")
     lower_percentile, upper_percentile = percentiles

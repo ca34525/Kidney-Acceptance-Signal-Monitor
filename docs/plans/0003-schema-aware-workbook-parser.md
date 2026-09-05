@@ -4,6 +4,19 @@
 **Status:** done  
 **Started:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This completed V1 step turned published workbooks into consistent records without changing the
+published measurements. Each output row describes one program, one calendar-year offer cohort,
+and one of the five offer groups; this is why 2,103 program-years become 10,515 signal rows.
+The program key combines code and type because code alone can identify more than one program.
+"Schema drift" means an unexpected change to required source fields or layout. In the test log,
+`2006` is the source release code for August 2020 (2019 offers), not the calendar year 2006.
+The zero lower interval bound was retained as published; it was not a missing value or a zero ratio.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

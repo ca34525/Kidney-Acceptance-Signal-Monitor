@@ -1,4 +1,10 @@
-"""Trusted processed-artifact publication for the patient-journey v2 study."""
+"""Save and verify the original V2 program/cohort data and its source evidence.
+
+Each saved bundle links the panel, separate safety measures, and quality checks
+to the same source files, study settings, and methodology definitions through
+SHA-256 file hashes. Validate a complete staged bundle before making it active
+in the configured V2 directory, keeping V1 output protected.
+"""
 
 from __future__ import annotations
 
@@ -61,7 +67,7 @@ class PatientJourneyArtifactError(ValueError):
 
 @dataclass(frozen=True)
 class PatientJourneyBuildContext:
-    """Run-specific provenance separated from deterministic analytical content."""
+    """Build time, code version, and environment recorded separately from data values."""
 
     build_timestamp_utc: datetime
     git_commit_sha: str
@@ -71,7 +77,7 @@ class PatientJourneyBuildContext:
 
 @dataclass(frozen=True)
 class PatientJourneyArtifactResult:
-    """Validated paths and identity for one complete processed-data generation."""
+    """Paths, row counts, and file-hash identity for one complete saved data bundle."""
 
     output_directory: Path
     panel_path: Path
@@ -85,7 +91,7 @@ class PatientJourneyArtifactResult:
 
 @dataclass(frozen=True)
 class _BoundInputs:
-    """Typed inputs and hashes proven to originate from one stable file snapshot."""
+    """Validated settings and file hashes checked to come from the same unchanged inputs."""
 
     manifest: DataSourceManifest
     config: PatientJourneyConfig
@@ -1182,7 +1188,7 @@ def validate_patient_journey_artifacts(
     methodology_path: Path,
     lock_path: Path,
 ) -> PatientJourneyArtifactResult:
-    """Validate the exact config-owned v2 generation before it is consumed."""
+    """Check the configured V2 bundle's files, source identity, and study rules before use."""
     inputs = _load_bound_inputs(
         repository_root=repository_root,
         source_manifest_path=source_manifest_path,
@@ -1355,7 +1361,7 @@ def write_patient_journey_artifacts(
     lock_path: Path,
     build_context: PatientJourneyBuildContext,
 ) -> PatientJourneyArtifactResult:
-    """Stage, validate, and atomically publish the config-owned processed generation."""
+    """Check a complete staged data bundle before replacing the configured V2 output."""
     inputs = _load_bound_inputs(
         repository_root=repository_root,
         source_manifest_path=source_manifest_path,

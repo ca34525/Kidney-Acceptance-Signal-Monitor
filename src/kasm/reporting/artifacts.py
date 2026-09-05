@@ -1,4 +1,8 @@
-"""Build and validate the single tracked, offline release bundle."""
+"""Package the approved V1 tables and results for the offline demonstration.
+
+The release bundle is the small collection tracked in Git. Its manifest records
+the source, configuration, and payload fingerprints so readers can check its origin.
+"""
 
 from __future__ import annotations
 
@@ -759,7 +763,7 @@ def _validated_release_size_and_identity(
 def validate_release_bundle(
     bundle_dir: Path, *, max_bytes: int = MAX_RELEASE_BYTES
 ) -> ReleaseBundleResult:
-    """Validate the tracked bundle's exact files, sizes, checksums, and provenance envelope."""
+    """Check the bundle's exact files, sizes, fingerprints, and recorded build origins."""
     manifest_path = bundle_dir / RELEASE_MANIFEST_NAME
     manifest = _read_json(manifest_path)
     entries = _validated_release_entries(manifest)

@@ -29,11 +29,13 @@ acceptance decision.
 |---|---|---|
 | V1 acceptance monitor | Released; carries the latest ratio forward because Ridge missed a frozen promotion rule | [V1 model card](model_card.md) |
 | Original V2 patient-journey study | Completed exploratory study; no model promoted and no future forecast displayed | [V2 model card](patient_journey_v2_model_card.md) |
-| V2 follow-up | Planned; investigates report count and the meaning of unknown follow-up status | [Plan 0020](plans/0020-v2-follow-up-and-interview-story.md) |
+| V2 follow-up | Existing explanations reviewed; analysis still planned for report count and unknown follow-up status | [Plan 0020](plans/0020-v2-follow-up-and-interview-story.md) |
 
-The first planned pass will make the existing documentation, including older explanations and
-code comments/docstrings, understandable in ordinary language. It will retain the original facts
-and decisions. The two investigations below come after that pass.
+The first pass is complete as of 2026-09-05 UTC. It reviewed existing documentation, including
+older records and code comments/docstrings, and clarified their meaning while retaining the
+original facts and decisions. Plan 0020 contains the per-file record and verification evidence.
+The two investigations below remain planned, and the author's walkthrough and rehearsal remain
+separate work.
 
 The original V2 results remain available. A later investigation will be labeled separately, with
 its own record of what changed and why. Planning a correction is not evidence that it works.

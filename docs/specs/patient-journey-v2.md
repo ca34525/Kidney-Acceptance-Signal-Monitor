@@ -11,6 +11,15 @@
 > results. The follow-up needs its own specification and configuration before implementation.
 > [The project guide](../project-guide.md) explains both opportunities in ordinary language.
 
+**Reading note, 2026-09-05:** This specification fixes the completed original V2 study's
+question, data rules, and comparison models. One row describes one kidney transplant program
+and one July–June group of newly listed candidates. The study predicts that group's later
+published 18-month functioning-transplant percentage using reports available earlier. It uses
+four non-overlapping listing groups, but only the last has a previously published training
+outcome that permits fitting Ridge. Its results therefore describe one historical evaluation
+period and cannot activate a future forecast. The explanations added here do not amend the
+fixed equations, source fields, dates, models, or evaluation rules below.
+
 ## 1. Version boundary
 
 This specification defines a separate v2 patient-journey study. It does not replace the v1
@@ -51,11 +60,22 @@ The central comparisons are:
 
 A negative incremental result is scientifically valid and must be reported plainly.
 
+"Incremental" means the difference from adding a specified input group while keeping the
+comparison population and other fixed choices the same. A worse prediction after adding access
+or safety inputs is still a result to report; it does not establish that those aspects of care
+are unimportant or that changing them would cause an outcome to improve.
+
 ## 3. Primary target and claim boundary
 
 The primary target is the SRTR status-after-listing program percentage
 `SAL_TOTFTX_C18`, "Functioning transplant (alive)" at 18 months. The canonical proportion is
 `SAL_TOTFTX_C18 / 100` after source parsing and validation.
+
+The percentage counts candidates known alive with a functioning transplant at 18 months among
+the original listing group (`SAL_N_C`), including candidates who never received a transplant in
+that denominator. It is not a survival percentage among transplant recipients. Unknown status
+does not establish death, graft failure, or a functioning transplant. Keeping the published
+percentage preserves what is reported without filling in those unknown outcomes.
 
 This is a patient-centered observed outcome, not a published risk-adjusted program measure. Product
 and model documentation may call it a published 18-month functioning-transplant percentage or an
@@ -73,6 +93,12 @@ target_logit = log(smoothed_p / (1 - smoothed_p))
 
 Evaluation is reported on the published percentage-point scale. The transform must not replace the
 published value.
+
+This empirical-logit transform converts the outcome to log odds for model fitting. The fixed
+small adjustment keeps 0% and 100% finite on that scale. The reconstructed `successes` value is
+a calculation from rounded public data, not an independently reported count. Prediction errors
+return to percentage points: a hypothetical 45% prediction against a 40% published outcome is
+5 percentage points too high.
 
 ## 4. Source scope and program identity
 
@@ -117,6 +143,11 @@ matrix and retain it only as a separate outcome. Same-cohort Table B7 status com
 period values, future report availability, identity fields, and location fields are prohibited
 predictors.
 
+The prediction origin is the date or month when the input report becomes public. The measurement
+period is when the source events or candidate follow-up were observed. Both clocks matter: an
+old measurement published too late is unavailable, and an already-published measure whose
+observation period reaches into the target listing group is ineligible for this design.
+
 A metric-level methodology ledger must record release code, publication value and precision,
 source sheet, measurement start/end, follow-up end, earliest public availability, definition or
 method changes, and relevant COVID-era or policy context. Release-index proximity alone does not
@@ -148,6 +179,12 @@ baseline history, and descriptive audits, but they cannot become anachronistic m
 This one-fold limitation must be reported as feasibility evidence and cannot support promotion or a
 claim of stable temporal validation.
 
+In ordinary terms, having several historical reports is not enough to train at every earlier
+date. A model can learn from an earlier group's outcome only after that outcome has been
+published. A fold is one such time-ordered training/evaluation split. The single permitted Ridge
+split trains on the 2019-07-01 to 2020-06-30 listing group and evaluates on the 2022-07-01 to
+2023-06-30 listing group; their outcome reports are `2205` and `2505`, respectively.
+
 ## 6. Canonical panel and eligibility
 
 The separate v2 model panel includes at least:
@@ -169,6 +206,12 @@ availability, a target in `[0, 1]`, `target_n >= 10`, and an available prior tar
 Sensitivity analyses use fixed `target_n >= 20` and `target_n >= 30` thresholds. Thresholds may not
 be selected after inspecting model comparisons.
 
+Here `target_n` is the target listing group's candidate count. Eligibility determines which
+program-group records can be evaluated against a published outcome. The two sensitivity analyses
+repeat the comparison with fixed larger listing groups to show how that inclusion rule matters.
+Missing predictors remain eligible for the prespecified training-only treatment; a missing
+outcome cannot be scored as if it were observed.
+
 ## 7. Models and evaluation
 
 Required baselines are:
@@ -179,6 +222,16 @@ Required baselines are:
    available at the prediction origin and labeled the **available-cohort reference**, never a
    published national statistic or the future target-release value; and
 3. the program's historical mean using only outcomes public by the prediction origin.
+
+**Count-use clarification, 2026-09-05:** Section 3's restriction protects the published target
+from replacement by a reconstructed outcome. The available-cohort reference here expressly
+uses reconstructed counts for a separately labeled baseline. The fixed experiment also uses
+the prior candidate count as a history input and target counts for eligibility, volume groups,
+and evaluation weighting. These uses are recorded in
+[the experiment configuration](../../configs/patient_journey_v2/experiment.yaml) and implemented
+by [the panel's available-cohort calculation](../../src/kasm/patient_journey/panel.py) and
+[the fixed model/evaluation code](../../src/kasm/patient_journey/modeling.py). They do not make
+reconstructed counts authoritative source values or permit future target counts as predictors.
 
 The only P0 challenger family is Ridge with fold-local median imputation, explicit missingness
 indicators, fold-local standardization, fixed regularization, and inverse-logit predictions bounded
@@ -192,6 +245,14 @@ Primary reporting includes target-release-balanced MAE in percentage points, mea
 percentage points, and named-scale calibration intercept/slope. Secondary reporting includes
 patient-volume-weighted MAE, median absolute error, target-release and fixed within-release volume
 strata, missingness/first-observed strata, and program-clustered paired bootstrap intervals.
+
+MAE is mean absolute error, the average size of an error without its sign. Release balancing
+gives each outcome release equal weight after calculating its program-level errors. Volume
+weighting gives larger listing groups greater weight and remains a program-level comparison.
+Mean signed error retains direction, so positive values mean predictions are too high. A paired
+bootstrap repeatedly samples whole programs and compares both models on the same sample,
+retaining repeated rows together. It measures variation among the observed programs, not
+uncertainty about performance in a new period.
 
 The latest target releases and feature combinations were inspected during feasibility work.
 Therefore every current v2 result is retrospective and exploratory, never an independent holdout,
@@ -244,6 +305,18 @@ computed:
   full versus history+access, full versus history+acceptance, and full+safety versus full.
 - `promotion_allowed` is false. No current Ridge result may activate a program-level forecast or
   replace the V1 product.
+
+For reading the fixed contract: median imputation substitutes the training group's middle
+observed value for a missing model input, and standardization uses training means and standard
+deviations to put inputs on comparable scales. Missingness indicators tell the model which
+inputs were unavailable. Ridge limits the size of fitted input weights; its fixed `alpha`
+controls that penalty. An ablation is the specified comparison with an input group added or
+removed. None of these calculations rewrites the published source values.
+
+When an entire training column is missing, the configured empty-feature retention
+(`keep_empty_features=True`) keeps that column and uses zero as a numerical imputation fallback.
+It is an internal modeling value, not a source observation; published missing values and their
+display labels remain missing.
 
 ## 8. Risk adjustment and safety outcomes
 

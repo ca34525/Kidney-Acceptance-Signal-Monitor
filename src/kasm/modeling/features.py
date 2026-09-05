@@ -1,4 +1,9 @@
-"""Prespecified model feature contract and matrix extraction."""
+"""Allow only the V1 input columns fixed before evaluation into the model matrix.
+
+The matrix contains one row per program-year and one column per predictor. Identity,
+location, and future values cannot enter through a new column; missing inputs stay null
+until preprocessing within the training fold.
+"""
 
 from __future__ import annotations
 

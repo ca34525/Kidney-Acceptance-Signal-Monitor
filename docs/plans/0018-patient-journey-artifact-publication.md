@@ -4,6 +4,22 @@
 **Status:** done
 **Started:** 2026-09-04
 
+## Reading this historical record — 2026-09-05
+
+This completed V2 step saved the prepared panel and the evidence needed to check it. The
+manifest lists each file's identity; the QA record retains source-derived history and counts so
+readers can verify meaning as well as bytes. A valid fingerprint alone cannot prove that a row
+uses the right cohort or eligibility rule, so the reader also checks those relationships.
+"Atomic" publication makes the complete group of files available together and protects an
+existing valid group from partial replacement. The build below was a development build from
+uncommitted code and is labeled noncanonical. It contained prepared data only, not fitted models
+or study results; Plan 0019 later records the released analytical bundle.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+Those core-coverage results cover the V1 data, modeling, and reporting directories, not V2.
+Plan 0021 later added V2 to the combined check and enforced its own coverage floor.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

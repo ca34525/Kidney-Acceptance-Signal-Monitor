@@ -1,4 +1,9 @@
-"""Write-once execution of the prespecified 2025 frozen implementation replay."""
+"""Run the fixed V1 comparison on 2025 outcomes and save its canonical result once.
+
+The fit ends at target year 2023; 2024 outcomes remain reserved for band calibration
+when activation was attempted. The already-inspected 2025 outcomes provide descriptive
+product-selection evidence, not a new independent test.
+"""
 
 from __future__ import annotations
 
@@ -172,7 +177,7 @@ class ReleaseDecision:
 
 
 def resolve_release_decision(*, point: PointPromotion, band: BandPromotion) -> ReleaseDecision:
-    """Keep the band gate separate while preventing orphaned ridge-band output."""
+    """Keep the band decision separate, but never show a band for a suppressed Ridge point."""
     not_attempted = "forecast_activation_not_attempted" in point.failed_criteria
     activation_status = (
         "not_attempted"

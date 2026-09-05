@@ -4,6 +4,22 @@
 **Status:** done
 **Started:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This completed V1 step fixed the final evaluation rules before the 2025 replay comparison ran.
+The outcomes had already been inspected during planning, as SPEC.md explains; freezing the
+implementation rules did not create an untouched validation set.
+A residual is prediction minus observed outcome; its absolute size measures error. The proposed
+80% forecast band used the selected ranked error from held-out 2024 programs. It is different
+from SRTR's published credible interval for an observed ratio. Bootstrap comparisons repeatedly
+sample whole programs, keeping the two methods' errors paired. Point promotion and band display
+have separate pass/fail rules; passing one does not pass the other. The final paragraph's blocked
+state is historical: the configuration was then committed at `2a5b524`, and Plan 0010 records
+the authorized replay. This explanation grants no new replay authorization.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

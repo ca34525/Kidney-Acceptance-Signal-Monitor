@@ -1,4 +1,4 @@
-"""Offline verification for immutable source-cache files."""
+"""Check saved source files against approved sizes and SHA-256 fingerprints offline."""
 
 from __future__ import annotations
 
@@ -125,7 +125,11 @@ def _verify_zip(path: Path, source: SourceRecord) -> list[CacheIssue]:
 
 
 def verify_source_file(path: Path, source: SourceRecord) -> tuple[CacheIssue, ...]:
-    """Verify one source at an explicit path against its immutable contract."""
+    """Check one saved report without changing it or accepting a new fingerprint.
+
+    Stop after a size or hash mismatch, before opening an untrusted archive. A ZIP's
+    named workbook must also match its approved size, fingerprint, and file type.
+    """
     if not path.exists():
         return (_issue(source, f"Cached source is missing: {path}."),)
     if not path.is_file():
