@@ -843,3 +843,30 @@ Fresh command evidence, with `UV_CACHE_DIR=.uv-cache` and `MPLCONFIGDIR=.uv-cach
 | `uv run mypy src/kasm` | Passed; 34 source files |
 | `uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80` | Passed; 437 tests, 83.42% combined statement/branch coverage |
 | `uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2` | Passed; 82.43% V2 statement/branch coverage |
+
+### Explain what aggregation preserves — 2026-09-05 UTC
+
+- Follow-up scope: make the censoring section concrete by showing which information an
+  aggregate survival calculation retains and which information Table B7's snapshots omit.
+  This continues the guide clarification under P0a/P3; P3's source-data analysis remains pending.
+- Acceptance: a clearly hypothetical mortality example lists every death and observation
+  ending, reproduces the same unadjusted Kaplan–Meier estimate from aggregate counts, and
+  distinguishes those counts from final known/unknown status totals. State the censoring
+  assumption separately and retain the published functioning-transplant target and denominator.
+- Source: [NIST's Kaplan–Meier explanation](https://www.itl.nist.gov/div898/handbook/apr/section2/apr215.htm),
+  inspected in the preceding discussion, describes the event-time calculation and how censoring
+  changes the number still observed. This teaching example is not an estimate or a scenario for
+  the study's unreported patient outcomes.
+- Documentation-only failing-test exception: no executable behavior changes. Check the example's
+  arithmetic, cited definitions, local links, and final diff; run the required repository checks.
+- Verification complete: all 125 local file links in both changed documents resolve, and
+  `git diff --check` passes. Exact-fraction arithmetic checks reconcile every example row,
+  account for all ten patients, and reproduce the 64% estimate. Source/wording review confirms
+  that exact event counts, status snapshots, and the study's different outcome remain distinct.
+- Reran all six commands in the preceding clarification's verification table with the same
+  writable cache settings: locked sync passed (74 packages); Ruff format/check passed
+  (72 Python files); mypy passed (34 source files); all 437 tests passed with 83.42% combined
+  statement/branch coverage; the separate V2 coverage check passed at 82.43%.
+- Only this plan and the project guide changed. No real-data analysis, output rebuild,
+  app/container rebuild, or frozen replay ran. Original studies, configurations, and outputs
+  remain preserved; P3's investigation and P4's rehearsal are still pending.

@@ -117,25 +117,48 @@ successes or failures, or treat a relationship with missing information as proof
 
 ### Is unknown follow-up the same as censoring?
 
-"Unknown" is a reporting category. Censoring describes incomplete information about an event's
-timing. For a hypothetical mortality study, someone confirmed alive at 12 months with no later
-observation could be censored at 12 months: their record establishes survival through that point,
-while survival to 18 months remains unknown.
+"Unknown" reports that a person's status is unavailable at a specified time. A survival
+calculation uses when events happened and how long people remained under observation. The key
+question is whether a summary preserves that information: aggregate data can support survival
+analysis when the necessary timing and counts remain available.
 
-Standard methods for right-censored survival data do not require knowing each person's reason
-for censoring. They generally assume that, among otherwise comparable people still event-free
-at a given time, those censored then have the same subsequent event risk as those still observed.
-This is called independent censoring. An "unknown" category alone does not establish whether
-that assumption is reasonable. See [Jackson et al. on independent censoring and sensitivity analysis](https://pmc.ncbi.nlm.nih.gov/articles/PMC4282781/).
+Consider a hypothetical mortality study of ten patients enrolled together. The table lists
+every death and end of observation at its exact time, not counts across intervals. A person
+whose observation ends alive is censored then: we know they survived through that time, but
+their later survival is unknown.
 
-For this study, [SRTR's Table B7](https://srtr.hrsa.gov/transplant-professionals/program-specific-report/technical-methods-for-the-program-specific-reports/)
-provides aggregate candidate status at 6, 12, and 18 months after listing. It does not provide
-individual event or last-observed dates, or event and censoring counts over time sufficient to
-reconstruct a survival analysis. These snapshots therefore do not supply the observation
-histories needed to apply standard censoring-adjusted survival methods directly. This is a
-limitation of the published data; it does not demonstrate that independent censoring is false.
-The study predicts the published percentage known alive with a functioning transplant at
-18 months, without estimating unreported outcomes.
+| Month after enrollment | Alive and observed just before | Deaths then | Observation ends alive then |
+|---|---:|---:|---:|
+| 3 | 10 | 2 | 0 |
+| 6 | 8 | 0 | 3 |
+| 12 | 5 | 1 | 0 |
+| 18 | 4 | 0 | 4 (study ends) |
+
+The Kaplan–Meier estimate of survival to 18 months is `(8/10) × (4/5) = 64%`: at month 3,
+eight of ten remain alive after two deaths; at month 12, four of five remain alive after one death.
+The three censored at month 6 leave subsequent observation counts without being counted as
+deaths. These aggregate counts give the same unadjusted survival estimate as the individual
+records. See [NIST's explanation of the calculation](https://www.itl.nist.gov/div898/handbook/apr/section2/apr215.htm).
+
+If we kept only the final totals—four known alive, three known dead, three unknown—we would
+lose the timing needed to reproduce that calculation. Similarly,
+[SRTR's Table B7](https://srtr.hrsa.gov/transplant-professionals/program-specific-report/technical-methods-for-the-program-specific-reports/)
+reports candidate status at 6, 12, and 18 months after listing. It does not provide individual
+event or last-observed dates, or equivalent event and observation counts over time. These
+snapshots do not supply the information needed to apply standard censoring-adjusted survival
+methods directly.
+
+Interpreting the survival estimate also requires appropriate censoring assumptions. Standard
+methods generally assume that, among otherwise comparable people still event-free at a given
+time, those censored then have the same subsequent event risk as those still observed. This is
+called independent censoring; it does not require knowing each person's reason for censoring.
+An "unknown" category alone does not establish whether that assumption is reasonable. See
+[Jackson et al. on independent censoring and sensitivity analysis](https://pmc.ncbi.nlm.nih.gov/articles/PMC4282781/).
+
+Our study predicts the program's published percentage known alive with a functioning transplant
+at 18 months among everyone originally listed. That outcome includes receiving a transplant,
+being alive with it functioning, and having that status documented. It is not simply survival
+among transplant recipients, and this analysis does not estimate unreported outcomes.
 
 ### Whose percentage is the unknown percentage?
 
