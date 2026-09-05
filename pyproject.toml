@@ -16,6 +16,7 @@ dependencies = [
   "scikit-learn>=1.7,<2",
   "streamlit>=1.62,<2",
   "xlrd>=2.0.2,<3",
+  "matplotlib>=3.10,<3.11",
 ]
 
 [project.scripts]

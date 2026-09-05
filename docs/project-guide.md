@@ -1,7 +1,7 @@
 # Understanding the project and the next investigation
 
-This guide explains what the project does, what the original V2 results say, and what we plan to
-investigate next. It is written for the author preparing a 20-minute interview presentation and
+This guide explains what the project does, what the original V2 results and report-count follow-up
+say, and what remains to investigate. It is written for the author preparing a 20-minute interview presentation and
 for readers who want the meaning before the statistical details.
 
 Ordinary language is a project requirement. Precise equations, field names, and methods remain in
@@ -29,16 +29,16 @@ acceptance decision.
 |---|---|---|
 | V1 acceptance monitor | Released; carries the latest ratio forward because Ridge missed a frozen promotion rule | [V1 model card](model_card.md) |
 | Original V2 patient-journey study | Completed exploratory study; no model promoted and no future forecast displayed | [V2 model card](patient_journey_v2_model_card.md) |
-| V2 follow-up | Existing explanations reviewed; analysis still planned for report count and unknown follow-up status | [Plan 0020](plans/0020-v2-follow-up-and-interview-story.md) |
+| V2 follow-up | Report-count diagnosis and fixed revised comparison complete; unknown follow-up investigation remains planned | [Follow-up results](patient_journey_v2_followup_results.md) |
 
 The first pass is complete as of 2026-09-05 UTC. It reviewed existing documentation, including
 older records and code comments/docstrings, and clarified their meaning while retaining the
 original facts and decisions. Plan 0020 contains the per-file record and verification evidence.
-The two investigations below remain planned, and the author's walkthrough and rehearsal remain
-separate work.
+The report-count investigation below is now complete. Outcome components and the author's
+walkthrough and rehearsal remain separate work.
 
-The original V2 results remain available. A later investigation will be labeled separately, with
-its own record of what changed and why. Planning a correction is not evidence that it works.
+The original V2 results remain available. The follow-up has its own specification, configuration,
+results and provenance; it does not overwrite the earlier study.
 
 ## First investigation: is the comparison model being misled by report count?
 
@@ -53,8 +53,9 @@ even when nothing about the program's care changes. It is not the age of the pro
 The outside review found that most training programs had two earlier reports, while most later
 evaluation programs had five. The model learned from counts of one or two and then extended that
 relationship to five. Because it gave report count a positive weight, the larger count pushed its
-later predictions upward. The exact diagnostic still needs a saved reproducible command under
-[Plan 0020](plans/0020-v2-follow-up-and-interview-story.md).
+later predictions upward. The separate follow-up now reproduces this diagnostic and all original
+evaluation predictions exactly; its saved command and evidence are in the
+[follow-up results](patient_journey_v2_followup_results.md).
 
 The original results make this worth investigating:
 
@@ -77,10 +78,13 @@ its upward push. That does not prove acceptance lacks useful information. It giv
 reason to question how much of the apparent gain comes from the original comparison model's
 weakness.
 
-The planned next step is to remove report count from the five model versions in a separate
-follow-up, keep the other choices fixed, and compare again with the simple approaches. The question
-is: **after addressing report count, how much does acceptance information still help?** A smaller
-gain, a larger gain, or no useful gain can each be an informative result.
+The follow-up removed report count from all five model versions and kept the other choices fixed.
+History-only Ridge's average error fell to 7.32 percentage points; history plus acceptance reached
+7.23. Acceptance's added improvement was therefore 0.09 points, with a descriptive interval for
+its error difference of [-0.491, 0.301]. Much of the original 4.14-point gain reflected the
+comparison model's response to report count. This does not prove acceptance lacks information;
+the small observed gain and interval crossing zero leave its value uncertain in this single,
+already-inspected period. All favorable and unfavorable comparisons remain in the results.
 
 ## Second investigation: what is included in the reported patient outcome?
 

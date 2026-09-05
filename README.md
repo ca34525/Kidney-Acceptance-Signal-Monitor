@@ -8,14 +8,16 @@ and a separately evaluated next-calendar-year Program-Specific Report (PSR) proj
 
 > Public aggregate prototype — not clinical or regulatory decision support.
 
-For an ordinary-language explanation of V1, the completed V2 study, and the two planned
+For an ordinary-language explanation of V1, the completed V2 study, and its follow-up
 investigations, start with [Understanding the project](docs/project-guide.md).
 [Plan 0020](docs/plans/0020-v2-follow-up-and-interview-story.md) describes the follow-up and
-20-minute interview presentation. The first pass, P0a, is complete: existing documentation and code
-explanations have been reviewed in ordinary language, with the original facts and executable
-behavior preserved. The next step is a separately specified, reproducible report-count diagnosis
-and fixed model comparison (P1/P2). Those analyses have not started. The original V2 results remain
-available; the commands and four-minute demo below describe the retained V1 product.
+20-minute interview presentation. P0a's explanation pass and P1/P2's separate report-count
+investigation are complete. Removing report count lowers history-only Ridge's average error
+from 11.49 to 7.32 percentage points; acceptance then adds only a 0.09-point improvement on the
+same 218 programs. Read the [follow-up results and reproduction command](docs/patient_journey_v2_followup_results.md)
+for all comparisons and their descriptive uncertainty. Outcome components and the interview
+package remain next. The original V2 results remain available; the commands and four-minute demo
+below describe the retained V1 product.
 
 The fixed evaluation on already-inspected 2025 outcomes did not qualify Ridge for display. Ridge
 is a regression model that limits how strongly it weights its inputs. Its average absolute error

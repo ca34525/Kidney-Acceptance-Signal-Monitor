@@ -2,14 +2,16 @@
 
 **Milestone:** M14 V2 follow-up and 20-minute interview presentation
 
-**Status:** P0a complete; P1/P2 next; analysis and presentation work not started
+**Status:** P0a and P1/P2 complete; P3 next; presentation/rehearsal not started
 
 **Current work order, 2026-09-04 (2026-09-05 UTC):** The user-authorized hardening in
 [Plan 0021](0021-focused-ai-coding-hardening.md) is complete, including local and CI Docker
-verification for commit `5f26ec9`. The next substantial batch, authorized on 2026-09-04
-(2026-09-05 UTC), completed P0a's documentation and code-explanation pass and remains uncommitted.
-Next, record the follow-up specification and typed configuration before the P1/P2 diagnosis and
-fixed revised comparison. The hardening and P0a did not start new analyses.
+verification for commit `5f26ec9`. P0a's documentation and code-explanation pass is complete.
+The current substantial batch completes P1/P2 under a separate specification and typed
+configuration: exact original reconstruction, the report-count diagnosis, and all five fixed
+count-removed comparisons. Changes remain uncommitted. See the
+[follow-up results](../patient_journey_v2_followup_results.md) and execution evidence below.
+Next is P3's source-verified outcome composition; P4 follows after that evidence is ready.
 
 **Started:** 2026-09-04
 
@@ -32,9 +34,9 @@ asks two narrower questions:
 2. How much can we learn by separating living-donor outcomes, deceased-donor outcomes, and unknown
    follow-up status within the published patient-journey outcome?
 
-The initial request authorized the planning and documentation package. The later implementation
-request authorized the P0a pass recorded below. No new model run, changed application behavior,
-or revised analytical release is included in that completed batch.
+The initial request authorized planning and documentation, and the next implementation request
+authorized P0a. The current request authorizes P1/P2, recorded below. Their new exploratory model
+comparisons do not change the application or create a revised tracked release.
 
 ## Read this first
 
@@ -186,7 +188,7 @@ Acceptance evidence:
 
 ### P1 Reproduce the surprising result
 
-**Status:** not started; follows P0a. **Suggested effort:** 1–2 focused hours.
+**Status:** complete, 2026-09-05 UTC; command and review evidence below.
 
 Write the smallest reproducible diagnostic using the original trusted panel and predictions. Save
 its command, input hashes, row-selection rules, and output in the separate follow-up location.
@@ -209,7 +211,7 @@ the calculation rather than hard-coding the real-data scores.
 
 ### P2 Make one defined model change
 
-**Status:** not started. **Suggested effort:** 2–3 focused hours after P1.
+**Status:** complete, 2026-09-05 UTC; all five revisions and 12 fixed contrasts reported.
 
 The planned first change is to remove `historical_target_count` from every Ridge input group in
 the separate follow-up. Keep report count in the descriptive data so its meaning stays visible.
@@ -682,3 +684,127 @@ this pass neither alters their bytes nor claims a new visual audit or author reh
 | [tests/unit/test_replay.py](../../tests/unit/test_replay.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
 | [tests/unit/test_repository_config.py](../../tests/unit/test_repository_config.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
 | [tests/unit/test_ridge.py](../../tests/unit/test_ridge.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+
+### P1/P2 execution — 2026-09-05 UTC
+
+- Starting worktree clean; the current request authorizes the next substantial related batch,
+  using independent review where useful and leaving changes uncommitted.
+- Scope: complete P1/P2 under the new follow-up specification and typed configuration.
+  Decision 0008 authorizes only the ignored local output root. P3/P4 remain later work.
+- Before analytical implementation, recorded the exact five count-removed input groups,
+  original reconstruction tolerance (absolute 1e-10 proportion, zero relative tolerance),
+  contribution definition, paired population, 12 fixed bootstrap contrasts, and write-once
+  output/provenance rules in the separate contract. No revised prediction has run yet.
+- Expected evidence: constructed failing tests for reconstruction tampering, contribution sums,
+  count removal and training-only fitting; malformed input/path and overwrite tests; original
+  release reconstruction followed by one fixed revised comparison, readable report and figures.
+- Original config/release/input hashes are read-only. No V1 frozen replay or original-output
+  rebuild is authorized by this batch.
+- P1's two standalone, offline figures require a plotting library. Add Matplotlib as a direct
+  dependency, verified against its official PyPI project and savefig documentation on 2026-09-05.
+  Review the lock diff for unchanged existing numerical-package versions. Retain the original
+  release's recorded lock identity and identify the new build lock separately; do not rebuild
+  either original bundle merely to update its provenance. The original lock remains available
+  at its recorded source commit. Prediction reconstruction gates numerical compatibility.
+- Report acceptance: one-period population, dates, original listing denominator and units;
+  fixed-order tables of all models/contrasts; unavailable wording when training SD is zero;
+  deterministic standalone SVG/PNG figures. Focused tests check numerical text, missing states,
+  nonpromotion and output determinism without asserting chart pixels.
+
+
+P1/P2 completion evidence:
+
+- Separate contract and Decision 0008 preceded analytical implementation. The typed loader pins
+  all five revised groups, 12 contrasts, reconstruction/contribution tolerances, bootstrap settings
+  and nonpromotion. Original configuration and original feature allowlist are unchanged.
+- Independent review of the contract and numerical code confirmed temporal selection, paired
+  comparisons, training-only preprocessing and logit contribution arithmetic. A final independent
+  review compared every narrative number and identity against the saved evidence and found no
+  actionable issue.
+- Failing-test evidence: the new config, numerical, artifact/CLI and report test files first
+  failed collection because their intended production modules did not exist. Small regressions
+  subsequently failed for the intended behavior: missing original eligibility in included audit
+  rows (`KeyError`), missing lock file (`FileNotFoundError`), uncaught reconstruction failure, and
+  unwrapped report rendering failure. Each now passes without weakening the assertions.
+- Focused results: 31 config tests; 29 numerical tests; 18 artifact/CLI tests; six report tests.
+  Negative cases cover changed/malformed configurations, prediction keys/values and paired targets,
+  count/prohibited-feature injection, missing inputs, protected destinations, symlinked ancestors,
+  unexpected filenames, existing empty/full destinations and simulated publication failures.
+- The real run matched all 1,744 original evaluation predictions exactly before the revisions.
+  Training uses 215 programs; all 13 approaches evaluate the same 218 programs, yielding 2,834
+  comparison predictions. Audit data retain every original panel key and eligibility.
+- Report-count frequencies and the original review bootstrap reproduce. Removing count lowers
+  history-only MAE from 11.488 to 7.320 percentage points. The revised acceptance addition is
+  -0.095 points (challenger minus comparator), descriptive interval [-0.491, 0.301]. Every fixed
+  comparison, including unfavorable ones, is saved. This weakens the original interpretation of
+  a large acceptance gain; it neither disproves acceptance information nor provides a new period
+  of validation. No model is promoted.
+- Both real figures were visually inspected. A formatting-only refinement gives numeric bar
+  labels white backgrounds where the historical-mean line crossed them. This changes no numerical
+  behavior, so visual QA and the existing deterministic-render checks cover it; no pixel test was
+  added. The original run and the separately addressed final run have byte-identical evaluation
+  JSON. No result-guided analytical setting changed.
+- The original dependency lock identity remains in the preserved release and is available at
+  source commit `cdea5c40302de1797d83698566d2ebb51de16938`. The current lock adds Matplotlib 3.10.9
+  and five transitive packages; comparing parsed lock package/version maps showed no changed or
+  removed pre-existing version. Official verification: [PyPI](https://pypi.org/project/matplotlib/)
+  and [Matplotlib savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html).
+  Initial sandbox network access failed; the approved dependency download then succeeded.
+- SHA-256 checks before/after cover 42 existing files across both original configurations,
+  manifests, generated inputs/results, and release roots: all remain byte-identical. Cache
+  verification separately passed all nine source inputs. App/CI/container configuration and
+  original modeling modules were not edited. No source download or frozen replay ran.
+
+Required verification, with `UV_CACHE_DIR=.uv-cache` (and a writable `MPLCONFIGDIR` for figures):
+
+| Command | Result on 2026-09-05 UTC |
+|---|---|
+| `uv sync --frozen` | Passed; 74 packages checked |
+| `uv run ruff format --check .` | Passed; 72 Python files |
+| `uv run ruff check .` | Passed, including configured security rules |
+| `uv run mypy src/kasm` | Passed; 34 source files |
+| `uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80` | Passed; 437 tests, 83.42% combined statement/branch coverage |
+| `uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2` | Passed; 82.43% V2 statement/branch coverage |
+| `uv run kasm data verify-cache` | Passed; nine sources, no issues |
+| `uv run kasm patient-journey follow-up` | Passed offline; final run below |
+| Same follow-up command again | Expected exit 1: run already exists; no overwrite |
+| `uv run streamlit run app/streamlit_app.py --server.headless true --server.port 8504 --browser.gatherUsageStats false` | Started; `/_stcore/health` returned `ok`; temporary process stopped |
+| `docker build -t kidney-acceptance-signal-monitor:v2-followup .` | Passed with locked production dependencies |
+| `docker run --detach --network none --name kasm-v2-followup-smoke-52795f kidney-acceptance-signal-monitor:v2-followup` | Non-root UID 10001; internal health `ok`; Docker health `healthy`, network `none`; temporary container removed |
+
+Docker is outside this session's PATH and its executable requires sandbox escalation. Used the
+existing `%LOCALAPPDATA%/Programs/DockerDesktop/resources/bin/docker.exe` with approved escalation;
+no Docker installation or configuration change was needed. Container verification covers the
+added dependency and unchanged offline product; the subsequent chart-label-only refinement is
+covered by the full Python suite and real rendering verification.
+
+Final ignored run:
+`data/patient_journey_v2_followup/report_count_v1/c6cc2cea133e7e61e9e42ac284f170baef43d9989d3ab04eea543ffb47af1cfa`.
+Its seven payloads total 704,350 bytes, plus the completion manifest. A separate in-memory
+recalculation matched the complete evaluation JSON and all 2,834 prediction values; regenerating
+all five report/figure files matched their bytes. Every payload size/hash in the manifest passed.
+The generated run records the dirty worktree and exact implementation hashes; it is development
+analysis evidence, not a canonical release. The earlier figure-layout run remains separately
+identified at `52795fe6303fed873ed9cce19ba3db0e09ba78020e1b4b03629081360a70543f`.
+
+The numerical audit used the same importable calculation as the CLI without invoking any writer:
+
+```python
+inputs = _load_original_inputs(Path.cwd(), FollowupConfig())
+result = evaluate_followup(inputs.rows, inputs.stored_predictions, inputs.config, FollowupConfig())
+# Compare JSON-normalized result.evidence with evaluation.json;
+# compare patient_journey_prediction_table(result.predictions).to_pylist() with saved Parquet rows;
+# compare each render_followup_report(result.evidence) byte payload and each manifest size/hash.
+```
+
+Original data-build/model/artifact writers were deliberately not rerun because this follow-up
+reads their preserved release. The full suite covers their fixture pipelines and both offline
+application flows. No V1 frozen replay, model promotion, future forecast, tracked analytical
+bundle, commit, push or PR was created. P3 and P4 remain unfinished; interview readiness is not
+claimed by P1/P2 completion.
+
+Final handoff checks: all 153 local links in the seven touched/new documents resolve;
+`git diff --check`, Ruff format/check and strict mypy pass on the final worktree. Temporary
+agent files, application process and smoke container are cleaned up. Both final figures were
+visually verified, and the independent results/narrative review found no actionable issue.
+All intended source/documentation/configuration changes remain unstaged and uncommitted.

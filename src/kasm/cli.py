@@ -22,6 +22,9 @@ from kasm.patient_journey.artifacts import (
     build_cached_patient_journey_artifacts,
 )
 from kasm.patient_journey.config import PatientJourneyConfigError
+from kasm.patient_journey.followup_analysis import FollowupAnalysisError
+from kasm.patient_journey.followup_artifacts import FollowupArtifactError, build_followup
+from kasm.patient_journey.followup_config import FollowupConfigError
 from kasm.patient_journey.ledger import MethodologyLedgerError
 from kasm.patient_journey.model_artifacts import (
     PatientJourneyModelArtifactError,
@@ -61,6 +64,10 @@ def build_parser() -> argparse.ArgumentParser:
     patient_journey_parser = commands.add_parser("patient-journey")
     patient_journey_commands = patient_journey_parser.add_subparsers(
         dest="patient_journey_command", required=True
+    )
+    followup_parser = patient_journey_commands.add_parser("follow-up")
+    followup_parser.add_argument(
+        "--config", type=Path, default=Path("configs/patient_journey_v2_followup/experiment.yaml")
     )
     patient_journey_data_parser = patient_journey_commands.add_parser("data")
     patient_journey_data_commands = patient_journey_data_parser.add_subparsers(
@@ -174,6 +181,19 @@ def _print_command_error(error: Exception) -> int:
 
 
 def _run_patient_journey_command(args: argparse.Namespace) -> int:
+    if args.patient_journey_command == "follow-up":
+        try:
+            output = build_followup(repository_root=Path.cwd(), config_path=args.config)
+        except (
+            FollowupAnalysisError,
+            FollowupArtifactError,
+            FollowupConfigError,
+            PatientJourneyModelError,
+            PatientJourneyArtifactError,
+        ) as exc:
+            return _print_command_error(exc)
+        print(json.dumps({"ok": True, "output_directory": str(output)}, indent=2, sort_keys=True))
+        return 0
     if args.patient_journey_command == "artifacts":
         try:
             release_result = build_patient_journey_release_bundle(

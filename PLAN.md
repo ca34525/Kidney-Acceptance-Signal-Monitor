@@ -2,7 +2,7 @@
 
 **Plan version:** 1.2
 
-**Status:** Original V2 and focused hardening complete; local and CI container verification passed
+**Status:** V2 report-count follow-up complete; outcome-component investigation next
 
 **Original build time box:** Seven full-time days
 
@@ -14,11 +14,13 @@ complete, with both studies' frozen evidence preserved. Docker build, non-root s
 application health now pass locally and in CI for commit `5f26ec9`. The next work is
 [Plan 0020](docs/plans/0020-v2-follow-up-and-interview-story.md). Its existing-documentation and
 code-explanation pass (P0a) is complete as of 2026-09-05 UTC, with the original facts, scientific
-requirements, and executable behavior preserved. Next, give the follow-up its own specification
-and typed configuration, then reproduce the report-count diagnosis and fixed revised comparison
-(P1/P2). Outcome components and the 20-minute interview story follow in P3/P4. The new analyses
-and presentation implementation have not started. This follow-up retains the original V1 and V2
-evidence.
+requirements, and executable behavior preserved. P1/P2 are now also complete under their own
+specification and typed configuration. Original predictions reconstruct exactly; removing report
+count reduces history-only Ridge's average error from 11.49 to 7.32 percentage points, leaving a
+0.09-point gain from acceptance on the same 218 programs. See the
+[follow-up results](docs/patient_journey_v2_followup_results.md) for all comparisons and their
+descriptive limits. Outcome components and the 20-minute interview story remain next in P3/P4.
+Original V1/V2 evidence and application behavior are preserved; current changes remain uncommitted.
 
 Understanding and explaining the project in ordinary language is a top priority, including in
 comments and docstrings. Start with [the project guide](docs/project-guide.md), then use exact
@@ -86,7 +88,7 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 | M11 | V2 temporal design and canonical panel | done | Plan 0017: four non-overlapping pairs, strict-vintage folds, deterministic 966-row in-memory panel, 181 tests, and required quality gates pass |
 | M12 | V2 canonical artifact publication | done | Plan 0018: config-owned processed bundle, source-derived QA evidence, provenance contract, trusted validation, and isolated offline build command; 214 tests pass and the real cache build publishes 966 rows |
 | M13 | V2 exploratory study and optional product | done | Plan 0019: canonical 679 KB bundle built from clean `cdea5c4` and published at `0353f99`; 236-test/83.93% suite, offline V2 flow, V1 isolation, and both remote CI jobs pass; no model promoted |
-| M14 | V2 follow-up and 20-minute interview story | in_progress | Plan 0020: P0a complete with per-file review, unchanged executable ASTs, 353 passing tests, 82.48% combined coverage and 80.44% V2 coverage; P1/P2 next; original evidence retained |
+| M14 | V2 follow-up and 20-minute interview story | in_progress | Plan 0020: P0a and P1/P2 complete; exact original reconstruction, 13 same-program comparisons and 12 contrasts; 437 tests, 83.42% combined/82.43% V2 coverage, offline app/container health; P3/P4 remain |
 
 ## 5. Day-by-day execution
 
