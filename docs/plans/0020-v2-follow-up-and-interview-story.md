@@ -386,3 +386,48 @@ For this documentation request:
 
 Future P0a–P4 command evidence belongs below, with input identities and limitations. The earlier
 conversation is not a substitute for a reproducible calculation.
+
+### AI coding practices recheck — 2026-09-04
+
+The user requested a second check of the project's AI coding practices. This bounded review
+checks whether the written rules are enforced by code, tests, and CI. It does not complete P0a
+or begin P1–P4. Starting revision: `9df76eb`; starting worktree: clean.
+
+Acceptance evidence for this review: inspect the current guidance and relevant boundaries,
+compare the workflow with current official guidance, run the required quality checks, reproduce
+suspected failures with local fixtures, and record actionable findings with their limits in
+the [existing audit](../ai-code-and-context-audit.md#second-review--2026-09-04).
+This change records findings only. The documentation-only failing-test exception applies;
+future behavior fixes require their own failing regression tests before implementation.
+
+Independent reviews covered source/download boundaries, scientific safeguards, and instruction
+consistency. Six open findings remain: missing V2 coverage enforcement; archive processing after
+failed verification; unbounded download size; non-HTTPS redirects; a failing no-activation replay
+path; and V1-specific agent instructions presented as repository-wide rules. The shipped replay
+configuration is unaffected by the no-activation finding. Fixes are not claimed by this review.
+
+Fresh command evidence, with `UV_CACHE_DIR` set to the repository's `.uv-cache`:
+
+| Command | Result |
+|---|---|
+| `uv sync --frozen` | Passed; 68 packages checked |
+| `uv lock --check` and `uv pip check` | Passed; lock agrees and installed dependencies are compatible |
+| `uv run ruff format --check .` and `uv run ruff check .` | Passed; 63 files already formatted |
+| `uv run mypy src/kasm` | Passed; 30 source files |
+| `uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov-branch --cov-fail-under=80` | Passed; 236 tests; 83.93% combined statement/branch coverage for the three V1 directories |
+| `uv run pytest -q --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80` | All 236 tests passed, but the command failed its coverage threshold: V2 measured 76.05% |
+
+The second coverage run used `COVERAGE_FILE=.test-tmp/ai-audit-coverage` to retain the first
+measurement. Combining the two reports' covered and total statement/branch counts gives 79.84%
+for the four core directories; this is calculated from the two runs, not a separate combined run.
+These percentages include branches; they are not branch-only percentages.
+
+No real-data fitting, source refresh, canonical replay, or artifact rebuild ran. Existing tests
+checked both tracked releases and offline application flows. Docker/process builds and live
+dependency-vulnerability or GitHub policy checks were not rerun for this documentation-only audit.
+Original scientific configuration, code, tests, and release outputs remain unchanged.
+
+Final documentation verification: `git diff --check` passed; all 15 local links in the two
+review documents resolve; exactly those two Markdown files changed. Independent review found
+no necessary corrections and confirmed that completed checks, inspected controls, open fixes,
+and the limits of the synthetic reproductions are distinguished. No commit was created.

@@ -78,3 +78,120 @@ release build reproduced content identity
 `1de89083ceebfda9afaf2d6b1c6ba3f1e6d0c1a1da16df9d09d994c4ec3581ad`. The write-once frozen
 replay was not rerun. Detailed command evidence is in
 `docs/plans/0014-ai-code-and-context-hardening.md`.
+
+## Second review — 2026-09-04
+
+**Reviewed revision:** `9df76eb`, after the original V2 study was added.
+**Status:** review complete; the findings below remain open.
+
+The project follows many sound AI coding practices: explicit acceptance criteria, tests before
+implementation, dependency locks, strict type checking, security lint, and checks that prevent
+future information from entering training. These match the emphasis on clear context, durable
+instructions, and verification in [OpenAI's current coding-agent guidance](https://learn.chatgpt.com/guides/best-practices).
+A green test run still leaves gaps. This second review found six issues requiring focused fixes.
+It supplements the earlier audit; the earlier completion record describes the earlier revision.
+
+### 1. Include V2 in the coverage gate (P2)
+
+The test command in [.github/workflows/ci.yml](../.github/workflows/ci.yml) measures only
+`src/kasm/data`, `src/kasm/modeling`, and `src/kasm/reporting` (lines 37–39). The newer
+`src/kasm/patient_journey` package is outside the measurement. Thus CI can remain green while
+new V2 paths receive no tests. The repository-policy test also checks only the three old paths.
+
+Fresh verification passed all 236 tests and measured 83.93% combined statement/branch coverage
+for the V1 directories. Running the same suite with V2 coverage enabled measured **76.05%** and
+failed an 80% threshold. Combining covered and total counts from the two reports gives **79.84%**
+for all four directories. The combined figure is a calculation from those reports, not a third
+test run. The percentages are not branch-only coverage.
+
+Include V2 in CI and the documented commands, then add tests for meaningful missing boundary
+cases rather than lowering the floor. The V2 model-artifact and release modules measured about
+66% and 69%, respectively; start by checking their untested rejection and publication paths.
+
+### 2. Stop processing an archive after failed verification (P2)
+
+[cache.py](../src/kasm/data/cache.py) calls `_verify_zip` at lines 150–151 even after recording
+an outer-file size or SHA-256 mismatch. Inside `_verify_zip`, it also decompresses the requested
+member after detecting a member-size mismatch (lines 94–103). Processing already-rejected
+content exposes the verifier to unnecessary resource use and malformed compression data.
+
+An offline synthetic archive with a wrong pinned hash still reached `ZipExtFile`. A small
+wrong-hash archive with unsupported compression raised `NotImplementedError` instead of
+returning a structured `CacheIssue`. Stop before opening rejected archives and before expanding
+members that fail their size contract; preserve these cases in regression tests. This finding
+does not mean a changed archive was accepted into the trusted cache.
+
+### 3. Enforce the download size while reading (P2)
+
+[download.py](../src/kasm/data/download.py), lines 93–94, reads until the server ends the
+response. It checks the pinned size only after the entire response is written. A changed or
+malfunctioning endpoint can therefore consume disk space far beyond the declared file size.
+The socket timeout does not bound a response that keeps supplying bytes.
+
+An offline response pinned at 16 bytes was allowed to supply 2,097,160 bytes before rejection.
+Limit cumulative bytes during the read, remove the temporary file on overflow, and test that
+reading stops early. The final hash check is still necessary but does not replace this limit.
+
+### 4. Apply the HTTPS rule to redirects (P2)
+
+[download.py](../src/kasm/data/download.py), line 60, uses the default `urlopen` redirect
+behavior. The initial URL is checked, but later redirect destinations are not checked by the
+project. An offline call to the installed Python `HTTPRedirectHandler.redirect_request`
+confirmed that both HTTP and FTP destinations are allowed after an initial HTTPS request.
+This is broader than the HTTPS-only boundary claimed by the nearby security-lint suppression.
+
+Reject a non-HTTPS redirect before contacting its destination and add an offline redirect test.
+Pinned hashes still protect accepted file contents; they do not enforce transport security.
+No live source redirect was observed or requested during this review.
+
+### 5. Exercise the forecast-disabled replay path (P2)
+
+[experiment.py](../src/kasm/modeling/experiment.py), lines 489–498, allows missing band
+calibration when `forecast_activation_attempted=false`. However,
+[replay.py](../src/kasm/modeling/replay.py), lines 313–320, unconditionally requires both
+calibrated residual radii before generating its prediction rows.
+
+A temporary copy of the configuration with activation disabled, no calibration evidence, and
+`candidate_gate_passed=false` loaded successfully. Calling the prediction function with the
+existing four-program synthetic fixture then raised
+`Frozen config must contain a valid ridge absolute-log-residual radius.`
+This breaks the specified replay path when activation was skipped. The shipped configuration
+attempted activation and is unaffected. Cover the skipped branch with a failing test, then omit
+band calculations and evidence when absent; do not invent a zero-width band. The reproduction
+did not execute the canonical replay command or write any analytical result.
+
+### 6. Route agent instructions to the correct study (P2)
+
+[AGENTS.md](../AGENTS.md), lines 50–55, presents the V1 log(OAR) target and calendar-year cohorts
+as repository-wide, non-negotiable rules. Line 87 permits only the V1 release directory.
+The approved [V2 specification](specs/patient-journey-v2.md) instead uses `SAL_TOTFTX_C18`,
+July–June listing cohorts, and a separate release directory. `SPEC.md` correctly identifies
+the version boundary, but the agent instructions and their authority list lack that qualifier.
+
+Explicitly distinguish shared safeguards from V1-specific requirements, and route original V2
+and follow-up work to their respective specifications and configurations. This is an instruction
+clarification, not a change to either study. It belongs in the planned P0a documentation review.
+
+### Verified strengths and limits of this review
+
+- Required checks passed: frozen sync, lock consistency, installed dependency compatibility,
+  Ruff formatting/lint, strict mypy, and the 236-test suite with its current V1 coverage gate.
+- Existing negative tests cover immutable cache publication, changed hashes, program identity,
+  missing values, feature allowlists, temporal separation, and explicit public eligibility.
+- A regression checks that changing 2024 outcomes cannot change the V1 replay prediction fit.
+  V2 validates predictions against trusted processed inputs and prohibits model promotion.
+- CI uses actions pinned to commit SHAs and read-only repository permissions. It defines
+  application and non-root container smoke checks. Those process/container checks were inspected,
+  not executed again in this audit; existing offline AppTests ran with the suite.
+- Independent reviews examined source boundaries, scientific safeguards, and instruction routing.
+  Boundary reproductions used local synthetic inputs. No source refresh, real-data model run,
+  canonical replay, or release rebuild occurred.
+
+Dependency compatibility is not a vulnerability scan. This review did not query live dependency
+advisories or remote branch-protection/secret-scanning settings, and makes no claim about them.
+The previously disclosed V2 report-count shift and limited evaluation history remain analytical
+limitations assigned to Plan 0020, not new code defects discovered here.
+
+Command evidence and the documentation-only test exception are recorded in
+[Plan 0020](plans/0020-v2-follow-up-and-interview-story.md#ai-coding-practices-recheck--2026-09-04).
+This change adds the audit record only; all six remediations remain open.
