@@ -808,3 +808,38 @@ Final handoff checks: all 153 local links in the seven touched/new documents res
 agent files, application process and smoke container are cleaned up. Both final figures were
 visually verified, and the independent results/narrative review found no actionable issue.
 All intended source/documentation/configuration changes remain unstaged and uncommitted.
+
+### Censoring explanation clarification — 2026-09-05 UTC
+
+- User-authorized scope: clarify the project guide's censoring explanation under P0a's
+  ordinary-language requirements and P3's outcome-definition safeguards. This is a wording
+  clarification, not completion of P3's planned analysis.
+- Acceptance: distinguish Table B7's aggregate status snapshots from observation histories;
+  explain that standard censoring methods need not know each person's reason for censoring;
+  separate the missing data needed to fit those methods from the independent-censoring
+  assumption. Preserve the published target, denominator, original results, and unknown outcomes.
+- Evidence sources: [SRTR's Table B7 methods](https://srtr.hrsa.gov/transplant-professionals/program-specific-report/technical-methods-for-the-program-specific-reports/)
+  describe status at 6, 12, and 18 months and the unknown categories;
+  [Jackson et al.'s methodological study](https://pmc.ncbi.nlm.nih.gov/articles/PMC4282781/)
+  describes independent censoring and sensitivity to departures from it. Both were inspected
+  during the discussion preceding this edit.
+- Documentation-only failing-test exception: no executable behavior changes, so no new test
+  asserting prose is warranted. Expected evidence is source/wording review, local-link and
+  diff checks, and the required locked-environment, lint, type, and coverage commands.
+- Completed wording/source review: the guide now states the data limitation explicitly,
+  defines independent censoring, and does not claim that unknown status proves the assumption
+  false. The mortality example is labeled hypothetical and separate from the study target.
+- Verification: all 125 local file links in the two edited documents resolve; `git diff --check`
+  passes. Only the guide and this plan changed. Real-data builds and app/container rebuilds
+  were not run for this documentation change; original study outputs remain preserved.
+
+Fresh command evidence, with `UV_CACHE_DIR=.uv-cache` and `MPLCONFIGDIR=.uv-cache/matplotlib`:
+
+| Command | Result |
+|---|---|
+| `uv sync --frozen` | Passed; 74 packages checked |
+| `uv run ruff format --check .` | Passed; 72 files already formatted |
+| `uv run ruff check .` | Passed |
+| `uv run mypy src/kasm` | Passed; 34 source files |
+| `uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80` | Passed; 437 tests, 83.42% combined statement/branch coverage |
+| `uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2` | Passed; 82.43% V2 statement/branch coverage |
