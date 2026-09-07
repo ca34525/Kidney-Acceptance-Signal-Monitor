@@ -2,8 +2,8 @@
 
 **Milestone:** M14 V2 follow-up and 20-minute interview presentation
 
-**Status:** P0a and P1–P3 complete; Docker verification restored;
-presentation/rehearsal not started
+**Status:** P0a and P1–P3 complete; P4 interview package prepared and verified;
+author walkthrough and timed rehearsal pending
 
 **Current work order, 2026-09-04 (2026-09-05 UTC):** The user-authorized hardening in
 [Plan 0021](0021-focused-ai-coding-hardening.md) is complete, including local and CI Docker
@@ -16,7 +16,9 @@ count-removed comparisons. Changes remain uncommitted. See the
 all 218 original evaluation programs matched and deterministic evidence reproduced. See the
 [component results](../patient_journey_v2_component_results.md). Docker startup was repaired
 later the same day; the image builds and its non-root container passes health checks with
-networking disabled. P3 is complete. P4's interview package follows.
+networking disabled. P3 is complete. The later P4 batch now supplies the
+[interview package](../presentation/v2-followup/README.md). Author walkthrough and timed
+rehearsal remain pending; P4 is not yet complete.
 
 **Started:** 2026-09-04
 
@@ -40,9 +42,9 @@ asks two narrower questions:
    follow-up status within the published patient-journey outcome?
 
 The initial request authorized planning and documentation, and the next implementation request
-authorized P0a. A later request authorized P1/P2; the current request authorizes P3's related
-implementation. Neither the model comparisons nor component description changes the application
-or creates a revised tracked release.
+authorized P0a. Later requests authorized P1/P2 and P3. The next substantial-change request
+authorizes P4 package preparation, leaving it uncommitted. Neither the investigations nor the
+presentation changes the application or creates a revised tracked analytical release.
 
 ## Read this first
 
@@ -304,7 +306,9 @@ P3 execution started, 2026-09-07:
 
 ### P4 Build the explanation and interview package
 
-**Status:** not started. **Suggested effort:** 2–3 focused hours after evidence is ready.
+**Status:** in progress, 2026-09-07. The presentation, sourced case, independent backup and
+rehearsal guide are prepared and verified, left uncommitted. The author's own walkthrough,
+timed rehearsal and presentation-machine checks remain pending acceptance evidence.
 
 Choose one program case for a stated reason, such as a disagreement between acceptance context
 and the later recorded outcome. Label it illustrative, not representative or evidence of impact.
@@ -330,6 +334,29 @@ Acceptance evidence:
   nonpromotion by itself establishes that persistence is clinically safer.
 - The 18-minute story, short demo, and static backup work independently. Update presentation links
   only when the new package exists, keeping the original V2 results accessible.
+
+P4 execution scope, 2026-09-07:
+
+- Prepare a separate editable presentation, an offline HTML backup, a program-case evidence
+  note, and an 18-minute speaking/rehearsal guide with two minutes reserved for questions or
+  delay. Use the selected Simple Light Mode template. Preserve the old V1 package.
+- This is presentation/documentation work over completed evidence. It does not add analytical
+  behavior, model fitting, new comparisons or a tracked analytical release. Authoring source
+  belongs with the documentation; temporary renders stay in ignored
+  `data/patient_journey_v2_followup/p4_build`. This is the documentation-only failing-test
+  exception: verify the rendered artifact, numbers, sources, offline flow and preservation
+  instead of adding tests that assert prose or slide pixels.
+- Select one illustrative case by a disclosed rule: sort original eligible `2205→2505`
+  programs by composite program key, require complete prior/outcome/component evidence,
+  earlier overall OAR above 1 and a lower later published functioning percentage, then use
+  the first match. This editorial rule illustrates differing measures and periods; it is
+  not a new comparison population, a representative sample, or a ranking of care.
+- Expected evidence: independent case extraction and final scientific review, source-bound
+  numeric checks, every slide rendered and inspected, editable chart/table checks, an offline
+  backup with no external dependencies, an exercised original V2 case-selection demo, all six
+  required Python checks and unchanged hashes for both original studies and P1–P3 outputs.
+- Do not declare P4 or interview readiness complete from package creation. Leave explicit
+  spaces for the author's walkthrough, measured speaking time and rehearsal corrections.
 
 ## One branch for the follow-up
 
@@ -1074,3 +1101,95 @@ links across the five updated documents resolve, `git diff --check` passes, and 
 input/result hashes remain unchanged. Independent review found no actionable issue in the
 documentation diff. Only these status/evidence documents changed in this repair turn; they
 remain uncommitted. No analysis writer, model fit or frozen replay ran.
+
+### P4 package preparation and verification — 2026-09-07 UTC
+
+The next substantial batch prepares the interview deliverables under
+`docs/presentation/v2-followup/`, leaving them unstaged and uncommitted. **P4 remains in
+progress:** the author's own-words walkthrough, measured speaking rehearsal and checks in the
+native presentation application on the presentation machine are not yet recorded. The package
+does not establish interview readiness by itself.
+
+Completed related deliverables:
+
+- Editable `interview.pptx`: 15 main slides allocating 18 minutes and two appendix slides.
+  Four native charts have embedded value workbooks; two model-comparison tables remain editable.
+  All 17 slides have speaking notes, source references, package version and claim boundaries.
+- Self-contained `interview-backup.html`: the same story and case, with semantic tables for
+  chart values and expandable notes. It has no scripts, external assets or server dependency.
+- `program-case.md`: the source-bound ALUA:TX1 case. Independent read-only extraction verified
+  the stated selection rule, 61 qualifying programs, composite-key joins, dates, counts and
+  original/preserved follow-up values. The case is illustrative, not representative or causal.
+- `rehearsal-guide.md`: timed allocation, standalone two-minute demo and compressed 90-second
+  version, likely panel questions, own-words prompts and an explicitly pending rehearsal log.
+- `slides.json`, `build.mjs`, package README and `package-provenance.json`: reproducible
+  documentation authoring, source/input hashes, chosen template identity and build context.
+  The eight-file package totals 490,114 bytes. It is a presentation, not an analytical release.
+
+The presentation uses the selected Simple Light Mode reference, preserving its light style,
+Helvetica Neue family and 16:9 canvas. Sample text and evidence objects were replaced in its
+retained layouts. Necessary adaptations fit the source/claim footers and editable evidence.
+The template and original V1 deck, screenshots and rehearsal package remain unchanged.
+
+The documentation-only test-first exception stated above applies. No production or application
+code changed. Artifact checks initially caught missing native-table validation arguments and a
+validation receipt placed in the delivery directory; the authoring script now satisfies both
+requirements. Visual review fixed percentage-label precision and chart-frame overlap with the
+footer. A claim review changed an overly categorical heading to “Unknown-status associations
+leave causes unresolved.” Independent numerical review checked all chart values, all 13 model
+approaches and all six displayed contrast tuples against completed JSON, with no remaining
+scientific or numerical finding. Its two label suggestions were incorporated.
+
+Fresh repository commands used `UV_CACHE_DIR=.uv-cache` and
+`MPLCONFIGDIR=.uv-cache/matplotlib`:
+
+| Command or check | Result |
+|---|---|
+| `uv sync --frozen` | Passed; 74 packages checked, no dependency or lock change |
+| `uv run ruff format --check .` | Passed; 80 Python files |
+| `uv run ruff check .` | Passed, including configured security checks |
+| `uv run mypy src/kasm` | Passed; 39 source files |
+| Required four-root coverage command from `AGENTS.md` | 493 tests passed in 37.22 seconds; 84.08% combined statement/branch coverage |
+| `uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2` | Passed; 83.62% V2 statement/branch coverage |
+| Presentation build command in the package README | Passed with runtime bundle `26.905.11957`, Node `24.19.0` and artifact-tool `2.8.59` |
+| Finalizer | 17 slides, four charts, two tables; package/layout/font-policy/import and chart-workbook checks pass |
+| Fresh presentation reproduction | All 17 rendered PNGs and HTML reproduce byte-for-byte; container IDs/timestamps may differ |
+| Selected-program AppTest with `socket.socket.connect` blocked | ALUA selection, candidate count 548, displayed outcome 17.5%, month-precision origin and original nonpromotion state pass |
+| Existing V2 Streamlit process, loopback port 8504 | Health returned `ok`; browser program-selection and Methods and provenance route verified |
+| HTML browser check | All 17 sections present, no scripts or external assets, no horizontal overflow; case anchor and display verified |
+| Protected evidence comparison | All 72 pre-recorded file hashes unchanged |
+
+The initial scratch AppTest expected the later publication in slash-separated form; the app
+correctly displays exact-day dates as `2025-07-08`. The corrected smoke assertion passed.
+This was a verification-script expectation error, not an application defect. The app rounds
+the selected outcome to one decimal, while the presentation shows two and the case note
+retains source precision. No display code changed.
+
+Final development build: ignored `data/patient_journey_v2_followup/p4_build/final03`.
+Separate reproduction: the sibling `reproduction` directory. Input/output hashes match the
+copied delivery. Final PPTX SHA-256 is
+`0dbefa72281f36c0460c50bcef25e8f17a7facfffaa4feb24caff44f95c51c4e`.
+The preservation snapshot is `p4_build/preservation-before.json`. Source, configuration,
+original output and completed P1–P3 hashes are preserved. Reproduction performs no model fit
+or analytical writer call.
+
+The final build keeps temporary chart-check files inside its ignored output directory. Its
+17 rendered slides and HTML match the separately reproduced content. The six earlier chart
+check directories were removed after their exact contents were verified.
+
+Final handoff checks verified every package input/output hash and all 188 local Markdown links
+across the updated documentation. `node --check docs/presentation/v2-followup/build.mjs` and
+`git diff --check` pass. The two task-created loopback servers and their verification browser
+tabs were closed. The final working tree contains only four updated status/guide documents and
+the eight-file presentation package; all changes remain unstaged and uncommitted.
+
+Every final slide was rendered, with visual checks of content and edited regions. The artifact
+runtime reports an unsupported embedded-font decode for one template font payload; encoded
+font-family checks pass and the renders were reviewed. Native PowerPoint/Google Slides font
+appearance was not tested and remains a presentation-machine check in the rehearsal guide.
+The independent HTML backup uses a system font. No native-app rendering claim is made.
+
+Original data/model/artifact writers, cache rebuilds, Docker rebuilds and the V1 frozen replay
+were not run for this presentation-only batch. Their boundaries did not change; the full suite
+exercises both original offline app flows. No clinical/regulatory/causal claim, model promotion,
+future forecast, new analytical release, commit, push or PR was introduced.

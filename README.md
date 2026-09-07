@@ -20,7 +20,9 @@ for all comparisons and their descriptive uncertainty. P3's separate
 evaluation programs and finds a median 16.05% of listed candidates with post-transplant status
 yet unknown. This is a program median, not a pooled patient percentage or an explanation of
 prediction error. P3 is complete, including local image-build and non-root offline container
-health checks after Docker startup repair. The interview package remains next. The original V2
+health checks after Docker startup repair. The [V2 follow-up interview package](docs/presentation/v2-followup/README.md)
+now includes an editable deck, an independent offline backup, a sourced program case and a
+rehearsal guide. The author's walkthrough and timed rehearsal remain pending. The original V2
 results remain available; the commands and four-minute demo below describe the retained V1 product.
 
 The fixed evaluation on already-inspected 2025 outcomes did not qualify Ridge for display. Ridge

@@ -36,7 +36,9 @@ older records and code comments/docstrings, and clarified their meaning while re
 original facts and decisions. Plan 0020 contains the per-file record and verification evidence.
 The report-count investigation below is complete. The separate outcome-component analysis is
 complete with verified numerical evidence and successful container checks after Docker repair.
-The author's walkthrough and rehearsal remain separate work.
+The [interview package](presentation/v2-followup/README.md) now includes the 18-minute story,
+an illustrative program case and independent offline backup. The author's own-words walkthrough
+and timed rehearsal remain separate, pending work.
 
 The original V2 results remain available. The follow-up has its own specification, configuration,
 results and provenance; it does not overwrite the earlier study.
