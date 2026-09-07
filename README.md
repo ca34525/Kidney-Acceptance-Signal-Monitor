@@ -15,8 +15,13 @@ investigations, start with [Understanding the project](docs/project-guide.md).
 investigation are complete. Removing report count lowers history-only Ridge's average error
 from 11.49 to 7.32 percentage points; acceptance then adds only a 0.09-point improvement on the
 same 218 programs. Read the [follow-up results and reproduction command](docs/patient_journey_v2_followup_results.md)
-for all comparisons and their descriptive uncertainty. Outcome components and the interview
-package remain next. The original V2 results remain available; the commands and four-minute demo
+for all comparisons and their descriptive uncertainty. P3's separate
+[outcome-component analysis](docs/patient_journey_v2_component_results.md) matches all 218
+evaluation programs and finds a median 16.05% of listed candidates with post-transplant status
+yet unknown. This is a program median, not a pooled patient percentage or an explanation of
+prediction error. Local container verification is blocked by Docker startup; the interview
+package remains next after that verification gap. The original V2 results remain available;
+the commands and four-minute demo
 below describe the retained V1 product.
 
 The fixed evaluation on already-inspected 2025 outcomes did not qualify Ridge for display. Ridge

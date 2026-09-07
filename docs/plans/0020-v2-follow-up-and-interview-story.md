@@ -2,7 +2,8 @@
 
 **Milestone:** M14 V2 follow-up and 20-minute interview presentation
 
-**Status:** P0a and P1/P2 complete; P3 next; presentation/rehearsal not started
+**Status:** P0a and P1/P2 complete; P3 implemented with container verification blocked;
+presentation/rehearsal not started
 
 **Current work order, 2026-09-04 (2026-09-05 UTC):** The user-authorized hardening in
 [Plan 0021](0021-focused-ai-coding-hardening.md) is complete, including local and CI Docker
@@ -11,7 +12,10 @@ The current substantial batch completes P1/P2 under a separate specification and
 configuration: exact original reconstruction, the report-count diagnosis, and all five fixed
 count-removed comparisons. Changes remain uncommitted. See the
 [follow-up results](../patient_journey_v2_followup_results.md) and execution evidence below.
-Next is P3's source-verified outcome composition; P4 follows after that evidence is ready.
+**Current update, 2026-09-07:** P3's source-verified outcome composition is implemented, with
+all 218 original evaluation programs matched and deterministic evidence reproduced. See the
+[component results](../patient_journey_v2_component_results.md). Local Docker startup blocks
+container verification, so P3 is not marked complete. P4 follows after this verification gap.
 
 **Started:** 2026-09-04
 
@@ -35,8 +39,9 @@ asks two narrower questions:
    follow-up status within the published patient-journey outcome?
 
 The initial request authorized planning and documentation, and the next implementation request
-authorized P0a. The current request authorizes P1/P2, recorded below. Their new exploratory model
-comparisons do not change the application or create a revised tracked release.
+authorized P0a. A later request authorized P1/P2; the current request authorizes P3's related
+implementation. Neither the model comparisons nor component description changes the application
+or creates a revised tracked release.
 
 ## Read this first
 
@@ -242,7 +247,10 @@ reach original output roots. Keep safety and source-boundary tests required by t
 
 ### P3 Explain the outcome and its unknown part
 
-**Status:** not started. **Suggested effort:** 2–3 focused hours; source reconciliation may vary.
+**Status:** in progress, 2026-09-07. Scope is the original evaluation release 2505;
+the separate component specification and Decision 0009 govern this batch. Implementation,
+source/numerical evidence and Python/app verification are complete; local Docker startup
+blocks the container check. Keep P3 open until that verification gap is resolved.
 
 First verify the machine fields and definitions for each intended source release. Candidate fields
 identified during review are `SAL_CTXFNC_C18`, `SAL_LTXFNC_C18`, `SAL_CTXUNK_C18`, and
@@ -273,6 +281,25 @@ or mismatched program/cohort joins fail; target-period components are rejected a
 
 Any numerical scenarios for unknown outcomes require their own explicit assumptions and reporting
 rule in the follow-up specification before calculation. They are not part of the initial comparison.
+
+P3 execution started, 2026-09-07:
+
+- The current user request authorizes the next substantial related changes, uncommitted, with
+  independent research/review where useful. Starting worktree is clean.
+- Read mandatory and applicable contracts. Saved SHA-256 identities for 43 protected files
+  (original configurations, generated inputs/results and releases, plus the P1/P2 configuration)
+  at ignored `data/patient_journey_v2_followup/p3_preservation_before.json`.
+- Independent research verifies release 2505 machine fields and official SRTR definitions.
+  Before calculating results, fixed the one-release scope, four donor components, PDF-precision
+  rounding check, program medians, and all eight original-model error associations in the new
+  specification and typed configuration. No model fitting or report-count rerun belongs here.
+- Expected evidence: failing constructed tests for preserved numeric strings/nulls, source
+  schema/label drift, rounding boundaries, disjoint sums, cohort/count/target join agreement,
+  missing/unmatched audit, prediction integrity, feature exclusion and protected write-once
+  publication. Then a complete offline build, deterministic payload reproduction, source/figure
+  review, required quality checks and unchanged protected hashes.
+- Documentation-only source explanations/specification/decision updates are exempt from a
+  failing prose test. No new dependency is required; use existing Matplotlib for the figure.
 
 ### P4 Build the explanation and interview package
 
@@ -870,3 +897,118 @@ Fresh command evidence, with `UV_CACHE_DIR=.uv-cache` and `MPLCONFIGDIR=.uv-cach
 - Only this plan and the project guide changed. No real-data analysis, output rebuild,
   app/container rebuild, or frozen replay ran. Original studies, configurations, and outputs
   remain preserved; P3's investigation and P4's rehearsal are still pending.
+
+### P3 implementation and verification — 2026-09-07
+
+The user-authorized substantial batch implements the separate outcome-component specification,
+typed configuration and Decision 0009, leaving all changes uncommitted. P3's numerical/source
+requirements are satisfied. Its final status remains open because local Docker verification
+could not run successfully; do not describe this as a fully verified completion or interview
+readiness. P4's case, presentation, author walkthrough and rehearsal remain subsequent work.
+
+Source and scientific evidence:
+
+- Independent research inspected the verified 2505 archive/member in memory and official SRTR
+  Table B7 definitions. The separate component ledger records all six fields, their exact
+  descriptions, original listing denominator, 18-month timing, numeric-string handling and
+  one-decimal PDF precision. It distinguishes observed absence of missing markers from the
+  parser's explicitly declared defensive null/suppression rules. Only release 2505 is included.
+- The fixed scope, source ledger, configuration and specification preceded analytical output.
+  Reused original input validation, workbook verification, identity/field/date parsing and
+  deterministic figure export. Original contracts and feature allowlists remain unchanged.
+- All 234 source records parse; 222 have at least ten listed candidates. All 218 original
+  evaluation programs match with no missing donor components. The original 236-row prediction
+  universe retains 18 exclusions: 11 below the candidate minimum, six missing targets and one
+  missing earlier target. Four source-only and six panel-only programs are recorded separately.
+- All 234 functioning-donor sums reconcile at the specified PDF precision. The largest absolute
+  raw workbook difference is about `1.0e-9` percentage points. No published total was replaced.
+- Median combined post-transplant unknown is 16.05% for the 218 matched programs, versus 16.27%
+  for the broader 222-program source group. These are per-program medians. All eight original
+  models' signed/absolute error associations, and the observed-outcome association, are saved
+  in fixed order. The report explains shared denominators and the algebraic use of the outcome
+  in signed error; it makes no reporting-cause claim or inference about unknown patient outcomes.
+
+Test-first and independent-review evidence:
+
+- The source/config, analysis, and artifact/report/CLI test modules first failed collection
+  because the intended production modules did not exist. Implementation then passed their
+  constructed arithmetic, matching, null, source-drift and isolated-publication expectations.
+- Independent source/numerical review found a missing-component bypass: 60% and 40% functioning
+  plus 5% deceased-donor unknown and a missing living-donor unknown were accepted. The smallest
+  regression first failed with `DID NOT RAISE`; checking the lower rounding bounds of all
+  reported components now rejects it while incomplete donor-pair sums stay null.
+- An all-missing-component figure first failed with a `TypeError` from the empty numeric range.
+  Its regression now passes and the figure displays `Not reported`, without drawing a zero value.
+- The 56 added tests also cover numeric strings, malformed/boolean/nonfinite percentages,
+  exact PDF rounding endpoints, duplicate/overlapping/mixed-denominator or mixed-time sums,
+  wrong source labels/dimensions, duplicate/mismatched keys/cohorts/counts/targets, explicit
+  original eligibility, stored-prediction tampering, unavailable correlations, missing/unmatched
+  audit, deterministic order/rendering, component exclusion in both model contracts, bad cached
+  source bytes, missing contracts, protected/traversing/link destinations, unsafe file sets,
+  existing empty/full destinations and failed/changed-during-build publication. Additional
+  boundary coverage reused existing validation without introducing a new behavior or workaround.
+- Independent final review checked source/input/provenance and writer boundaries, inspected the
+  figure, and verified every payload hash/size, median and fixed error correlation. A separate
+  pass checked the tracked results and all status updates against the saved evidence. No
+  actionable issue remained after the missing-component regression was fixed.
+
+Final verification used `UV_CACHE_DIR=.uv-cache` and `MPLCONFIGDIR=.uv-cache/matplotlib`:
+
+| Command or check | Result |
+|---|---|
+| `uv sync --frozen` | Passed; 74 packages checked; no dependency or lock change |
+| `uv run ruff format --check .` | Passed; 80 Python files |
+| `uv run ruff check .` | Passed, including configured security checks |
+| `uv run mypy src/kasm` | Passed; 39 source files |
+| `uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80` | Passed; 493 tests, 84.08% combined statement/branch coverage |
+| `uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2` | Passed; 83.62% V2 statement/branch coverage |
+| `uv run kasm data verify-cache` | Passed; all nine pinned sources, no issues |
+| `uv run kasm patient-journey outcome-components` | Passed offline; complete ignored run below |
+| Repeat component command | Expected exit 1: existing run cannot be overwritten |
+| Separate read/calculate/render audit | All five payloads reproduced byte-for-byte; all manifest sizes/hashes agree |
+| `uv run streamlit run app/streamlit_app.py --server.headless true --server.port 8504 --browser.gatherUsageStats false` (via the same Python module entry point) | `/_stcore/health` returned `ok`; temporary hidden process stopped |
+| Docker build with installed `%LOCALAPPDATA%/Programs/DockerDesktop/resources/bin/docker.exe` | Blocked: Linux engine pipe absent; see environment evidence below |
+| Local links and `git diff --check` | Passed; 162 local links across the eight touched/new documents |
+| Protected input/result SHA-256 comparison | All 43 recorded files unchanged |
+
+The reviewed ignored run is
+`data/patient_journey_v2_followup/outcome_components_v1/e95ab9db56aad000f6a296c33fb4ad981a57b39f70ba2a6a0adb4b3fe388171b`.
+Its five payloads total 1,055,740 bytes, plus the completion manifest. The manifest records the
+dirty worktree, exact implementation/input/configuration/ledger/specification/lock hashes, UTC
+build time, timing and no-fitted-model state. See the [results](../patient_journey_v2_component_results.md)
+for identities and the reproduction command. These are development outputs, not a new release.
+
+The separate reproduction audit used the same importable calculation without invoking a writer:
+
+```python
+original, records, metadata = read_component_inputs(root, root / DEFAULT_CONFIG)
+evidence = analyze_components(
+    records, original.rows, original.stored_predictions,
+    load_component_config(root / DEFAULT_CONFIG),
+)
+files = render_component_report(evidence) | {
+    "analysis.json": _json_bytes(evidence),
+    "components.json": component_payloads(records),
+}
+# Compare every payload byte, size and SHA-256 with the completed run;
+# rehash each entry in p3_preservation_before.json and require no change.
+```
+
+Local container verification remains blocked by an environment failure. The installed Docker
+executable first needed approved sandbox escalation, then reported the absent
+`dockerDesktopLinuxEngine` pipe. `docker desktop start --detach` reported starting, but Docker
+quit before the engine became available. The backend log identified failure to access/rename
+`%LOCALAPPDATA%/Docker/run/sailor-ingest.sock` and its `.stale` endpoint. With no active Docker
+processes, both were verified as zero-byte reparse-point runtime endpoints. An approved,
+nonrecursive `Remove-Item -LiteralPath` attempt failed with "The file cannot be accessed by the
+system" for both; despite the shell script's subsequent success text, **neither removal
+succeeded**. A read-only reparse query also returned error 1920. No image build or container
+health result is claimed. No Docker images, containers, settings or project files were removed.
+Repair of the host's inaccessible Docker runtime endpoints is outside this analytical batch;
+rerun the build and non-root/offline health check once the engine can start.
+
+Original data-build/model/artifact writers and the V1 frozen replay were not run: the follow-up
+reads the preserved release, and its writer cannot reach original or P1/P2 roots. The full suite
+covers their fixture pipelines and both offline app flows. No raw data, generated analytical
+bundle, serialized model, source checksum change, commit, push, PR, promotion or future forecast
+was created. All intended repository changes remain unstaged and uncommitted.

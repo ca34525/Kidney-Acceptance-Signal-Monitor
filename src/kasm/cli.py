@@ -21,6 +21,8 @@ from kasm.patient_journey.artifacts import (
     PatientJourneyArtifactError,
     build_cached_patient_journey_artifacts,
 )
+from kasm.patient_journey.component_artifacts import build_components
+from kasm.patient_journey.component_config import ComponentError
 from kasm.patient_journey.config import PatientJourneyConfigError
 from kasm.patient_journey.followup_analysis import FollowupAnalysisError
 from kasm.patient_journey.followup_artifacts import FollowupArtifactError, build_followup
@@ -68,6 +70,12 @@ def build_parser() -> argparse.ArgumentParser:
     followup_parser = patient_journey_commands.add_parser("follow-up")
     followup_parser.add_argument(
         "--config", type=Path, default=Path("configs/patient_journey_v2_followup/experiment.yaml")
+    )
+    component_parser = patient_journey_commands.add_parser("outcome-components")
+    component_parser.add_argument(
+        "--config",
+        type=Path,
+        default=Path("configs/patient_journey_v2_followup/outcome_components.yaml"),
     )
     patient_journey_data_parser = patient_journey_commands.add_parser("data")
     patient_journey_data_commands = patient_journey_data_parser.add_subparsers(
@@ -181,6 +189,13 @@ def _print_command_error(error: Exception) -> int:
 
 
 def _run_patient_journey_command(args: argparse.Namespace) -> int:
+    if args.patient_journey_command == "outcome-components":
+        try:
+            output = build_components(repository_root=Path.cwd(), config_path=args.config)
+        except ComponentError as exc:
+            return _print_command_error(exc)
+        print(json.dumps({"ok": True, "output_directory": str(output)}, indent=2, sort_keys=True))
+        return 0
     if args.patient_journey_command == "follow-up":
         try:
             output = build_followup(repository_root=Path.cwd(), config_path=args.config)

@@ -29,13 +29,14 @@ acceptance decision.
 |---|---|---|
 | V1 acceptance monitor | Released; carries the latest ratio forward because Ridge missed a frozen promotion rule | [V1 model card](model_card.md) |
 | Original V2 patient-journey study | Completed exploratory study; no model promoted and no future forecast displayed | [V2 model card](patient_journey_v2_model_card.md) |
-| V2 follow-up | Report-count diagnosis and fixed revised comparison complete; unknown follow-up investigation remains planned | [Follow-up results](patient_journey_v2_followup_results.md) |
+| V2 follow-up | Report-count comparison and matched outcome-component analysis implemented; local container verification remains blocked | [Report-count results](patient_journey_v2_followup_results.md), [component results](patient_journey_v2_component_results.md) |
 
 The first pass is complete as of 2026-09-05 UTC. It reviewed existing documentation, including
 older records and code comments/docstrings, and clarified their meaning while retaining the
 original facts and decisions. Plan 0020 contains the per-file record and verification evidence.
-The report-count investigation below is now complete. Outcome components and the author's
-walkthrough and rehearsal remain separate work.
+The report-count investigation below is complete. The separate outcome-component analysis is
+implemented with verified numerical evidence; local Docker startup blocks its container check.
+The author's walkthrough and rehearsal remain separate work.
 
 The original V2 results remain available. The follow-up has its own specification, configuration,
 results and provenance; it does not overwrite the earlier study.
@@ -110,10 +111,18 @@ An outcome recorded this way can differ because patients' actual outcomes differ
 follow-up reporting differs, or both. Separating living and deceased donation is also useful:
 the kidney-offer acceptance measures concern deceased-donor offers, while the target includes both.
 
-The planned work will separate compatible published outcome categories, show unknown status
-explicitly, and compare reporting completeness with prediction errors for the same program and
-listing group. It will preserve the published target. It will not fill in unknown outcomes as
-successes or failures, or treat a relationship with missing information as proof of its cause.
+The [completed numerical description](patient_journey_v2_component_results.md) matches all 218
+original evaluation programs in the July 2025 report. Their median combined post-transplant
+unknown percentage is 16.05% of the original listing group. The earlier 16.27% review figure
+describes a broader set of 222 source programs with at least ten listed candidates. These are
+program medians, not pooled patient percentages. The four donor components are shown separately
+because they omit other statuses and their medians cannot be added.
+
+All original models' signed and absolute errors are compared with unknown status on those same
+218 programs. The published target remains unchanged. These associations cannot show that
+reporting caused an error: functioning and unknown percentages share a denominator and mutually
+exclusive statuses, and signed error contains the observed outcome in its calculation. Unknown
+patient outcomes remain unknown.
 
 ### Is unknown follow-up the same as censoring?
 
