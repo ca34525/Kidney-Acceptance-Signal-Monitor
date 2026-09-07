@@ -1,153 +1,88 @@
-# Data walkthrough slides
+# Project walkthrough
 
-[Open the six-slide presentation](data-walkthrough.pptx).
+[Open the complete PowerPoint](data-walkthrough.pptx): **18 main slides and six optional reference
+slides**, with editable charts/tables and speaking notes. This pass has no time limit. The first
+six slides preserve the author's approved data, QA and V1 sequence.
 
-These slides begin the author's data walkthrough. The questions asked during that walkthrough
-will determine the eventual presentation structure. The earlier complete
-[V2 follow-up deck](../v2-followup/interview.pptx) supplies the visual reference.
-All walkthrough changes remain uncommitted until the author finishes the complete slideshow
-and walkthrough pass.
+## Principles inferred from the author's walkthrough
 
-1. **SRTR and the source data** introduces the publisher, public Excel program summaries,
-   selected releases, measurement periods, publication dates and program identity.
-2. **A small sample of the kidney workbook** makes the row grain and the outcome denominator
-   concrete. The table shows four columns from three real records in July 2025 Table B7.
-3. **Data quality and reproducibility** explains file identity, structural contracts, record
-   checks, study timing and the records needed to reproduce an analysis. It distinguishes these
-   safeguards from evidence that the source values or scientific design are correct.
-4. **The workbook tables contain different programs** shows the first three program records in
-   both July 2025 source tables. Row 4 refers to ALUA:TX1 in Table B7 and VANG:TX1 in the acceptance
-   table. ALUA:TX1 appears on row 74 of the acceptance table. Matching code and type avoids a
-   hypothetical positional-join error.
-5. **SRTR's offer-acceptance ratio** explains the formula, expected acceptances, the +2 adjustment,
-   a hypothetical calculation, the credible interval and the limits of interpretation.
-6. **V1 methodology** covers the prediction target, simple comparisons and Ridge, time separation,
-   training-only preprocessing and the frozen decision to retain persistence.
+1. Show actual data before the machinery: one row, identifiers, dates, denominator and units.
+2. Let natural questions drive the order, including why simpler approaches are insufficient.
+3. Pair an overview with a concrete row, calculation, chart, result or app demonstration.
+4. Keep useful math explainable in ordinary language; label hypothetical examples clearly.
+5. Judge models against simple alternatives and the rules fixed for their study.
+6. Reuse ALUA to connect the workbook, app and outcome discussion, without treating it as
+   representative or as evidence of clinical quality.
+7. Distinguish original findings, later investigation, uncertain conclusions and proposed work.
+   Put optional detail in notes and appendices; focus the spoken story on meaning.
 
-The example uses the first three program records in source order, which are also the first three
-in composite-key order. They provide readable examples with different listing counts. Selection
-does not depend on outcome size or model error. This is a schema illustration, with no claim of
-representativeness or ranking. The columns are `CTR_CD`, `CTR_TY`, `SAL_N_C` and
-`SAL_TOTFTX_C18`. Plain-language headings accompany the machine names. Only percentage display
-precision changes: values round directly to two decimal places. The full source has 234 program
-rows and 139 columns, excluding the two header rows.
+## Walkthrough order
 
-One row describes one kidney program's July 1, 2022–June 30, 2023 listing group. The published
-outcome is the percentage known alive with a functioning transplant 18 months after listing,
-including living and deceased donation. Everyone in the original listing group contributes to
-the denominator, including people who never receive a transplant. The July 8, 2025 publication
-date is separate from those listing dates. These are published summaries without official risk
-adjustment of this percentage. Unknown outcomes remain unknown.
+| Slides | Question answered |
+|---|---|
+| 1-2 | Where do the data come from, and what does a source record mean? |
+| 3-4 | What do the checks before modeling protect against? |
+| 5-6 | What does OAR mean, and how did V1 compare projections? |
+| 7 | What can someone learn from the V1 app? |
+| 8-11 | What does V2 ask, count and compare, and what was public when? |
+| 12-14 | Why was the initial result attractive, and what changed after investigation? |
+| 15-16 | What does known functioning mean for interpreting the outcome? |
+| 17-18 | How is evidence delivered, what was established, and what comes next? |
+| 19-24 | CSVs, transforms/Ridge, V1 rules, all V2 errors, cohorts and unknown follow-up |
 
-The fourth slide is a source-record matching example. Table B7 contains 234 programs and the
-offer-acceptance table contains 230, with 229 shared identifiers, five outcome-only identifiers
-and one acceptance-only identifier. A difference of four in row counts does not mean four
-unmatched records. The acceptance table describes calendar 2024 offers, whereas Table B7 describes
-July 2022–June 2023 listings. Those same-release acceptance values are not eligible predictors for
-that earlier V2 listing group. Identity matching and date eligibility are separate requirements.
+The workbook example shows four named columns from July 2025 Table B7, Excel rows 3-5 after its
+two header rows. It is a schema illustration. The QA example compares source-order program keys
+across two sheets; their different measurement periods prevent interpreting it as a valid
+predictor/outcome join. Source definitions and selection rationale remain in the speaking notes.
 
-## Suggested V1 app demonstration
+## V1 app demonstration
 
-Select **University of Alabama Hospital (ALUA) — Birmingham, AL** on **Program monitor**.
-This is an illustrative teaching case chosen for its changing history and donor-group contrast.
-It connects to the program already used in the source slides.
+Run `uv run streamlit run app/streamlit_app.py` from the repository root. On **Program monitor**,
+select **University of Alabama Hospital (ALUA) — Birmingham, AL**.
+Slide 7 provides a static history chart if the app is unavailable.
 
-- Show overall OAR moving from 0.74 in 2017 to 2.00 in 2021, then 0.81 in 2023 and 1.11 in 2025.
-  The latest SRTR 95% credible interval is 0.95–1.28, which includes 1.
-- Scroll to the donor-stratum history and latest detail. In 2025, high-KDRI OAR is 0.41
-  (0.15–0.81) and hard-to-place OAR is 0.16 (0.03–0.39). The overall figure does not capture
-  every donor-group pattern. Hard-to-place overlaps KDRI groups, so these groups cannot be summed.
-- Show **Next-calendar-year PSR projection**. Persistence carries 1.11 into calendar 2026.
-  The prediction origin is July 7, 2026, with 51.5% of that year elapsed. It is a delayed-report
-  nowcast; the app does not display the Ridge forecast band.
-- Open **Model evaluation and methodology** to connect the displayed persistence value to the
-  fixed bias rule. The model decision uses all evaluation programs, not this selected case alone.
+1. Show overall OAR: 0.74 in 2017, 2.00 in 2021, 0.81 in 2023 and 1.11 in 2025.
+   Inspect SRTR's credible intervals. The latest 95% interval, 0.95-1.28, includes 1.
+2. Show donor-stratum history and latest detail. High-KDRI OAR is 0.41 (0.15-0.81), while
+   hard-to-place OAR is 0.16 (0.03-0.39). Hard-to-place overlaps KDRI groups; they cannot be summed.
+3. Show **Next-calendar-year PSR projection**. Persistence carries 1.11 into calendar 2026.
+   The origin is July 7, 2026, with 51.5% of the year elapsed: a delayed-report nowcast.
+4. Open **Model evaluation and methodology**. The fixed bias rule explains why the app retains
+   persistence and suppresses the Ridge band. The decision uses the full evaluation population.
 
-These values come from the trusted V1 release through the same helpers used by the app.
-The example cannot establish why the signal changed or whether a program's care improved.
+ALUA is illustrative; it cannot explain why the signal changed or diagnose care. V2 slides compare
+all models on the same 218 programs. The original V2 app's baseline summaries span more periods
+and should not be compared directly with its one-period Ridge results. The later follow-up does
+not replace the original app's evidence.
 
-## Source and authoring record
+## Sources and reproduction
 
-- [Slide text, full-precision excerpt and speaking notes](slides.json)
-- [Presentation builder](build.mjs)
-- [Package provenance](package-provenance.json)
-- [SRTR download page](https://srtr.hrsa.gov/transplant-professionals/program-specific-report/program-specific-reports-psr/)
-- [Original source archive](https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2505all.zip)
-- [Source manifest](../../../configs/data_sources.yaml) and
-  [release-specific methods](../../../configs/patient_journey_v2/methodology.yaml)
+[Slide text and speaking notes](slides.json) contain supporting source paths and URLs.
+[The builder](build.mjs) uses the earlier [V2 deck](../v2-followup/interview.pptx) as its visual
+reference. [Package provenance](package-provenance.json) is generated with the deck. This is a
+documentation build; it fits no models and changes no analytical release bundles.
 
-The source member is `csrs_final_tables_2505_KI.xls`, sheet `Table B7`, Excel rows 3–5.
-Archive SHA-256 is `359723874d5cdc2acaae98e0ebd3385f4a7d2f4dcc255e4dba90dba2a6036b8b`.
-Workbook SHA-256 is `032584a0a1fe3df70c1f4cc9806f9a2756f8d378795534dae38a47d441422ac5`.
-The source reader verified the cached archive and member before extraction. The existing component
-parser also validated all 234 records and reconciled program identity with the same-release
-directory. The date and field definitions follow the original V2 methodology ledger.
-
-This is a small attributed documentation excerpt. It creates no analytical release, model,
-comparison or change to the application. The authoring code uses the supplied desktop artifact
-runtime, without adding a Python dependency or modifying `uv.lock`.
-
-## Reproduce the slides
-
-Run from the repository root with the supplied runtime. Choose a fresh build name. The builder
-refuses an existing build directory and does not overwrite the checked-in deck or its reference.
+Run with the supplied desktop runtime and a fresh build directory name:
 
 ```powershell
 $env:RUNTIME_NODE_MODULES = 'C:/Users/chris/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules'
 $env:RUNTIME_PYTHON = 'C:/Users/chris/.cache/codex-runtimes/codex-primary-runtime/dependencies/python/python.exe'
 $env:PRESENTATIONS_SKILL_DIR = 'C:/Users/chris/.codex/plugins/cache/openai-primary-runtime/presentations/26.905.11957/skills/presentations'
-$env:DATA_SLIDES_BUILD_NAME = 'data-slides-reproduction'
+$env:DATA_SLIDES_BUILD_NAME = 'complete-walkthrough-reproduction'
 & 'C:/Users/chris/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe' docs/presentation/data-walkthrough/build.mjs
 ```
 
-Outputs appear under ignored `data/patient_journey_v2_followup/p4_build/<build-name>/`.
-The `delivery` subdirectory contains the editable PowerPoint and provenance. The build directory
-also contains the six rendered slides and a private validation receipt. The builder reads only
-the attributed slide copy and existing presentation reference. It does not require the raw cache
-or network. PPTX metadata and generated object IDs can vary between builds.
+Outputs appear in ignored `data/patient_journey_v2_followup/p4_build/<build-name>/`: `delivery`
+contains the PowerPoint and provenance, with slide PNGs and validation outside it. The builder
+refuses an existing directory and does not overwrite the checked-in deck. PPTX metadata and
+object IDs may vary between builds; displayed content is reproducible.
 
-To recheck both excerpts against the immutable local cache, use the project environment:
+All 24 final slides are rendered and inspected. Content, editable evidence, package structure,
+layout and the six required repository checks pass. The artifact renderer emits the inherited
+Helvetica Neue embedded-font decode warning; rendered text remains legible. Native PowerPoint
+rendering and fonts still need checking on the presentation machine during the author's rehearsal.
 
-```powershell
-@'
-import json
-from pathlib import Path
-from kasm.config import load_data_source_manifest
-from kasm.data.parse import load_workbook_payload, read_workbook_sheets
-
-manifest = load_data_source_manifest(Path("configs/data_sources.yaml"))
-source = next(s for s in manifest.sources if s.release_code == "2505")
-payload = load_workbook_payload(source, Path("data/raw/srtr"))
-sheets = read_workbook_sheets(payload)
-sheet = next(s for s in sheets if s.name == "Table B7")
-content = json.loads(Path("docs/presentation/data-walkthrough/slides.json").read_text())
-example = content["slides"][1]
-header = list(sheet.rows[0])
-actual = [[row[header.index(field)] for field in example["fields"]]
-          for row in sheet.rows[2:5]]
-assert actual == example["rows"], "The editorial excerpt differs from the verified source"
-print("All 12 displayed source cells match the verified workbook.")
-acceptance = next(s for s in sheets if s.name == source.sheet_name)
-def keys(table):
-    fields = list(table.rows[0])
-    return [f'{row[fields.index("CTR_CD")]}:{row[fields.index("CTR_TY")]}'
-            for row in table.rows[2:]]
-b7_keys, b11_keys = keys(sheet), keys(acceptance)
-actual_pairs = [[n + 3, b7_keys[n], b11_keys[n]] for n in range(3)]
-assert actual_pairs == content["slides"][3]["rows"]
-assert (len(b7_keys), len(b11_keys)) == (234, 230)
-assert (len(set(b7_keys) & set(b11_keys)),
-        len(set(b7_keys) - set(b11_keys)),
-        len(set(b11_keys) - set(b7_keys))) == (229, 5, 1)
-assert (b7_keys.index("ALUA:TX1") + 3, b11_keys.index("ALUA:TX1") + 3) == (4, 74)
-print("All displayed row identities, counts and the correct ALUA match are verified.")
-'@ | uv run python -
-```
-
-All six final slides were rendered and inspected, and the editable tables, native bullets, layout,
-package structure and source values passed checks. Native PowerPoint rendering has not been
-inspected. The inherited Helvetica Neue font triggers the same embedded-font decode warning
-as the earlier deck in the artifact renderer; its rendered text remains legible. Check fonts on
-the presentation machine during rehearsal. The author's walkthrough and rehearsal remain pending.
+The author's complete walkthrough remains pending. These completion changes stay uncommitted;
+the author will decide when to make the single eventual presentation commit.
 
 Public aggregate research prototype. Not clinical or regulatory decision support.

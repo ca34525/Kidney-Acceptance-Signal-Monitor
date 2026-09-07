@@ -26,6 +26,30 @@ rehearsal remain pending; P4 is not yet complete.
 
 ### User-led data walkthrough — 2026-09-07
 
+**Complete deck, authorized 2026-09-07:** Finish the presentation using the author's established
+pattern: source data first, ordinary-language questions, overview followed by concrete evidence,
+simple alternatives, and explicit limits on conclusions. The author has removed the time limit
+for this pass. Preserve the first six slides and add the live-app bridge, original V2 study,
+report-count follow-up, outcome-composition example, delivery explanation and conclusions.
+Put optional technical answers in appendices. Keep notes brief and sources available without a
+provenance-heavy presentation. Acceptance requires accurate existing results, editable evidence,
+all final slides rendered and inspected, reproducible authoring and the six required repository
+checks. This remains documentation-only: no new analysis, application changes or failing test for
+slide wording. Author review/rehearsal and authorization for the single eventual commit remain
+pending. No staging, commit or push is authorized.
+
+Complete-deck delivery: `DATA_SLIDES_BUILD_NAME=complete-walkthrough-03` produced the reviewed
+24-slide PowerPoint (18 main, six appendix), five editable charts and six editable tables.
+All final slides were inspected; the first six retain their approved content. Independent content
+review corrected month-only date precision and refined record/feature descriptions. Package,
+geometry, native evidence and font-policy checks pass with no layout findings or warnings.
+`complete-walkthrough-reproduction` produced 24 identical rendered PNGs. Source paths and README
+links resolve. Fresh frozen sync, Ruff format/lint and mypy pass; 493 tests pass in 38.20 seconds,
+with 84.08% combined and 83.62% V2 coverage. No analytical build or replay was run. The inherited
+renderer font-decode warning remains documented; native PowerPoint/font rehearsal and the author's
+walkthrough remain pending. Brief principles and demo guidance replace lengthy presentation
+support notes. No staging, commit or push was performed.
+
 **Commit constraint:** The author will not commit until the complete slideshow and walkthrough
 pass is finished. Keep all current and subsequent walkthrough changes uncommitted. Do not create
 a commit, stage files or push as part of this pass.

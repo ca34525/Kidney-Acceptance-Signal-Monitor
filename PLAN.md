@@ -2,7 +2,7 @@
 
 **Plan version:** 1.2
 
-**Status:** V2 follow-up interview package prepared; author rehearsal pending
+**Status:** Complete project walkthrough prepared; author review and rehearsal pending
 
 **Original build time box:** Seven full-time days
 
@@ -29,6 +29,12 @@ an 18-minute story, two appendix slides, a sourced illustrative case, an indepen
 and a demo/rehearsal guide. The author's walkthrough and timed rehearsal remain pending, so P4
 and M14 remain in progress. Original V1/V2 evidence and application behavior are preserved;
 current changes remain uncommitted.
+
+**Walkthrough update, 2026-09-07:** The author's question-led
+[complete project deck](docs/presentation/data-walkthrough/README.md) now contains 18 main slides
+and six optional reference slides, preserving the approved six-slide opening. The author removed
+the time limit for this pass. Sources, QA, V1/app, original V2, both follow-ups and conclusions form
+one walkthrough. The complete author review and rehearsal remain pending; no commit is authorized.
 
 Understanding and explaining the project in ordinary language is a top priority, including in
 comments and docstrings. Start with [the project guide](docs/project-guide.md), then use exact
