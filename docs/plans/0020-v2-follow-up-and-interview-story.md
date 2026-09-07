@@ -24,6 +24,131 @@ rehearsal remain pending; P4 is not yet complete.
 
 ## Purpose
 
+### User-led data walkthrough — 2026-09-07
+
+**Commit constraint:** The author will not commit until the complete slideshow and walkthrough
+pass is finished. Keep all current and subsequent walkthrough changes uncommitted. Do not create
+a commit, stage files or push as part of this pass.
+
+**V1 slides, authorized 2026-09-07:** Append an offer-acceptance-ratio slide covering the math,
+meaning, uncertainty and claim limits, followed by a V1 methodology slide. The deck will contain
+six slides before a live app demonstration. Recommend one illustrative app case from existing
+published histories; do not train a model, rerun the frozen replay or infer clinical quality.
+The author requests one eventual commit for the entire presentation and brief supporting notes,
+without adding elaborate traceability material. Reuse the current builder and source notes.
+Verify source/method claims, demo values, all rendered slides and required checks. The existing
+documentation-only failing-test exception applies. Record concise completion evidence here.
+
+V1 delivery: six-slide deck built with `DATA_SLIDES_BUILD_NAME=data-v1-03`. SRTR's FAQ directly
+confirms the formula; methods, frozen configuration and model card support the explanation.
+Independent review and all rendered slides pass; the first four slides remain unchanged.
+ALUA's demo values and projection were checked through trusted release readers. Required sync,
+format, lint and type checks pass; 493 tests pass (84.08% combined coverage, 83.62% V2 coverage).
+Brief demo notes are in the deck README. No analytical changes, staging or commit.
+
+**Next two slides, authorized 2026-09-07:** Append a data quality and reproducibility overview
+and one concrete source-QA example to the two existing slides, making four slides total. Explain
+file identity, expected table structure, value/join checks, timing rules and reproduction records
+without claiming that they guarantee correctness. Use a verified example of different program
+populations in two July 2025 workbook tables. Any same-release side-by-side display illustrates
+source-record matching only; it must not imply a valid predictor/outcome join. Retain the dates
+and scientific boundaries of both studies. The existing documentation-only test exception applies.
+Acceptance requires independent source verification, editable slide evidence, four-slide rendering
+and inspection, reproduction and the required repository checks. Discuss the next V1 step with
+the author after these slides; do not add V1 slides before that discussion.
+
+QA-slide delivery evidence, 2026-09-07:
+
+- The walkthrough now contains four slides. Slides 3–4 explain QA and reproduce a concrete
+  identifier-matching example from the verified July 2025 workbook. The first two rendered
+  slides remain byte-identical to the preceding delivery.
+- Independent inspection confirmed Table B7 Excel rows 3–5 are ALCH:TX1, ALUA:TX1 and ALVA:TX1,
+  while the acceptance sheet's same rows are PAUP:TX1, VANG:TX1 and MDUM:TX1. ALUA's correct
+  acceptance match is Excel row 74. Counts are 234 and 230, with 229 shared identities, five
+  B7-only and one acceptance-only. Both existing table parsers and archive/member checks passed.
+- The README's executable source check passed for the original 12 cells, new paired identifiers,
+  table counts, membership differences and correct ALUA match. Local links resolve. Independent
+  source/claim and final-image reviews found no corrections needed. The slide explicitly retains
+  different measurement periods and the separate requirement to check time eligibility.
+- The documented builder with `DATA_SLIDES_BUILD_NAME=data-qa-01` passed all finalizer checks:
+  four slides, native bullets, editable tables on slides 2 and 4, package structure, geometry,
+  heading fit, font policy and artifact-tool import. Every final slide was inspected. A second
+  build using `DATA_SLIDES_BUILD_NAME=data-qa-reproduction` produced four identical rendered PNGs.
+  The existing font warning and pending native PowerPoint rehearsal check remain documented.
+- Fresh `uv sync --frozen`, `uv run ruff format --check .`, `uv run ruff check .` and
+  `uv run mypy src/kasm` passed with the previously documented local cache settings. The exact
+  required pytest command recorded below passed again: 493 tests in 38.25 seconds, 84.08%
+  combined coverage. The separate patient-journey coverage command passed at 83.62%.
+- All 26 protected files match the canonical post-repair hashes from the previous delivery.
+  No source, configuration, model, original release, app or lock changed. No files were staged,
+  committed or pushed. The complete author walkthrough remains in progress.
+
+The author requested a new branch and exactly two opening slides, letting the walkthrough
+determine the eventual presentation structure. Work is on `codex/data-walkthrough-slides`.
+Create a separate editable deck under `docs/presentation/data-walkthrough/`, using the existing
+light presentation style. The earlier complete deck remains a reference while this new sequence
+develops from the author's questions.
+
+- Slide 1 introduces SRTR and its public kidney program summaries with bullets. Explain source
+  format, what a program record represents, the selected releases and the distinction between
+  measurement dates and publication dates.
+- Slide 2 shows a small, source-verified excerpt from one workbook table, with program identity,
+  candidate count, the published outcome and selected status fields. State the row grain, listing
+  dates, publication date, units and denominator. Preserve the source values and identify any
+  presentation-only relabeling. Choose rows by a disclosed editorial rule, without performance
+  ranking or claims of representativeness.
+- Keep field mappings, source hashes, selection rationale, speaking notes and reproduction
+  instructions with the deck. Temporary extraction evidence and renders remain under ignored
+  `data/patient_journey_v2_followup/p4_build/`. This creates documentation, not a new analysis or
+  analytical release, and changes no study, model, result or application behavior.
+- Acceptance evidence: exactly two slides, editable bullets/table, direct comparison with the
+  verified workbook, independent source/claim review, final render inspection and required
+  repository checks. This is the existing documentation-only failing-test exception. Tests for
+  slide wording or pixels would not add meaningful evidence. The author's review and rehearsal
+  remain pending after delivery.
+
+Delivery: [two-slide data walkthrough](../presentation/data-walkthrough/README.md). Artifact
+preparation is complete. The author's discussion of these slides and rehearsal remain pending.
+
+Verification evidence, 2026-09-07:
+
+- Source extraction used `load_workbook_payload` to verify the July 2025 archive and kidney member
+  against the manifest. The existing component parser validated all 234 Table B7 records and
+  reconciled program identity. The excerpt is four named columns from Excel rows 3–5, after the
+  two source header rows. ALCH, ALUA and ALVA occur first in source order; selection did not depend
+  on outcomes. All 12 selected values match the workbook exactly before display rounding.
+- Independent source/claim review passed. The table uses the original listing group as denominator
+  and preserves the known-alive-with-functioning-transplant definition. The README's source-check
+  command ran successfully, and every local README link resolves.
+- `DATA_SLIDES_BUILD_NAME=data-slides-02` with the documented Node/runtime paths built the final
+  deck. Both slides were rendered and visually inspected, including a repair to the gap below
+  the table. Finalizer checks passed for two slides, native bullets, one editable table, package
+  structure, slide geometry, heading fit, font policy and artifact-tool import. The inherited
+  embedded-font decode warning remains disclosed in the README; native PowerPoint rendering
+  remains an author rehearsal check.
+- The same documented builder with `DATA_SLIDES_BUILD_NAME=data-slides-reproduction` succeeded.
+  Both PNGs are byte-identical to the inspected final renders. The delivered 300,078-byte PPTX
+  matches the verified final file. Source hashes, configuration/document hashes, Git identity,
+  lock identity, build time, field list and source dates are in package provenance.
+- Required checks ran with `UV_CACHE_DIR=.uv-cache` and `MPLCONFIGDIR=.uv-cache/matplotlib`:
+  `uv sync --frozen` passed after approved network access for the local editable package build;
+  `uv run ruff format --check .` passed (80 files); `uv run ruff check .` passed;
+  `uv run mypy src/kasm` passed (39 files).
+- `uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting
+  --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80` passed: 493 tests in 39.35
+  seconds, 84.08% combined coverage. `uv run coverage report
+  --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2` passed at 83.62%.
+- The first full suite had two provenance failures caused by CRLF checkout bytes in original V2
+  `experiment.yaml` and `methodology.yaml`. Both were Git-clean, and their committed HEAD bytes
+  matched the original release manifest. A guarded restoration of those exact committed bytes
+  fixed both focused tests (2 passed in 1.60 seconds) before the successful full rerun. Git status
+  metadata was refreshed without staging. Neither file has a content diff.
+- An ignored 26-file preservation snapshot covers both original release roots, configs and lock.
+  Twenty-four files retain identical bytes; the two files above now match the original canonical
+  bytes. No analytical results, source cache, model fit, application or Docker behavior changed.
+  Analytical reproduction, the frozen replay and Docker were not rerun for this documentation
+  change. No commit or push was created.
+
 Prepare a project the author can understand, explain, and discuss with senior data scientists and
 a biostatistics hiring manager during a 20-minute presentation and panel interview. Clear
 explanations are a top-priority acceptance requirement, including in code comments and docstrings.

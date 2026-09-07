@@ -1,0 +1,139 @@
+{
+  "package_version": "2026-09-07",
+  "banner": "Public aggregate research prototype. Not clinical or regulatory decision support.",
+  "slides": [
+    {
+      "title": "SRTR and the source data",
+      "bullets": [
+        "The Scientific Registry of Transplant Recipients (SRTR) publishes Program-Specific Reports (PSRs).",
+        "Public Excel workbooks contain summaries for each transplant program. This project uses kidney programs.",
+        "Nine saved releases span October 2018 to July 2026, covering offer acceptance, transplant access and candidate outcomes.",
+        "Each table has its own population, measurement period and units. The publication date tells us when it became public.",
+        "Program code plus program type links records across reports. Missing and suppressed values remain unknown."
+      ],
+      "caption": "Source: SRTR national program tables. Nine selected releases, October 2018 to July 2026.",
+      "notes": "SRTR stands for Scientific Registry of Transplant Recipients. The public Program-Specific Reports summarize transplant programs using data reported to the Organ Procurement and Transplantation Network. SRTR publishes national center-level summary data as Excel workbooks organized by report table and figure. The project pins eight historical ZIP downloads containing kidney XLS files and one direct kidney XLS download. The nine saved releases span October 2018 to July 2026. The workbook contains aggregate program records, without individual patient or offer records. Different tables summarize different populations and periods. Publication is a separate date from the period measured. V1 uses calendar-year offer-acceptance cohorts. V2 uses selected July–June listing cohorts and their later reported outcomes. Nine saved releases do not mean nine independent V2 training periods. The code combines CTR_CD and CTR_TY for program identity, because code alone was not unique in older reports. Names and location remain display fields. Missing or suppressed source values stay null. A zero is a reported value and must remain distinct from missing data.",
+      "sources": [
+        "https://srtr.hrsa.gov/transplant-professionals/program-specific-report/program-specific-reports-psr/",
+        "https://srtr.hrsa.gov/transplant-professionals/program-specific-report/technical-methods-for-the-program-specific-reports/",
+        "configs/data_sources.yaml",
+        "docs/specs/patient-journey-v2.md"
+      ]
+    },
+    {
+      "title": "A small sample of the kidney workbook",
+      "intro": "Table B7: candidate status 18 months after listing\nOne row describes one kidney program and its listing group.",
+      "dates": "Listing period: July 1, 2022 to June 30, 2023. Published July 8, 2025.",
+      "headers": ["Program code", "Program type", "Candidates listed", "Known functioning\ntransplant (%)"],
+      "fields": ["CTR_CD", "CTR_TY", "SAL_N_C", "SAL_TOTFTX_C18"],
+      "rows": [
+        ["ALCH", "TX1", 17, 58.823529412],
+        ["ALUA", "TX1", 548, 17.518248175],
+        ["ALVA", "TX1", 21, 19.047619048]
+      ],
+      "table_note": "Selected columns from three source rows. Percentages rounded to two decimal places.",
+      "interpretation": "For ALUA, 17.52% of the 548 listed candidates were known alive with a functioning transplant at 18 months.",
+      "definition": "The denominator includes everyone in the listing group. Living and deceased donors both count.",
+      "caption": "Source: SRTR July 2025 kidney workbook, Table B7, Excel rows 3–5. Schema illustration only.",
+      "notes": "This is a relabeled, selected-column excerpt from the source workbook, rather than the final modeling table. It shows Excel rows 3–5 of Table B7 from csrs_final_tables_2505_KI.xls. Row 1 contains machine field names and row 2 contains human-readable descriptions. The three selected data rows are the first three program records and also the first three in composite-key order. Selection illustrates the schema and does not depend on outcome size or model error. It is not a representative sample or a comparison of clinical quality. The workbook stores CTR_CD and CTR_TY separately; this table preserves both. ALCH is Children's of Alabama, ALUA is University of Alabama Hospital, and ALVA is Birmingham VA Medical Center. These labels help explain the identifiers and do not enter the model. SAL_N_C is the number of candidates in the original listing group. SAL_TOTFTX_C18 is SRTR's published percentage known alive with a functioning transplant at 18 months, including living and deceased donation. The raw source values are 58.823529412, 17.518248175 and 19.047619048 percentage units, displayed as 58.82%, 17.52% and 19.05%. This is a direct formatting operation; the published percentages are not reconstructed from counts. The denominator includes people who never received a transplant. Unknown status does not establish death, graft failure or a functioning transplant. This published percentage is not an officially risk-adjusted measure. The listing period comes from the release-specific methodology ledger, July 1, 2022 through June 30, 2023. Publication comes from the source manifest, July 8, 2025. Other tables in the same workbook have different measurement periods. The full source Table B7 has 234 program rows and 139 columns, excluding the two header rows. The July 2025 offer-acceptance table has 230 rows; table populations must not be assumed identical.",
+      "sources": [
+        "https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2505all.zip",
+        "https://srtr.hrsa.gov/transplant-professionals/program-specific-report/technical-methods-for-the-program-specific-reports/",
+        "configs/data_sources.yaml",
+        "configs/patient_journey_v2/methodology.yaml",
+        "docs/specs/patient-journey-v2.md"
+      ]
+    },
+    {
+      "title": "Data quality and reproducibility",
+      "intro": "A data contract is an explicit set of rules the input must satisfy.",
+      "bullets": [
+        "Check the source: a file fingerprint confirms the saved version. A changed file needs review.",
+        "Check the structure: expected worksheets and named columns protect against reading the wrong fields.",
+        "Check the records: validate values, preserve missing data and match program identities.",
+        "Check the study rules: use appropriate dates and information already public at prediction time.",
+        "Record the build: source files, settings and code versions let someone reproduce the result."
+      ],
+      "limitation": "These checks catch specified problems. Matching files does not establish scientific correctness.",
+      "caption": "Source: project source manifest, data reader and study specifications.",
+      "notes": "Data quality assurance, or QA, is a useful umbrella for the checks before interpretation and delivery. The purpose is to identify specific failures that a successfully fitted model would not automatically reveal. A SHA-256 hash acts as a file fingerprint: it establishes that bytes match the recorded source version, not that the source values or study assumptions are correct. A harmless metadata or line-ending change can also trigger that strict identity check, so a mismatch calls for review rather than a claim that the data are wrong. A structural contract names the expected worksheets and machine fields. Value checks reject such problems as impossible counts and inconsistent intervals. Composite identity checks prevent accidental combinations of different programs. Missing and suppressed source values remain unknown instead of becoming observed zeros. A scientific study contract defines the population, target, dates and evaluation rules. In this project, predictor measurement windows and publication availability must satisfy the applicable V1 or V2 contract. Passing software checks does not substitute for assessing that design. Reproduction records identify the saved source files, configuration, code revision, dependency lock and generated outputs. A preliminary exploratory notebook need not implement this entire release system. Correct meanings, joins and dates remain necessary for interpreting an analysis, while the extra engineering helps another person repeat the work and investigate differences. The checks cannot guarantee source truth, prevent every error or validate a model by themselves.",
+      "sources": [
+        "configs/data_sources.yaml",
+        "src/kasm/data/parse.py",
+        "src/kasm/data/cache.py",
+        "SPEC.md",
+        "docs/specs/patient-journey-v2.md",
+        "docs/data_card.md"
+      ]
+    },
+    {
+      "title": "The workbook tables contain different programs",
+      "intro": "The same Excel row refers to different programs in these two tables.",
+      "headers": ["Excel row", "Table B7: outcomes\n234 program records", "Table B11: acceptance\n230 program records"],
+      "rows": [
+        [3, "ALCH:TX1", "PAUP:TX1"],
+        [4, "ALUA:TX1", "VANG:TX1"],
+        [5, "ALVA:TX1", "MDUM:TX1"]
+      ],
+      "interpretation": "A row-position join would attach ALUA's outcome to VANG's acceptance.",
+      "correct_match": "Matching program code + type finds ALUA:TX1 on row 74 of Table B11.",
+      "limitation": "Matching identities is one check. The study must also allow the measurement dates.",
+      "caption": "July 2025 workbook. B7 listings: July 2022–June 2023. B11 offers: calendar 2024. Published July 8, 2025.",
+      "notes": "This concrete source-QA example compares program identifiers in two sheets of the same verified July 2025 kidney workbook. It does not construct a predictor/outcome dataset. Both sheets have machine names in Excel row 1 and descriptions in row 2. Table B7's first three program records, Excel rows 3–5, are ALCH:TX1, ALUA:TX1 and ALVA:TX1. The same Excel rows of Table B11 & Figures B10-B14 are PAUP:TX1, VANG:TX1 and MDUM:TX1. They are shown in original source order, without sorting or selection based on outcomes. A hypothetical join by row position would pair different programs immediately. ALUA:TX1 at Table B7 row 4 correctly matches ALUA:TX1 at Table B11 row 74. VANG:TX1 is Sentara Norfolk General Hospital, a different program. The displayed code:type representation combines the two original columns CTR_CD and CTR_TY for readability; it is not a new source field. Counts are 234 and 230, but the size difference does not mean four unmatched programs. There are 229 shared identities, five B7-only identities (CARC:TX1, FLBC:TX1, PACC:TX1, PALH:TX1, TXDL:TX1), and one acceptance-only identity (SCCH:TX1). A keyed match makes these differences visible and requires explicit handling of missing records. Table B7 describes July 1, 2022–June 30, 2023 listings and their 18-month status. The acceptance table describes January 1–December 31, 2024 offers. Both were published July 8, 2025. Therefore these same-release acceptance values are not permitted predictors for that earlier V2 listing cohort. Matching identity alone does not establish eligibility under the study's time rules. This example illustrates a potential error prevented by explicit matching; it does not claim that such an erroneous join occurred in the project. The existing archive/member verification and both production table parsers passed before the example was selected.",
+      "sources": [
+        "https://srtr.hrsa.gov/Archives/PSRdownloads/csrs_tables_all/csrs_final_tables_2505all.zip",
+        "configs/data_sources.yaml",
+        "configs/patient_journey_v2/methodology.yaml",
+        "src/kasm/data/parse.py",
+        "docs/specs/patient-journey-v2.md"
+      ]
+    },
+    {
+      "title": "SRTR's offer-acceptance ratio",
+      "intro": "Risk-adjusted comparison with national expectation for the offers received",
+      "formula": "OAR = (O + 2) / (E + 2)",
+      "definitions": "O = acceptances resulting in completed transplants\n\nE = sum of SRTR's predicted acceptance probabilities for the included offers",
+      "adjustment": "The +2 adjustment pulls the ratio toward 1, especially when expected counts are small.",
+      "example": "Hypothetical example\n48 acceptances, 98 expected: OAR = 0.50",
+      "interpretation": [
+        "1: in line with expectation\nBelow 1: lower. Above 1: higher",
+        "SRTR's 95% credible interval describes uncertainty about the ratio.",
+        "OAR 0.50 does not mean 50% of offers were accepted.",
+        "It cannot determine whether a decline was appropriate or establish clinical quality or regulatory status."
+      ],
+      "limitation": "The app uses SRTR's published ratio. Rounded public inputs may not reproduce every published digit.",
+      "caption": "V1: calendar-year offer cohorts, 2017–2025. Sources: SRTR offer-acceptance FAQ and technical methods.",
+      "notes": "The offer-acceptance ratio is a published, risk-adjusted program measure. SRTR's FAQ gives (acceptances + 2) / (expected acceptances + 2). Expected acceptances sum offer-level probabilities from SRTR's logistic models. This project reads that published expectation; it does not recreate the underlying offer-level model. Only acceptances resulting in completed transplants count, within SRTR's included-offer population. The algebraic +2 adjustment moves the ratio toward 1, particularly with small expected counts. In the hypothetical example, (48+2)/(98+2)=0.50. The number of offers is not the denominator, so this does not say half the offers were accepted. The 95% credible interval expresses uncertainty about the source ratio and differs from a band around a prediction. The public expected counts and ratios are rounded, so the application preserves published values and uses formula reconstruction only as a rounding-aware QA check. The measure supports a screening signal for quality-improvement review. It does not determine the appropriateness of an individual decline or establish clinical quality, causal effects or regulatory standing. Cross-year changes can reflect national practice and model changes as well as program behavior.",
+      "sources": [
+        "https://srtr.hrsa.gov/getting-started/faqs/for-transplant-center-professionals/",
+        "https://srtr.hrsa.gov/transplant-professionals/program-specific-report/technical-methods-for-the-program-specific-reports/",
+        "SPEC.md"
+      ]
+    },
+    {
+      "title": "V1 methodology",
+      "intro": "Historical screening monitor plus a next-calendar-year PSR projection",
+      "left_heading": "What we compare",
+      "left_bullets": [
+        "One record per program-year. Predict the next published annual log(OAR).",
+        "Compare OAR = 1, the latest value (persistence), historical mean and Ridge.",
+        "Use earlier ratios, donor groups, volume and published uncertainty."
+      ],
+      "right_heading": "How we evaluate",
+      "right_bullets": [
+        "Keep whole years together. Fit missing-value handling and scaling on training rows only.",
+        "Select using 2021–2023 outcomes. Replay fitting ends at 2023. 2024 calibrates the band.",
+        "Freeze choices before the 2025 replay. Check average error, bias and lower-volume performance."
+      ],
+      "result": "2025 replay: Ridge cut average absolute log error by 10.13%.\nIt missed the fixed bias rule, so the app retains persistence.",
+      "caption": "V1: 2017–2025 offer cohorts. Descriptive retrospective replay. The projection is a delayed-report nowcast.",
+      "notes": "V1's product is the historical monitor. Its prediction question is whether earlier public program summaries improve on carrying the latest published ratio forward. The target is the next same-cadence calendar-year published log(OAR). Logarithms put reciprocal multiplicative changes on symmetric scales; OAR=1 maps to zero. The 17 prespecified inputs cover earlier ratios and changes, expected volume, interval width, donor groups, offer shares and missingness. Identity and location are excluded. Ridge limits coefficient size; alpha 10 was selected using 2021–2023 outcomes. Entire target years remain in temporal folds. Imputation and scaling learn only from training rows. The frozen replay model fits target years 2018–2023; held-out 2024 outcomes calibrate the separate forecast band and do not enter that fit. On 229 programs in the 2025 replay, Ridge's average absolute log error was 0.2399 versus 0.2670 for persistence, a 10.13% reduction. Its absolute mean signed log error was 0.01145 versus 0.00885, failing one required display rule. These are different error measures. Model comparisons resample whole programs. The app retains persistence and suppresses the Ridge band. This is descriptive retrospective product-selection evidence, not prospective validation. Publication lag makes the projection a delayed-report nowcast. Next, demonstrate ALUA's history, donor groups, persistence projection and the model-evaluation page.",
+      "sources": [
+        "docs/model_card.md",
+        "configs/frozen_experiment.yaml",
+        "SPEC.md"
+      ]
+    }
+  ]
+}
+
