@@ -1,7 +1,11 @@
+from dataclasses import replace
 from hashlib import sha256
 from pathlib import Path
 from zipfile import ZipFile
 
+import pytest
+
+import kasm.data.cache as cache_module
 from kasm.config import DataSourceManifest, SourceRecord
 from kasm.data.cache import verify_cache
 
@@ -143,3 +147,84 @@ def test_verify_cache_rejects_unsafe_archive_member(tmp_path: Path) -> None:
 
     assert not result.ok
     assert "unsafe" in result.issues[0].message.lower()
+
+
+def _zip_source(tmp_path: Path, *, unsafe: bool = False) -> SourceRecord:
+    payload = XLS_MAGIC + b"workbook"
+    path = tmp_path / "source.zip"
+    with ZipFile(path, "w") as archive:
+        archive.writestr("source.xls", payload)
+        if unsafe:
+            archive.writestr("../escape.xls", payload)
+    return SourceRecord(
+        release_code="test",
+        cohort_year=2025,
+        transport="zip",
+        url="https://example.test/source.zip",
+        download_bytes=path.stat().st_size,
+        download_sha256=sha256(path.read_bytes()).hexdigest(),
+        member_path="source.xls",
+        member_bytes=len(payload),
+        member_sha256=sha256(payload).hexdigest(),
+    )
+
+
+@pytest.mark.parametrize("failure", ["size", "hash"])
+def test_rejected_outer_file_is_never_opened_as_archive(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    failure: str,
+) -> None:
+    source = _zip_source(tmp_path)
+    source = (
+        replace(source, download_bytes=source.download_bytes + 1)
+        if failure == "size"
+        else replace(source, download_sha256="0" * 64)
+    )
+
+    def reject_archive(*args: object, **kwargs: object) -> None:
+        raise AssertionError("Rejected bytes reached the archive parser")
+
+    monkeypatch.setattr(cache_module, "ZipFile", reject_archive)
+    issues = cache_module.verify_source_file(tmp_path / "source.zip", source)
+    assert issues
+    assert ("size" if failure == "size" else "SHA-256") in issues[0].message
+
+
+@pytest.mark.parametrize("failure", ["member_size", "unsafe_path"])
+def test_rejected_archive_metadata_prevents_decompression(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    failure: str,
+) -> None:
+    source = _zip_source(tmp_path, unsafe=failure == "unsafe_path")
+    if failure == "member_size":
+        source = replace(source, member_bytes=1)
+
+    def reject_member(*args: object, **kwargs: object) -> None:
+        raise AssertionError("Rejected member reached decompression")
+
+    monkeypatch.setattr(ZipFile, "open", reject_member)
+    issues = cache_module.verify_source_file(tmp_path / "source.zip", source)
+    assert issues
+    assert ("size" if failure == "member_size" else "unsafe") in issues[0].message
+
+
+@pytest.mark.parametrize("failure", ["unsupported_compression", "encrypted"])
+def test_unreadable_archive_returns_actionable_issue(tmp_path: Path, failure: str) -> None:
+    source = _zip_source(tmp_path)
+    path = tmp_path / "source.zip"
+    payload = bytearray(path.read_bytes())
+    central = payload.index(b"PK\x01\x02")
+    if failure == "unsupported_compression":
+        payload[8:10] = (99).to_bytes(2, "little")
+        payload[central + 10 : central + 12] = (99).to_bytes(2, "little")
+    else:
+        payload[6:8] = (1).to_bytes(2, "little")
+        payload[central + 8 : central + 10] = (1).to_bytes(2, "little")
+    path.write_bytes(payload)
+    source = replace(source, download_sha256=sha256(payload).hexdigest())
+
+    issues = cache_module.verify_source_file(path, source)
+    assert issues
+    assert "archive" in issues[0].message.lower()

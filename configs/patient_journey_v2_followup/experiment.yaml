@@ -1,0 +1,141 @@
+schema_version: 1
+analysis_id: kidney_patient_journey_v2_followup_report_count_v1
+original_bundle_sha256: ce2844edbcec92c09d0053720d5331dd37ed43ab75de7aa4dd1de431c79a9eee
+original_experiment_sha256: ab8c01453c36039b293a8e7453b17b2b326faf734a081a4b67f8bfe132b1de79
+output_root: data/patient_journey_v2_followup/report_count_v1
+removed_feature: historical_target_count
+prediction_absolute_tolerance: 1.0e-10
+prediction_relative_tolerance: 0.0
+contribution_absolute_tolerance: 1.0e-10
+promotion_allowed: false
+future_forecast_available: false
+training_pairs:
+- - '1905'
+  - '2205'
+evaluation_pair:
+- '2205'
+- '2505'
+feature_groups:
+- name: history
+  features:
+  - prior_target_logit
+  - historical_mean_target_proportion
+  - log1p_prior_target_n
+- name: history_acceptance
+  features:
+  - prior_target_logit
+  - historical_mean_target_proportion
+  - log1p_prior_target_n
+  - log1p_acceptance_overall_expected_acceptances
+  - log_acceptance_overall_oar
+  - acceptance_interval_log_width
+  - log_acceptance_low_oar
+  - log_acceptance_medium_oar
+  - log_acceptance_high_oar
+  - log_acceptance_hard_to_place_oar
+  - missing_acceptance_expected_acceptances
+  - missing_acceptance_overall_oar
+  - missing_acceptance_interval
+  - missing_acceptance_low_oar
+  - missing_acceptance_medium_oar
+  - missing_acceptance_high_oar
+  - missing_acceptance_hard_to_place_oar
+- name: history_access
+  features:
+  - prior_target_logit
+  - historical_mean_target_proportion
+  - log1p_prior_target_n
+  - log_transplant_rate_ratio
+  - log1p_transplant_rate_person_years
+  - log1p_wait_time_months_25th_percentile
+  - missing_transplant_rate_ratio
+  - missing_transplant_rate_person_years
+  - missing_wait_time
+- name: history_access_acceptance
+  features:
+  - prior_target_logit
+  - historical_mean_target_proportion
+  - log1p_prior_target_n
+  - log_transplant_rate_ratio
+  - log1p_transplant_rate_person_years
+  - log1p_wait_time_months_25th_percentile
+  - missing_transplant_rate_ratio
+  - missing_transplant_rate_person_years
+  - missing_wait_time
+  - log1p_acceptance_overall_expected_acceptances
+  - log_acceptance_overall_oar
+  - acceptance_interval_log_width
+  - log_acceptance_low_oar
+  - log_acceptance_medium_oar
+  - log_acceptance_high_oar
+  - log_acceptance_hard_to_place_oar
+  - missing_acceptance_expected_acceptances
+  - missing_acceptance_overall_oar
+  - missing_acceptance_interval
+  - missing_acceptance_low_oar
+  - missing_acceptance_medium_oar
+  - missing_acceptance_high_oar
+  - missing_acceptance_hard_to_place_oar
+- name: history_access_acceptance_safety
+  features:
+  - prior_target_logit
+  - historical_mean_target_proportion
+  - log1p_prior_target_n
+  - log_transplant_rate_ratio
+  - log1p_transplant_rate_person_years
+  - log1p_wait_time_months_25th_percentile
+  - missing_transplant_rate_ratio
+  - missing_transplant_rate_person_years
+  - missing_wait_time
+  - log1p_acceptance_overall_expected_acceptances
+  - log_acceptance_overall_oar
+  - acceptance_interval_log_width
+  - log_acceptance_low_oar
+  - log_acceptance_medium_oar
+  - log_acceptance_high_oar
+  - log_acceptance_hard_to_place_oar
+  - missing_acceptance_expected_acceptances
+  - missing_acceptance_overall_oar
+  - missing_acceptance_interval
+  - missing_acceptance_low_oar
+  - missing_acceptance_medium_oar
+  - missing_acceptance_high_oar
+  - missing_acceptance_hard_to_place_oar
+  - log_waiting_list_mortality_ratio
+  - waiting_list_mortality_interval_log_width
+  - missing_waiting_list_mortality_ratio
+  - missing_waiting_list_mortality_interval
+bootstrap:
+  resamples: 2000
+  seed: 20260904
+  cluster: program_key
+  percentiles:
+  - 2.5
+  - 97.5
+  quantile_method: linear
+  contrast: challenger_minus_comparator_balanced_mae
+contrasts:
+- - original_history_acceptance
+  - historical_mean
+- - revised_history
+  - original_history
+- - revised_history_acceptance
+  - original_history_acceptance
+- - revised_history_access
+  - original_history_access
+- - revised_history_access_acceptance
+  - original_history_access_acceptance
+- - revised_history_access_acceptance_safety
+  - original_history_access_acceptance_safety
+- - revised_history_access
+  - revised_history
+- - revised_history_acceptance
+  - revised_history
+- - revised_history_access_acceptance
+  - revised_history_access
+- - revised_history_access_acceptance
+  - revised_history_acceptance
+- - revised_history_access_acceptance_safety
+  - revised_history_access_acceptance
+- - revised_history_acceptance
+  - historical_mean

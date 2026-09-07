@@ -16,6 +16,18 @@ The modeling unit is one kidney transplant program-year. The target is the next-
 published `log(OAR)`. The 2025 result below is a frozen retrospective implementation replay and
 descriptive product-selection evidence, not prospective or independent validation.
 
+**Reading note, 2026-09-05:** This is the original V1 result. OAR means offer-acceptance ratio:
+SRTR's published comparison of completed-transplant acceptances with the expected number for
+similar offers. It is a ratio, not an acceptance percentage. The logarithm (`log`) puts equal
+multiplicative changes on comparable scales; an OAR of 1 has log OAR 0. The model uses earlier
+program reports to predict the next calendar year's published value. That value arrives after
+the outcome year, so the display is a delayed-report nowcast.
+
+Persistence carries forward the latest reported OAR. Ridge is the fitted comparison model; it
+limits the size of its input weights to reduce overfitting. Ridge's lower average error did not
+satisfy every fixed display rule. Retaining persistence establishes the specified product
+decision, not clinical superiority or a finding that ridge failed on every error measure.
+
 ## Data and feature contract
 
 The panel contains non-overlapping calendar-year cohorts from the nine checksum-pinned SRTR
@@ -28,12 +40,26 @@ log expected acceptances, log credible-interval width, four current donor-stratu
 offer-share measures, and six corresponding lag/subgroup missingness indicators. KDPI ≥60 is not a
 model feature. Median imputation and standardization are fit inside each training fold.
 
+A missingness indicator records that a source value is unavailable. Median imputation replaces
+that missing input with the training group's middle observed value for calculation. If an entire
+training column is missing, `keep_empty_features=True` retains it and uses a numerical zero
+fallback. That fallback is a model calculation, not an observed zero or a change to the published
+record. Standardization puts inputs on comparable numerical scales using only the training rows.
+A fold is one time-ordered training/evaluation split; the evaluation year cannot teach either
+preprocessing step how to handle the data.
+
 ## Temporal evaluation and model selection
 
 Neutral, persistence, and historical-mean baselines were implemented before ridge. Ridge alpha
 was selected from `[0.01, 0.1, 1, 10, 100]` using the unweighted mean of per-target-year log-OAR
 MAEs for rolling target years 2021–2023, with the larger alpha chosen when scores were within 1%.
 Alpha 10 was frozen.
+
+Mean absolute error (MAE) is the average size of a prediction's error, ignoring its direction.
+Here the primary MAE is measured in log-OAR units. Year-balanced MAE first measures each target
+year's error and then gives each year equal weight. Skill is the percentage reduction in that
+error relative to persistence; it is not a percentage-point change in acceptance. Alpha controls
+how strongly ridge limits its input weights.
 
 Across pre-replay target years 2021–2024, ridge improved on persistence in all four years and had
 5.47% year-balanced log-OAR MAE skill. It passed the pre-replay candidate gate. The nominal 80%
@@ -47,6 +73,12 @@ not enter model fitting; they were used only for the already frozen band calibra
 
 The replay included 229 analytic programs.
 
+Mean signed error keeps the direction: `prediction - observed`, so a negative log error means
+the prediction is too low on that scale. Calibration slope describes how observed log OAR changes
+with predicted log OAR in a fitted straight line. Band coverage counts the fraction of these
+programs whose later published OAR falls inside its interval. None of these denominators counts
+individual offers or patients.
+
 | Measure | Ridge | Persistence |
 |---|---:|---:|
 | MAE, log OAR | 0.2399 | 0.2670 |
@@ -59,6 +91,10 @@ The replay included 229 analytic programs.
 Ridge's log-OAR MAE was 10.13% lower than persistence. The frozen 10,000-resample paired
 program-key bootstrap interval for `ridge absolute error − persistence absolute error` was
 `[-0.04087, -0.01332]`, with an observed mean difference of -0.02705.
+
+The paired bootstrap repeatedly draws whole programs and compares both models on the same draw.
+Its interval describes variability across the observed programs. It does not add a new evaluation
+year or turn the already-inspected 2025 replay into an independent test.
 
 ### Point-promotion decision
 
@@ -89,6 +125,9 @@ forecast band.
 
 Quartiles were assigned within target year 2025 by deterministic rank of feature-period expected
 acceptances, with program key as the tie-breaker.
+
+These are four roughly equal-sized groups of programs ordered by earlier expected acceptances.
+They show whether results differ by this measure of volume; they are not program-quality ranks.
 
 | Quartile | n | Ridge log MAE | Persistence log MAE | Ridge skill | Ridge band coverage |
 |---:|---:|---:|---:|---:|---:|
@@ -132,7 +171,10 @@ are full post-policy cohorts, but there are too few to fit or validate a separat
 
 ## Reproduction and provenance
 
-The canonical command is:
+The original canonical command sequence is retained below. **Operating clarification,
+2026-09-05:** the completed replay is write-once. This documentation pass does not authorize
+executing it again. A later explicitly authorized reproduction must use a distinct audit path,
+as required by [SPEC.md](../SPEC.md#command-contract), and preserve the completed canonical result.
 
 ```powershell
 uv run kasm data verify-cache

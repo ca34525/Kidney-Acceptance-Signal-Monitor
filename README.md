@@ -1,16 +1,36 @@
 # Kidney Acceptance Signal Monitor
 
-An offline-capable public-data screening signal for kidney transplant program
-quality-improvement review. It shows longitudinal SRTR-published offer-acceptance ratios (OARs),
-their published 95% credible intervals, donor-stratum context, and a separately evaluated
-next-calendar-year PSR projection.
+An offline public-data tool for kidney transplant programs reviewing their offer-acceptance
+history. It displays the Scientific Registry of Transplant Recipients (SRTR) published
+offer-acceptance ratio (OAR): how acceptances compare with the number expected for the offers
+received. It also shows SRTR's published 95% uncertainty intervals, patterns in donor groups,
+and a separately evaluated next-calendar-year Program-Specific Report (PSR) projection.
 
 > Public aggregate prototype — not clinical or regulatory decision support.
 
-The frozen 2025 retrospective replay did not promote ridge: although ridge improved log-OAR MAE
-by 10.13%, its absolute mean signed error exceeded persistence. The application therefore carries
-the latest published OAR forward as its displayed projection and suppresses the ridge empirical
-band. This is an intentional, prespecified negative selection result.
+For an ordinary-language explanation of V1, the completed V2 study, and its follow-up
+investigations, start with [Understanding the project](docs/project-guide.md).
+[Plan 0020](docs/plans/0020-v2-follow-up-and-interview-story.md) describes the follow-up and
+20-minute interview presentation. P0a's explanation pass and P1/P2's separate report-count
+investigation are complete. Removing report count lowers history-only Ridge's average error
+from 11.49 to 7.32 percentage points; acceptance then adds only a 0.09-point improvement on the
+same 218 programs. Read the [follow-up results and reproduction command](docs/patient_journey_v2_followup_results.md)
+for all comparisons and their descriptive uncertainty. P3's separate
+[outcome-component analysis](docs/patient_journey_v2_component_results.md) matches all 218
+evaluation programs and finds a median 16.05% of listed candidates with post-transplant status
+yet unknown. This is a program median, not a pooled patient percentage or an explanation of
+prediction error. P3 is complete, including local image-build and non-root offline container
+health checks after Docker startup repair. The [V2 follow-up interview package](docs/presentation/v2-followup/README.md)
+now includes an editable deck, an independent offline backup, a sourced program case and a
+rehearsal guide. The author's walkthrough and timed rehearsal remain pending. The original V2
+results remain available; the commands and four-minute demo below describe the retained V1 product.
+
+The fixed evaluation on already-inspected 2025 outcomes did not qualify Ridge for display. Ridge
+is a regression model that limits how strongly it weights its inputs. Its average absolute error
+(MAE) on the log-OAR scale improved by 10.13%, but its average over- or underprediction was farther
+from zero than persistence (carrying the latest value forward). The rule required both measures
+to pass. The application therefore uses persistence and withholds the Ridge forecast band. This
+is a result of the rules fixed before evaluation, not evidence about clinical safety.
 
 ## Start the tracked offline demo
 
@@ -34,7 +54,8 @@ development or an audited reproduction.
    acceptances and can support quality-improvement review, not offer-level decisions.
 2. **History (75 seconds):** select a program; show its non-overlapping annual overall OARs, SRTR
    credible intervals, published date, volume, and explicit interval-status text.
-3. **Strata (45 seconds):** scan low-, medium-, high-KDRI and hard-to-place history. Point out that
+3. **Strata (45 seconds):** scan the low-, medium-, high-KDRI donor-risk groups and hard-to-place
+   history. Point out that
    missing values are “Not reported” and hard-to-place offers overlap KDRI strata.
 4. **Projection (45 seconds):** show the eligible persistence next-calendar-year PSR projection,
    prediction origin, and elapsed target-cohort fraction; call it a delayed-report nowcast.
@@ -50,18 +71,23 @@ wide [backup screenshots](docs/demo/) of the tracked offline flow.
 
 ## Methodology in brief
 
-- The modeling unit is `(CTR_CD, CTR_TY) × calendar year`, never a patient or offer.
-- Nine checksum-pinned SRTR releases supply non-overlapping 2017–2025 calendar-year cohorts.
+- One record represents one transplant program and calendar year, identified by
+  `(CTR_CD, CTR_TY) × calendar year`, never a patient or offer.
+- Nine exact SRTR releases, identified by their file fingerprints, supply non-overlapping
+  2017–2025 calendar-year cohorts.
 - The target is next-calendar-year published `log(OAR)`, not credible-interval status.
 - Neutral, persistence, and historical-mean baselines precede one ridge challenger.
-- Rolling-origin target years remain intact; preprocessing is fit inside each training fold.
+- Each evaluation uses earlier years to predict a later year (a rolling-origin fold). All
+  programs from the later year stay together. Missing-value filling and input scaling learn
+  only from the training years.
 - Ridge alpha 10 was frozen before the write-once 2025 replay. The replay fit uses targets through
   2023; 2024 outcomes calibrate the separate empirical-band rule and never enter that fit.
 - The 2025 replay is descriptive retrospective product-selection evidence, not prospective or
   independent validation.
 
-Full scientific requirements live in `SPEC.md`; execution status is in `PLAN.md`. See
-`docs/data_card.md`, `docs/model_card.md`, and `docs/reproduction_log.md` for the release evidence.
+Full scientific requirements live in [SPEC.md](SPEC.md); execution status is in [PLAN.md](PLAN.md).
+See the [data card](docs/data_card.md), [model card](docs/model_card.md), and
+[reproduction log](docs/reproduction_log.md) for the release evidence.
 
 ## Architecture
 
@@ -142,10 +168,11 @@ noncanonical.
 
 The V2 app is a separate research entry point. It does not replace `app/streamlit_app.py`, generate
 a future forecast, rank programs, or promote a model. Ridge evidence is limited to one
-strict-publication-vintage fold and remains permanently nonpromotional. See
-`docs/patient_journey_v2_data_card.md`, `docs/patient_journey_v2_model_card.md`, and
-`docs/patient_journey_v2_reproduction_log.md` for the exact data contract, results, and build
-identities.
+evaluation period for which earlier training outcomes had already been published (the
+strict-publication-vintage rule). These results cannot qualify a model for display. See the
+[V2 data card](docs/patient_journey_v2_data_card.md), [V2 model card](docs/patient_journey_v2_model_card.md),
+and [V2 reproduction log](docs/patient_journey_v2_reproduction_log.md) for the exact data contract,
+results, and build identities.
 
 ## Verification
 
@@ -155,7 +182,8 @@ uv sync --frozen
 uv run ruff format --check .
 uv run ruff check .
 uv run mypy src/kasm
-uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov-branch --cov-fail-under=80
+uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80
+uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2
 docker build -t kidney-acceptance-signal-monitor .
 docker run --rm -p 8501:8501 kidney-acceptance-signal-monitor
 ```

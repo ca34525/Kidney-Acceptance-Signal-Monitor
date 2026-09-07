@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from email.message import Message
 from hashlib import sha256
 from io import BytesIO
 from pathlib import Path
-from urllib.request import Request
+from urllib.request import FTPHandler, HTTPHandler, HTTPSHandler, Request
+from urllib.response import addinfourl
 
 import pytest
 
@@ -64,6 +66,86 @@ def test_download_rejects_wrong_sha256_without_publishing_partial_file(tmp_path:
     assert "sha-256" in result.issues[0].message.lower()
     assert not (tmp_path / "source.xls").exists()
     assert list(tmp_path.iterdir()) == []
+
+
+def test_download_stops_after_pinned_size_and_removes_partial_file(tmp_path: Path) -> None:
+    expected = XLS_MAGIC + b"expected"
+    response = FakeResponse(expected + b"x" * (2 * 1024 * 1024))
+    sizes: list[int] = []
+    original_read = response.read
+
+    def read(size: int = -1) -> bytes:
+        chunk = original_read(size)
+        sizes.append(len(chunk))
+        return chunk
+
+    response.read = read
+    result = sync_cache(_manifest_for(expected), tmp_path, open_url=lambda *a, **k: response)
+    assert not result.ok
+    assert "size" in result.issues[0].message.lower()
+    assert sum(sizes) <= len(expected) + 1
+    assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.parametrize(
+    "destination", ["http://example.test/end.xls", "ftp://example.test/end.xls"]
+)
+@pytest.mark.parametrize("status", [301, 302, 303, 307, 308])
+def test_default_opener_blocks_redirect_downgrade_before_destination(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    destination: str,
+    status: int,
+) -> None:
+    _check_redirect(tmp_path, monkeypatch, destination, status, expected_success=False)
+
+
+@pytest.mark.parametrize("destination", ["https://example.test/end.xls", "/end.xls"])
+def test_default_opener_follows_https_redirect_offline(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    destination: str,
+) -> None:
+    _check_redirect(tmp_path, monkeypatch, destination, 302, expected_success=True)
+
+
+def _check_redirect(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    destination: str,
+    status: int,
+    *,
+    expected_success: bool,
+) -> None:
+    payload = XLS_MAGIC + b"fixture"
+    requested: list[str] = []
+
+    def transport(handler: object, request: Request) -> addinfourl:
+        requested.append(request.full_url)
+        headers = Message()
+        if len(requested) == 1:
+            headers["Location"] = destination
+            response = addinfourl(BytesIO(b""), headers, request.full_url, status)
+            response.msg = "Redirect"
+        else:
+            response = addinfourl(BytesIO(payload), headers, request.full_url, 200)
+            response.msg = "OK"
+        return response
+
+    # Replace transports, retaining urllib's actual redirect handling and the project opener.
+    monkeypatch.setattr(HTTPSHandler, "https_open", transport)
+    monkeypatch.setattr(HTTPHandler, "http_open", transport)
+    monkeypatch.setattr(FTPHandler, "ftp_open", transport)
+    result = sync_cache(_manifest_for(payload), tmp_path)
+    assert result.ok is expected_success
+    if expected_success:
+        assert len(requested) == 2
+        assert requested[-1] == "https://example.test/end.xls"
+        assert (tmp_path / "source.xls").read_bytes() == payload
+    else:
+        assert requested == ["https://example.test/source.xls"]
+        assert "HTTPS" in result.issues[0].message
+        assert list(tmp_path.iterdir()) == []
 
 
 def test_download_publishes_verified_file_and_records_request(tmp_path: Path) -> None:

@@ -159,6 +159,47 @@ def test_model_evaluation_loader_validates_completed_frozen_bundle(tmp_path: Pat
     assert evaluation.prospective_validation is False
 
 
+def _disable_activation(bundle: Path) -> None:
+    path = bundle / "replay_metrics.json"
+    metrics = json.loads(path.read_text(encoding="utf-8"))
+    metrics["point_promotion"]["failed_criteria"] = ["forecast_activation_not_attempted"]
+    metrics["band_promotion"] = None
+    metrics["bootstrap"] = None
+    _write_json(path, metrics)
+    completion = json.loads((bundle / "completion.json").read_text(encoding="utf-8"))
+    completion["artifact_sha256"]["metrics"] = _sha256(path)
+    _write_json(bundle / "completion.json", completion)
+
+
+def test_model_loader_accepts_explicit_no_activation_without_band_or_bootstrap(
+    tmp_path: Path,
+) -> None:
+    bundle = _write_modeling_bundle(tmp_path)
+    _disable_activation(bundle)
+    evaluation = load_model_evaluation(tmp_path, expected_panel_sha256="6" * 64)
+    assert evaluation.activation_status == "not_attempted"
+    assert evaluation.displayed_model == "persistence"
+    assert evaluation.replay.bootstrap_interval is None
+    assert evaluation.band_coverage is None
+    assert evaluation.band_coverage_interval is None
+    assert evaluation.band_mean_width_relative_to_persistence is None
+    assert not evaluation.display_band
+    assert evaluation.band_suppression_reason == "forecast_activation_not_attempted"
+
+
+def test_no_activation_artifact_cannot_include_evaluated_uncertainty(tmp_path: Path) -> None:
+    bundle = _write_modeling_bundle(tmp_path)
+    path = bundle / "replay_metrics.json"
+    metrics = json.loads(path.read_text(encoding="utf-8"))
+    metrics["point_promotion"]["failed_criteria"] = ["forecast_activation_not_attempted"]
+    _write_json(path, metrics)
+    completion = json.loads((bundle / "completion.json").read_text(encoding="utf-8"))
+    completion["artifact_sha256"]["metrics"] = _sha256(path)
+    _write_json(bundle / "completion.json", completion)
+    with pytest.raises(ProductDataError, match="not attempted"):
+        load_model_evaluation(tmp_path, expected_panel_sha256="6" * 64)
+
+
 def test_model_evaluation_loader_rejects_ambiguous_or_tampered_bundle(
     tmp_path: Path,
 ) -> None:

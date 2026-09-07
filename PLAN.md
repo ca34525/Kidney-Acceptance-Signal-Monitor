@@ -1,10 +1,38 @@
 # Kidney Acceptance Signal Monitor — One-Week Build Plan
 
-**Plan version:** 1.1  
-**Status:** Ready to execute  
-**Time box:** Seven full-time days  
+**Plan version:** 1.2
 
-The hard budget is 56 focused hours: eight hours per day. Day 7 is release/rehearsal buffer, not a feature day. Conditional forecast activation is the first automatic cut and cannot consume that buffer.
+**Status:** V2 follow-up interview package prepared; author rehearsal pending
+
+**Original build time box:** Seven full-time days
+
+The original build budget was 56 focused hours: eight hours per day. Day 7 was release/rehearsal
+buffer. The day-by-day plan below is retained as the original work record.
+
+The six engineering fixes in [Plan 0021](docs/plans/0021-focused-ai-coding-hardening.md) are
+complete, with both studies' frozen evidence preserved. Docker build, non-root startup, and
+application health now pass locally and in CI for commit `5f26ec9`. The next work is
+[Plan 0020](docs/plans/0020-v2-follow-up-and-interview-story.md). Its existing-documentation and
+code-explanation pass (P0a) is complete as of 2026-09-05 UTC, with the original facts, scientific
+requirements, and executable behavior preserved. P1/P2 are now also complete under their own
+specification and typed configuration. Original predictions reconstruct exactly; removing report
+count reduces history-only Ridge's average error from 11.49 to 7.32 percentage points, leaving a
+0.09-point gain from acceptance on the same 218 programs. See the
+[follow-up results](docs/patient_journey_v2_followup_results.md) for all comparisons and their
+descriptive limits. P3 now also has a separate, source-verified
+[outcome-component analysis](docs/patient_journey_v2_component_results.md): all 218 evaluation
+programs match, and their median combined post-transplant unknown percentage is 16.05% of the
+original listing group. Numerical checks, reproduction and offline app health pass. Docker
+startup is repaired; image-build and non-root offline container health checks pass, closing P3.
+P4's [interview package](docs/presentation/v2-followup/README.md) is prepared: 15 main slides for
+an 18-minute story, two appendix slides, a sourced illustrative case, an independent HTML backup
+and a demo/rehearsal guide. The author's walkthrough and timed rehearsal remain pending, so P4
+and M14 remain in progress. Original V1/V2 evidence and application behavior are preserved;
+current changes remain uncommitted.
+
+Understanding and explaining the project in ordinary language is a top priority, including in
+comments and docstrings. Start with [the project guide](docs/project-guide.md), then use exact
+specifications and source fields for implementation.
 
 ## 1. Operating model
 
@@ -20,7 +48,12 @@ For every behavior:
 
 If the scope or statistical method changes, update `SPEC.md` and this plan before changing production code. Record material choices in `docs/decisions/`.
 
-The historical monitor is the guaranteed product. The ridge challenger is allowed to lose. A tested conclusion that persistence is safer is a valid, presentation-worthy result.
+The historical monitor is the guaranteed product. The ridge challenger is allowed to lose.
+Keeping persistence because Ridge failed a fixed display rule is a valid result to present.
+
+**Wording correction, 2026-09-05:** The earlier sentence called persistence "safer." The
+[frozen result](docs/model_card.md) establishes failure of a prediction-bias rule, not clinical
+safety. The result and promotion requirements are unchanged.
 
 ## 2. Start condition for the seven-day clock
 
@@ -63,6 +96,7 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 | M11 | V2 temporal design and canonical panel | done | Plan 0017: four non-overlapping pairs, strict-vintage folds, deterministic 966-row in-memory panel, 181 tests, and required quality gates pass |
 | M12 | V2 canonical artifact publication | done | Plan 0018: config-owned processed bundle, source-derived QA evidence, provenance contract, trusted validation, and isolated offline build command; 214 tests pass and the real cache build publishes 966 rows |
 | M13 | V2 exploratory study and optional product | done | Plan 0019: canonical 679 KB bundle built from clean `cdea5c4` and published at `0353f99`; 236-test/83.93% suite, offline V2 flow, V1 isolation, and both remote CI jobs pass; no model promoted |
+| M14 | V2 follow-up and 20-minute interview story | in_progress | Plan 0020: P0a and P1–P3 complete; P4 deck, case, independent backup and demo guide verified; author walkthrough and timed rehearsal pending |
 
 ## 5. Day-by-day execution
 

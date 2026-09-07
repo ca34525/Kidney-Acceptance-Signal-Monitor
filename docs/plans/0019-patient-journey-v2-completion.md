@@ -4,6 +4,23 @@
 **Status:** complete, including canonical publication
 **Started:** 2026-09-04
 
+## Reading this historical record — 2026-09-05
+
+This completed original V2 study predicts the published percentage of a listing group known to
+be alive with a functioning transplant 18 months after listing. "Strict vintage" requires that
+training outcomes were published by the prediction date. Only one evaluation period met that
+rule for Ridge. Errors below are percentage-point differences between predicted and published
+percentages; the 865-row baseline summary and 218-row Ridge summary count different evaluation
+populations and must not be compared as if they used identical rows. Program resampling keeps
+repeated rows for the same program together. The clean-source publication and earlier development
+build are separate records with different provenance; their analytical values were verified equal.
+No model was promoted. The later investigation in Plan 0020 preserves these original results.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+Those core-coverage results cover the V1 data, modeling, and reporting directories, not V2.
+Plan 0021 later added V2 to the combined check and enforced its own coverage floor.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

@@ -4,6 +4,19 @@
 **Status:** done  
 **Started:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This completed V1 step connected saved data to the first working one-program screen.
+"Walking skeleton" means a small complete flow: open the trusted files, select a program,
+and show its reported history. The service functions prepare that information without fetching
+data or fitting a model. The stored eligibility flag controls whether a projection may appear;
+the screen cannot infer permission from how much history looks available. The 252 programs below
+are distinct code-and-type identities seen anywhere in 2017–2025, not programs in one release.
+The remaining product work described here was completed in later plans.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

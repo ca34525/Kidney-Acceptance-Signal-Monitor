@@ -1,4 +1,10 @@
-"""Typed methodology and source-schema ledger for patient-journey v2."""
+"""Record what each V2 source measure counts, its dates, and its workbook fields.
+
+The methodology ledger links those definitions to the fixed source inventory.
+Separate measurement, follow-up, and publication dates establish which reports
+can supply inputs or training outcomes; a month-only date keeps that precision.
+Safety measures retain their own populations and denominators.
+"""
 
 from __future__ import annotations
 
@@ -55,7 +61,7 @@ class MethodologyLedgerError(ValueError):
 
 @dataclass(frozen=True)
 class SheetContract:
-    """Pinned table shape and machine fields for one workbook sheet."""
+    """Expected row/column counts and named machine fields for one workbook sheet."""
 
     name: str
     expected_rows: int
@@ -65,7 +71,7 @@ class SheetContract:
 
 @dataclass(frozen=True)
 class MetricMethodology:
-    """Timing, definition, and schema evidence for one release-level metric family."""
+    """Dates, meaning, and workbook layout for one group of measures in one release."""
 
     family: MetricFamily
     sheet: SheetContract
@@ -132,7 +138,7 @@ class ReleaseMethodology:
 
 @dataclass(frozen=True)
 class MethodologyLedger:
-    """Manifest-aligned patient-journey release methodology."""
+    """Release definitions checked against the fixed source-file inventory."""
 
     schema_version: int
     analysis_id: str
@@ -149,7 +155,7 @@ class MethodologyLedger:
         return match
 
     def overlapping_outcome_cohorts(self) -> tuple[tuple[str, str], ...]:
-        """Expose inclusive overlap between successive published outcome cohorts."""
+        """Find consecutive reports whose listing periods share any calendar date."""
         overlaps: list[tuple[str, str]] = []
         for earlier, later in zip(self.releases, self.releases[1:], strict=False):
             earlier_timing = earlier.metric("patient_outcome")

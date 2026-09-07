@@ -1,4 +1,9 @@
-"""Leakage-safe ridge selection and pre-replay temporal evaluation."""
+"""Choose and evaluate V1 Ridge regression using only years before the 2025 replay.
+
+Ridge limits the fitted input weights with a penalty called alpha. Selection uses
+average absolute log-OAR error in 2021-2023, giving each year equal weight. The
+separate 2024 evaluation does not choose alpha.
+"""
 
 from __future__ import annotations
 
@@ -173,7 +178,14 @@ def fit_ridge_pipeline(
     alpha: float,
     random_seed: int,
 ) -> Pipeline:
-    """Fit median imputation, scaling, and ridge only on supplied training rows."""
+    """Learn missing-value filling, input scaling, and Ridge from training rows only.
+
+    Missing inputs use training medians (imputation); an entirely missing training
+    column is retained with a zero fill. This is a modeling fallback, not a reported
+    zero. Scaling uses training means and standard deviations. The caller supplies
+    the temporally permitted rows,
+    so evaluation outcomes cannot influence either preparation step or the fit.
+    """
     if not training_rows:
         raise ChallengerError("Ridge training requires at least one row.")
     if alpha <= 0 or not isfinite(alpha):
@@ -281,7 +293,7 @@ def _mean(values: Sequence[float]) -> float:
 
 
 def choose_ridge_alpha(scores: Mapping[float, float], *, relative_tolerance: float) -> float:
-    """Choose the largest alpha whose score is within tolerance of the best."""
+    """Prefer the stronger Ridge penalty when errors are within the fixed tolerance."""
     if not scores:
         raise ChallengerError("Ridge selection requires at least one alpha score.")
     if relative_tolerance < 0 or not isfinite(relative_tolerance):

@@ -1,4 +1,10 @@
-"""Frozen feature construction and one-fold Ridge evaluation for V2."""
+"""Compare fixed V2 predictions of later reported functioning-transplant percentages.
+
+Ridge, a regression that limits coefficient size, uses the original fixed input
+groups. Missing-value replacement, scaling, and fitting use the earlier training
+rows only. The single eligible evaluation period is exploratory and cannot
+support model promotion.
+"""
 
 from __future__ import annotations
 
@@ -154,7 +160,12 @@ def _feature_value(row: Mapping[str, object], feature: str) -> float | None:
 def build_feature_matrix(
     rows: Sequence[Mapping[str, object]], feature_names: Sequence[str]
 ) -> np.ndarray:
-    """Construct one fixed feature matrix without complete-case filtering."""
+    """Build the fixed numeric inputs while keeping rows with missing predictors.
+
+    Nulls become NaN for later replacement using training data; they never become
+    observed zeroes. Ratios require positive inputs for logs. Counts and times
+    permit zero through ``log1p(x) = log(1 + x)``. Unknown fields are rejected.
+    """
     if not rows:
         raise PatientJourneyModelError("Feature construction requires at least one row.")
     if not feature_names or len(feature_names) != len(set(feature_names)):
@@ -257,7 +268,13 @@ def _prediction(
 def generate_baseline_predictions(
     rows: Sequence[Mapping[str, object]], config: PatientJourneyConfig
 ) -> tuple[EvaluationPrediction, ...]:
-    """Evaluate all frozen baselines without requiring model-training labels."""
+    """Evaluate the three fixed simple predictions from each row's available history.
+
+    Carry forward the latest outcome, average that program's earlier outcomes,
+    or use the available-cohort reference calculated from the earlier report.
+    These baselines require no fitted model; errors use the later published
+    percentage, not reconstructed candidate counts.
+    """
     eligible = _eligible_rows(rows)
     if not eligible:
         raise PatientJourneyModelError("Baseline evaluation requires eligible rows.")
@@ -331,7 +348,12 @@ def _fit_pipeline(
 def generate_ridge_predictions(
     rows: Sequence[Mapping[str, object]], config: PatientJourneyConfig
 ) -> tuple[EvaluationPrediction, ...]:
-    """Run the sole frozen strict-vintage Ridge fold for every feature group."""
+    """Evaluate all fixed Ridge input groups on the same programs and single period.
+
+    The configured training outcomes were public by the evaluation prediction
+    date. Fit each group's preprocessing on those training rows, then convert
+    predicted logits with the inverse-logit function to proportions in [0, 1].
+    """
     ridge = config.model_design.ridge
     training_rows = tuple(row for pair in ridge.training_pairs for row in _pair_rows(rows, pair))
     evaluation_rows = _pair_rows(rows, ridge.evaluation_pair)

@@ -6,12 +6,14 @@ from pathlib import Path
 from subprocess import CompletedProcess
 
 import pytest
+import yaml
 
 import kasm.modeling.replay as replay_module
 from kasm.modeling.activation import BandPromotion, PointPromotion
 from kasm.modeling.experiment import load_frozen_experiment_config
 from kasm.modeling.replay import (
     evaluate_frozen_replay,
+    frozen_replay_predictions_table,
     generate_frozen_replay_predictions,
     resolve_release_decision,
 )
@@ -79,6 +81,52 @@ def test_replay_fit_excludes_2024_outcomes_and_evaluates_only_2025() -> None:
     assert original.evaluation_target_year == 2025
     assert original.predictions == mutated.predictions
     assert {row.target_cohort_year for row in original.predictions} == {2025}
+
+
+@pytest.mark.parametrize("retain_calibration", [False, True])
+def test_no_activation_replay_preserves_points_without_uncertainty_evidence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    retain_calibration: bool,
+) -> None:
+    raw = yaml.safe_load(Path("configs/frozen_experiment.yaml").read_text(encoding="utf-8"))
+    raw["forecast_activation_attempted"] = False
+    raw["pre_replay_freeze"]["candidate_gate_passed"] = False
+    if not retain_calibration:
+        raw["empirical_band"]["calibration_evidence"] = None
+    config_path = tmp_path / "disabled.yaml"
+    config_path.write_text(yaml.safe_dump(raw), encoding="utf-8")
+    config = load_frozen_experiment_config(config_path)
+
+    def reject_uncertainty(*args: object, **kwargs: object) -> None:
+        raise AssertionError("Skipped activation must not calculate uncertainty evidence")
+
+    monkeypatch.setattr(
+        replay_module, "paired_bootstrap_mae_difference_interval", reject_uncertainty
+    )
+    monkeypatch.setattr(replay_module, "clopper_pearson_interval", reject_uncertainty)
+    rows = _rows(4)
+    fit = generate_frozen_replay_predictions(rows, config=config)
+    assert fit.training_target_years[-1] == 2023
+    assert all(row.ridge_band_lower_oar is None for row in fit.predictions)
+    assert all(row.persistence_band_covered is None for row in fit.predictions)
+    with pytest.raises(replay_module.FrozenReplayError, match="activation state"):
+        frozen_replay_predictions_table(fit.predictions)
+    table = frozen_replay_predictions_table(fit.predictions, activation_attempted=False)
+    for field in table.schema:
+        if "_band_" in field.name:
+            assert field.nullable
+            assert table[field.name].null_count == 4
+    report = evaluate_frozen_replay(fit, rows=rows, config=config)
+    assert report["overall"]["n"] == 4
+    assert report["overall"]["ridge_mae_log_oar"] >= 0
+    assert report["overall"]["ridge_band_coverage"] is None
+    assert report["bootstrap"] is None
+    assert report["band_promotion"] is None
+    assert report["calibration_target_year"] is None
+    assert report["release_decision"]["activation_status"] == "not_attempted"
+    assert report["release_decision"]["displayed_model"] == "persistence"
+    assert report["release_decision"]["display_band"] is False
 
 
 def test_replay_report_contains_frozen_gates_diagnostics_and_sensitivities() -> None:

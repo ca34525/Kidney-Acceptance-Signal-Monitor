@@ -4,6 +4,20 @@
 **Status:** done  
 **Started:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This completed V1 step tested three simple predictions before adding Ridge. Neutral predicts an
+offer-acceptance ratio of 1; persistence carries forward the current ratio; historical mean uses
+earlier log ratios for the same program. Each evaluation year stays together, and training uses
+earlier years only. "MAE" is the average absolute size of prediction errors, here in log-OAR
+units rather than percentage points. The primary score averages each year's MAE equally so a
+larger year does not dominate. This implementation step excluded 2025 from its model comparison;
+Plan 0010 records the later fixed replay. As SPEC.md explains, 2025 outcomes and model feasibility
+had already been inspected during planning, so this was not an untouched validation set.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

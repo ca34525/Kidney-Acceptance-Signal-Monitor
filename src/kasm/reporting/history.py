@@ -1,4 +1,9 @@
-"""Pure historical-view services over trusted canonical Parquet artifacts."""
+"""Prepare a selected program's published V1 history from trusted saved Parquet tables.
+
+Each point describes one calendar year and offer group. Published ratios and SRTR
+intervals retain their meaning; missing values display as unknown. Forecast eligibility
+comes from the saved flag, and publication dates keep their source precision.
+"""
 
 from __future__ import annotations
 
@@ -113,7 +118,7 @@ class SubgroupPoint:
 
 @dataclass(frozen=True)
 class ForecastEligibility:
-    """Materialized public eligibility from the latest model-panel row."""
+    """The stored permission to show a forecast from the program's latest panel row."""
 
     feature_cohort_year: int
     target_cohort_year: int
@@ -316,7 +321,11 @@ def overall_history(
 
 
 def interval_status(lower: float | None, upper: float | None) -> str:
-    """Apply only the specification's descriptive, pointwise interval labels."""
+    """Say whether one published interval is below, includes, or is above one.
+
+    Missing bounds mean Not reported. These labels describe each interval separately;
+    they neither adjust for examining many programs nor imply regulatory status.
+    """
     if lower is None or upper is None:
         return "Not reported"
     if upper < 1:

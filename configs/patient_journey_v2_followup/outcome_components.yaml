@@ -1,0 +1,39 @@
+schema_version: 1
+analysis_id: kidney_patient_journey_v2_followup_outcome_components_v1
+original_bundle_sha256: ce2844edbcec92c09d0053720d5331dd37ed43ab75de7aa4dd1de431c79a9eee
+original_experiment_sha256: ab8c01453c36039b293a8e7453b17b2b326faf734a081a4b67f8bfe132b1de79
+output_root: data/patient_journey_v2_followup/outcome_components_v1
+release_code: '2505'
+feature_release_code: '2205'
+listing_cohort_start: '2022-07-01'
+listing_cohort_end: '2023-06-30'
+follow_up_end: '2024-12-30'
+published_value: '2025-07-08'
+published_precision: day
+denominator: SAL_N_C
+months_after_listing: 18
+source_min_n: 10
+pdf_percentage_quantum: 0.1
+arithmetic_tolerance: 1.0e-12
+missing_markers: ['', '-', '--', 'NOT REPORTED', 'NOT OBSERVED']
+component_fields:
+- SAL_CTXFNC_C18
+- SAL_LTXFNC_C18
+- SAL_CTXUNK_C18
+- SAL_LTXUNK_C18
+published_total: SAL_TOTFTX_C18
+summary: unweighted_program_median
+association: pearson_complete_pairs
+minimum_association_pairs: 3
+error_models:
+- persistence
+- available_cohort_reference
+- historical_mean
+- history
+- history_acceptance
+- history_access
+- history_access_acceptance
+- history_access_acceptance_safety
+fit_models: false
+promotion_allowed: false
+future_forecast_available: false

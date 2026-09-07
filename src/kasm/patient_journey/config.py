@@ -1,4 +1,9 @@
-"""Typed configuration for the isolated patient-journey v2 study."""
+"""Keep the original V2 study's settings fixed and its output separate from V1.
+
+These validated settings specify which earlier reports can predict each later
+listing group's published 18-month functioning-transplant percentage. They also
+fix the model inputs, evaluation rules, and prohibition on model promotion.
+"""
 
 from __future__ import annotations
 
@@ -89,7 +94,7 @@ class PatientJourneyOutputPaths:
 
 @dataclass(frozen=True)
 class PatientJourneyPair:
-    """One feature-release to target-release relationship."""
+    """An earlier report supplying inputs and a later report supplying the outcome."""
 
     feature_release_code: str
     target_release_code: str
@@ -106,7 +111,7 @@ class PatientJourneyExcludedPair:
 
 @dataclass(frozen=True)
 class PatientJourneyTemporalDesign:
-    """Non-overlapping release pairs and publication-vintage evaluation mode."""
+    """Keep listing cohorts separate and use only outcomes already public when fitting."""
 
     evaluation_mode: Literal["strict_vintage"]
     max_prediction_origin_month_offset: int
@@ -116,7 +121,7 @@ class PatientJourneyTemporalDesign:
 
 @dataclass(frozen=True)
 class PatientJourneyEligibility:
-    """Prespecified primary and sensitivity target-size thresholds."""
+    """Minimum listed-candidate counts for the main analysis and fixed extra checks."""
 
     primary_min_target_n: int
     sensitivity_min_target_n: tuple[int, int]
@@ -124,7 +129,7 @@ class PatientJourneyEligibility:
 
 @dataclass(frozen=True)
 class PatientJourneyFeatureGroup:
-    """One frozen ordered V2 Ridge feature allowlist."""
+    """One fixed, ordered list of allowed inputs for the original V2 Ridge model."""
 
     name: str
     features: tuple[str, ...]
@@ -132,7 +137,7 @@ class PatientJourneyFeatureGroup:
 
 @dataclass(frozen=True)
 class PatientJourneyRidgeDesign:
-    """Fixed Ridge settings and the sole strict-vintage evaluation fold."""
+    """Fixed Ridge settings for the one period with earlier published training outcomes."""
 
     alpha: float
     solver: Literal["lsqr"]
@@ -145,7 +150,7 @@ class PatientJourneyRidgeDesign:
 
 @dataclass(frozen=True)
 class PatientJourneyMetricDesign:
-    """Named V2 evaluation scale, orientation, and aggregation."""
+    """Percentage-point error units, prediction-minus-observed sign, and averaging rules."""
 
     error_scale: Literal["percentage_points"]
     signed_error: Literal["prediction_minus_observed"]
@@ -155,7 +160,7 @@ class PatientJourneyMetricDesign:
 
 @dataclass(frozen=True)
 class PatientJourneyVolumeStrata:
-    """Deterministic within-release volume quartiles."""
+    """Split each release's programs into four ordered groups by listed-candidate count."""
 
     method: Literal["within_release_sorted_quartiles"]
     tie_breaker: Literal["program_key"]
@@ -164,7 +169,7 @@ class PatientJourneyVolumeStrata:
 
 @dataclass(frozen=True)
 class PatientJourneyBootstrapDesign:
-    """Frozen program-clustered paired-bootstrap settings."""
+    """Fixed settings for resampling whole programs when comparing their model errors."""
 
     resamples: int
     seed: int

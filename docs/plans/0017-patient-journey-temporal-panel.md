@@ -4,6 +4,22 @@
 **Status:** done
 **Started:** 2026-09-04
 
+## Reading this historical record — 2026-09-05
+
+This completed V2 step fixed which earlier reports could be paired with later listing outcomes.
+One panel row is a program in a feature release paired with a specified later listing cohort.
+"Strict vintage" means both predictors and training outcomes had to be publicly available when
+the prediction would have been made. Only one of the four pairs had an earlier usable training
+pair, which limits the later Ridge comparison to one evaluation period. Programs enter the row
+set from the earlier release; a missing later report remains a missing outcome. `N` is the
+listing-group count: the fixed thresholds decide which small groups can enter the primary or
+sensitivity comparisons, without treating excluded or unknown outcomes as zero.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+Those core-coverage results cover the V1 data, modeling, and reporting directories, not V2.
+Plan 0021 later added V2 to the combined check and enforced its own coverage floor.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

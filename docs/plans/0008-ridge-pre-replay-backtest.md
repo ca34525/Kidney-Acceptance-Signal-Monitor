@@ -4,6 +4,19 @@
 **Status:** done  
 **Started:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This completed V1 step tested whether a regression using earlier public measurements improved
+on carrying the current ratio forward. Ridge limits the size of fitted weights; its `alpha`
+setting controls that limit, with larger values applying stronger shrinkage. The fixed tie rule
+preferred stronger shrinkage when errors were within 1%. Filling missing values and scaling inputs
+used each training period alone, so later evaluation values could not influence preparation.
+The error values below are in log-OAR units. Passing this candidate gate allowed consideration
+of the next step; it did not authorize displaying Ridge or establish future performance.
+
+Coverage wording clarification: the historical coverage percentages include both statements and
+branches; they are not branch-only measurements. The original commands and numbers are retained.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

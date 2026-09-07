@@ -1,4 +1,8 @@
-"""Prespecified pre-replay calibration and retrospective promotion rules."""
+"""Apply the fixed rules for displaying a V1 prediction and its uncertainty band.
+
+The point prediction and band must pass separate checks. Their 2025 evidence is
+descriptive: neither passing nor failing these rules establishes clinical safety.
+"""
 
 from __future__ import annotations
 
@@ -15,7 +19,7 @@ from kasm.modeling.experiment import ExperimentConfig
 
 @dataclass(frozen=True)
 class ResidualBandCalibration:
-    """Finite-sample absolute-residual radius from one held-out year."""
+    """Band half-width on the log-OAR scale, chosen from one held-out year's errors."""
 
     calibration_target_year: int
     nominal_coverage: float
@@ -78,7 +82,11 @@ def _finite_nonnegative(value: float, context: str) -> float:
 def calibrate_empirical_band(
     predictions: Sequence[RidgePrediction], *, config: ExperimentConfig
 ) -> ResidualBandCalibration:
-    """Calibrate the frozen radius from held-out 2024 residuals only."""
+    """Choose band half-width from absolute log-OAR errors in held-out 2024 only.
+
+    The sorted-error position is min(n, ceil((n + 1) * nominal_coverage)). The
+    resulting band describes coverage across programs, not a guarantee for one program.
+    """
     if not predictions:
         raise ValueError("Empirical-band calibration requires held-out predictions.")
     expected_year = config.band_calibration_target_year
@@ -104,7 +112,12 @@ def calibrate_empirical_band(
 def paired_bootstrap_mae_difference_interval(
     pairs: Sequence[PairedAbsoluteErrors], *, config: ExperimentConfig
 ) -> BootstrapInterval:
-    """Bootstrap paired program-key MAE differences with the frozen RNG contract."""
+    """Resample programs to describe uncertainty in the two models' error difference.
+
+    Each row pairs one program's absolute log-OAR errors. Challenger minus persistence
+    is negative when the challenger errs less. The bootstrap uses the fixed random
+    seed and resample count; it provides no new time period for validation.
+    """
     if not pairs:
         raise ValueError("Paired bootstrap requires at least one program key.")
     ordered = sorted(pairs, key=lambda row: row.program_key)
@@ -206,7 +219,11 @@ def assess_point_promotion(
 def clopper_pearson_interval(
     *, successes: int, trials: int, confidence_level: float
 ) -> tuple[float, float]:
-    """Return a two-sided Clopper-Pearson exact binomial interval."""
+    """Describe uncertainty in a covered fraction using an exact binomial interval.
+
+    Here successes count covered outcomes and trials count all evaluated outcomes.
+    The two-sided Clopper-Pearson limits are proportions between zero and one.
+    """
     if isinstance(successes, bool) or isinstance(trials, bool):
         raise ValueError("Successes and trials must be integers.")
     if trials <= 0 or successes < 0 or successes > trials:

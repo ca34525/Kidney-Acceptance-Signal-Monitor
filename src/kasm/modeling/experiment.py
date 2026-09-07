@@ -1,4 +1,4 @@
-"""Typed loading for the pre-replay experiment configuration."""
+"""Read the V1 choices fixed before the 2025 replay and reject changes to their meaning."""
 
 from __future__ import annotations
 
@@ -18,7 +18,7 @@ class ExperimentConfigError(ValueError):
 
 @dataclass(frozen=True)
 class SensitivitySpec:
-    """One prespecified transition-exclusion drift check."""
+    """One fixed check omitting year-to-year pairs that touch a named disruption year."""
 
     name: str
     excluded_cohort_years: tuple[int, ...]
@@ -26,7 +26,7 @@ class SensitivitySpec:
 
 @dataclass(frozen=True)
 class ExperimentConfig:
-    """Configuration fields needed by the pre-replay temporal harness."""
+    """Fixed inputs, evaluation years, and rules for comparing V1 predictions."""
 
     feature_columns: tuple[str, ...]
     target_column: str

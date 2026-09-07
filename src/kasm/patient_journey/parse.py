@@ -1,4 +1,9 @@
-"""Schema-aware parsing for patient-journey v2 source metrics."""
+"""Read published V2 measures by field name and reject changed workbook layouts.
+
+Outcome records describe a program's listed candidates and their reported status
+18 months later. Published percentages remain authoritative; missing or suppressed
+values remain unknown. Access and safety measures retain their own dates and units.
+"""
 
 from __future__ import annotations
 
@@ -56,7 +61,11 @@ class PatientJourneyParseError(ValueError):
 
 @dataclass(frozen=True)
 class ProgramIdentity:
-    """Display-only program identity reconciled from the same-release directory."""
+    """Program key and display labels checked against the same report's directory.
+
+    Code and type identify joins; names and locations are display fields. None are
+    model inputs.
+    """
 
     program_key: str
     center_code: str
@@ -69,7 +78,13 @@ class ProgramIdentity:
 
 @dataclass(frozen=True)
 class PatientJourneyOutcome:
-    """Published observed 18-month functioning-transplant outcome."""
+    """One program/listing cohort's reported status 18 months after listing.
+
+    The percentage counts listed candidates known alive with a functioning
+    transplant, using the original listing group (``target_n``) as its denominator.
+    The proportion is that published percentage divided by 100. Reconstructed
+    counts and the smoothed logit are separate calculations, not published values.
+    """
 
     program_key: str
     release_code: str
@@ -101,7 +116,10 @@ class TransplantRate:
 
 @dataclass(frozen=True)
 class WaitTime:
-    """Published program 25th-percentile time to transplant with raw suppression text."""
+    """Reported months until 25% of the source listing group received a transplant.
+
+    Suppressed values such as ``>72`` remain null, with the original text retained.
+    """
 
     program_key: str
     release_code: str
@@ -459,6 +477,14 @@ def _validate_registered_key(
 def _target_values(
     n_value: object, percent_value: object, *, context: str
 ) -> tuple[int | None, float | None, float | None, int | None, float | None]:
+    """Keep the reported percentage and separately derive a finite modeling target.
+
+    Round the implied candidate count as ``floor(N * percent / 100 + 0.5)`` and
+    check its percentage against the source within 0.051 percentage points. The
+    smoothed proportion ``(successes + 0.5) / (N + 1)`` avoids an infinite logit
+    when the reported percentage is 0 or 100. Jointly missing source values stay
+    null; a partially reported target fails validation.
+    """
     target_n = _count(n_value, field="SAL_N_C", context=context)
     published_percent = _number(percent_value, field="SAL_TOTFTX_C18", context=context)
     if target_n is None and published_percent is None:
@@ -873,7 +899,7 @@ def parse_patient_journey_workbook(
     methodology: ReleaseMethodology,
     sheets: tuple[WorkbookSheet, ...],
 ) -> ParsedPatientJourneyRelease:
-    """Parse target and access metrics without joining on program names."""
+    """Read outcome, access, and safety measures, joining by program code and type."""
     if source.release_code != methodology.release_code:
         raise PatientJourneyParseError("Source and methodology release codes disagree.")
     if (

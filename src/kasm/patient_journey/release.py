@@ -1,4 +1,10 @@
-"""Self-contained offline release bundle for patient-journey V2."""
+"""Package the original V2 results for an interface that works offline.
+
+The bundle copies the verified program/cohort panel, separate safety measures,
+historical predictions, and evaluation evidence. Its manifest records their
+file hashes and shared build identity so mixed or changed files are rejected.
+The original V2 bundle makes no future forecast available.
+"""
 
 from __future__ import annotations
 
@@ -200,7 +206,11 @@ def write_patient_journey_release_directory(
     output_dir: Path,
     provenance: Mapping[str, object],
 ) -> PatientJourneyReleaseResult:
-    """Copy the four trusted assets into one atomic, hash-bound offline bundle."""
+    """Copy four verified result files into a staged bundle and check it before use.
+
+    The manifest records each file's size and SHA-256 hash. Only the complete
+    validated bundle replaces the active output directory.
+    """
     if set(assets) != set(_ASSET_NAMES):
         raise PatientJourneyReleaseError("V2 release inputs must contain exactly four assets.")
     _validate_nonpromotion(provenance)
@@ -328,7 +338,7 @@ def build_patient_journey_release_bundle(
     methodology_path: Path,
     lock_path: Path,
 ) -> PatientJourneyReleaseResult:
-    """Publish byte-identical trusted processed/model assets to the V2 release root."""
+    """Copy verified data and model files unchanged into the configured V2 release."""
     root = repository_root.resolve()
     config = load_patient_journey_config(
         _resolved(experiment_config_path, root),

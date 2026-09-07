@@ -1,0 +1,167 @@
+{
+  "package_version": "2026-09-07",
+  "main_slide_count": 15,
+  "banner": "Public aggregate research prototype. Not clinical or regulatory decision support.",
+  "slides": [
+    {
+      "layout": "cover", "template_slide": 1, "minutes": 1,
+      "title": "Kidney patient-journey prediction",
+      "subtitle": "What earlier public reports tell us about later recorded outcomes",
+      "label": "V2 study and exploratory follow-up",
+      "notes": "A kidney program's quality-improvement reviewer needs a clear account of what a public signal measures. V1 reviews offer acceptance. V2 asks whether earlier public reports help predict the later percentage of listed candidates known alive with a functioning transplant. The main finding is that a large apparent model improvement depended on a weak comparison model. A separate investigation clarifies the unknown part of the published outcome. Neither study establishes clinical quality or effects of care. This story concerns programs and listing groups, not individual predictions.",
+      "sources": ["docs/project-guide.md", "docs/specs/patient-journey-v2.md"]
+    },
+    {
+      "layout": "columns", "template_slide": 5, "minutes": 1,
+      "title": "V1 lowered error but missed its display rule",
+      "left": "10.13% lower average error\n\nRidge: 0.2399\nPersistence: 0.2670\n\nLog offer-acceptance ratio units\n229 programs, calendar 2025 replay",
+      "right": "Persistence remains displayed\n\nAbsolute average signed error:\nRidge 0.01145\nPersistence 0.00885\n\nThe fixed rule required Ridge's bias to be no greater.",
+      "caption": "V1 frozen retrospective replay. Lower error does not establish clinical safety.",
+      "notes": "V1 predicts the next calendar-year published log offer-acceptance ratio. Persistence carries forward the latest ratio. Ridge reduced average absolute error by 10.13 percent, not percentage points. Its absolute mean signed log error was below the absolute 0.05 ceiling but larger than persistence's, so it failed one required promotion rule. All rules were required. This was a descriptive retrospective replay, not prospective validation. The app retained persistence and suppressed the Ridge forecast band. The result says nothing about which prediction is clinically safer. V2 remains a separately identified exploratory study with promotion prohibited.",
+      "sources": ["docs/model_card.md", "configs/frozen_experiment.yaml"]
+    },
+    {
+      "layout": "columns", "template_slide": 5, "minutes": 1.5,
+      "title": "The outcome counts everyone originally listed",
+      "left": "Published functioning-transplant %\n\nKnown alive with a functioning transplant 18 months after listing.\n\nLiving and deceased donors both count.\n\nSource field: SAL_TOTFTX_C18",
+      "right": "Original listing group\n\nThe denominator includes candidates who never receive a transplant.\n\nIt is an observed percentage without official risk adjustment.\n\nListing count: SAL_N_C",
+      "caption": "Original V2. Evaluation listing group: July 2022–June 2023. Published July 8, 2025.",
+      "notes": "One row describes a kidney transplant program and a July–June listing group. The target is the reported percentage known alive with a functioning transplant 18 months after listing. The denominator is the original listing group, including candidates who never received a transplant. This differs from survival among transplant recipients. Unknown status remains unknown and the published total stays authoritative. The model uses a fixed empirical-logit transform during fitting, then returns to published percentage points for evaluation. A hypothetical prediction of 40 percent against a reported 30 percent has an error of ten percentage points. The outcome is not officially risk adjusted and cannot support a fair-center ranking.",
+      "sources": ["docs/specs/patient-journey-v2.md", "docs/patient_journey_v2_component_ledger.md"]
+    },
+    {
+      "layout": "chart", "template_slide": 22, "minutes": 1.5,
+      "title": "Unknown status remains part of the question",
+      "chart": {"categories": ["Deceased\nfunctioning", "Living\nfunctioning", "Deceased\nunknown", "Living\nunknown"], "series": [{"name": "Program median", "values": [0.1667, 0.0609, 0.1275, 0.025]}], "max": 0.2, "number_format": "0%", "axis_title": "Share of the original listing group"},
+      "explanation": "Each bar is a separate program median. The four categories omit other statuses and do not form a complete total.",
+      "stat1": "16.05%", "stat1_label": "Median combined post-transplant unknown",
+      "stat2": "218", "stat2_label": "Matched programs, no missing donor components",
+      "caption": "P3 follow-up. July 2022–June 2023 listings. Published July 8, 2025. Medians cannot be added.",
+      "notes": "These four bars summarize different measures across the same 218 original evaluation programs. For each program, both unknown-donor percentages use the original listing group. The combined-unknown median is found after adding the two unknown percentages within each program, then taking the middle across programs. It is not the sum of the displayed medians and not a pooled patient percentage. The broader source group of 222 programs has a different median, 16.27 percent. Unknown status can include a follow-up form that is not yet due. Neither health nor death can be inferred for those candidates. P3 verified each field, denominator, timing and rounding check before producing this description.",
+      "sources": ["docs/patient_journey_v2_component_results.md", "docs/patient_journey_v2_component_ledger.md"]
+    },
+    {
+      "layout": "timeline", "template_slide": 17, "minutes": 1.5,
+      "title": "Prediction requires two different clocks",
+      "dates": ["Through 2021", "July 2022", "July 8, 2025"],
+      "events": ["Earlier measurements\nAll predictor measurement and follow-up periods end before the target listing group starts.", "Prediction origin\nInputs and training outcomes must already be public. Target listings run July 2022–June 2023.", "Outcome publication\n18-month status becomes available. The ledger records follow-up end December 30, 2024."],
+      "caption": "Original V2 evaluation. July 2022 publication has month precision, with no invented day.",
+      "notes": "A measure has an observation period and a publication date. Both must satisfy the contract. Knowing that a report is old does not prove the outcome inside it was available at an earlier prediction date. V2 requires every predictor measurement end to precede the target listing group's start, and every predictor and training outcome to have been public by the prediction origin. The original ledger retains exact source dates and their precision. The July 2022 release has no verified publication day. The target starts in that month, so this is not a claim that the model predicted before any candidate entered the listing cohort.",
+      "sources": ["docs/specs/patient-journey-v2.md", "configs/patient_journey_v2/methodology.yaml"]
+    },
+    {
+      "layout": "columns", "template_slide": 5, "minutes": 1.5,
+      "title": "Only one period supports a fitted comparison",
+      "left": "215 training programs\n\nListed July 2019–June 2020\nOutcome public in July 2022\n\nFit imputation, scaling and Ridge using these rows only.",
+      "right": "218 evaluation programs\n\nListed July 2022–June 2023\nOutcome public July 8, 2025\n\nSame programs for all comparisons.\nNo model promotion allowed.",
+      "caption": "Original V2. Four non-overlapping listing groups in the panel, one usable Ridge evaluation period.",
+      "notes": "A time-ordered split is often called a temporal fold. Although the panel contains four non-overlapping listing groups, earlier origins lack a configured earlier training outcome that was already public. Only the last origin can train Ridge. The 2026 source switches the target to calendar 2023, overlapping the previous July–June group, so it is excluded from the primary panel. Random row splitting would not answer the stated forecasting question. Every model uses identical eligible rows, retaining missing predictors for training-only handling. Programs missing the later target remain in the audit as unknown outcomes. One inspected period cannot show stable performance across time.",
+      "sources": ["docs/specs/patient-journey-v2.md", "configs/patient_journey_v2/experiment.yaml", "docs/patient_journey_v2_followup_results.md"]
+    },
+    {
+      "layout": "chart", "template_slide": 22, "minutes": 1,
+      "title": "The original gain depends on the comparator",
+      "chart": {"categories": ["History\nRidge", "History +\nacceptance", "Simple\nhistorical mean"], "series": [{"name": "Average absolute error", "values": [11.488, 7.348, 7.609]}], "max": 14, "number_format": "0.00", "axis_title": "Average error in percentage points"},
+      "explanation": "History-only Ridge and the simple average of earlier outcomes are different comparison methods.",
+      "stat1": "4.14", "stat1_label": "Point gain over history-only Ridge",
+      "stat2": "0.26", "stat2_label": "Point gain over the simple historical mean",
+      "caption": "Original V2, same 218 programs. July 2022–June 2023 listings, published July 8, 2025.",
+      "notes": "Mean absolute error is the average size of an error without its sign. The history-only Ridge model has average error 11.488 percentage points. Adding acceptance gives 7.348. But a simple average of each program's earlier published outcomes already gives 7.609 on these same programs. The original incremental gain is therefore 4.14 points against fitted history-only Ridge and only 0.26 points against historical mean. The comparison prompted a diagnostic, rather than a search for additional model families. The original application's baseline aggregates span more periods, so use this paired 218-program comparison for these numbers.",
+      "sources": ["docs/patient_journey_v2_followup_results.md", "docs/patient_journey_v2_model_card.md"]
+    },
+    {
+      "layout": "chart", "template_slide": 22, "minutes": 1,
+      "title": "Report count changed far beyond its training range",
+      "chart": {"categories": ["1", "2", "3", "4", "5"], "series": [{"name": "Training (215)", "values": [3, 212, 0, 0, 0]}, {"name": "Evaluation (218)", "values": [1, 1, 1, 7, 208]}], "max": 240, "number_format": "0", "axis_title": "Programs by number of earlier reports"},
+      "explanation": "The input counts earlier available reports. It can grow without a change in care or program age.",
+      "stat1": "25.07", "stat1_label": "Training standard deviations of mean change",
+      "stat2": "+0.533", "stat2_label": "Report-count contribution to mean logit change",
+      "caption": "P1. Train: July 2019–June 2020 listings, public July 2022. Evaluate: July 2022–June 2023, public July 8, 2025.",
+      "notes": "All 1,744 original evaluation predictions reconstructed exactly before interpretation. Most training rows had two earlier reports while most evaluation rows had five. The mean change is about 25 training standard deviations partly because training variation is tiny. In original history-only Ridge, report count contributes +0.532598 to a total mean predicted-logit change of +0.518134, with other inputs partly offsetting it. Logit is the model's scale before conversion back to a percentage. These terms are not additive percentage-point changes or patient effects. This exposes extrapolation in a model input, not a change in care.",
+      "sources": ["docs/patient_journey_v2_followup_results.md", "docs/specs/patient-journey-v2-followup.md"]
+    },
+    {
+      "layout": "chart", "template_slide": 22, "minutes": 1,
+      "title": "Removing report count narrows acceptance's gain",
+      "chart": {"categories": ["History Ridge", "History +\nacceptance"], "series": [{"name": "Original", "values": [11.488, 7.348]}, {"name": "Count removed", "values": [7.320, 7.226]}], "max": 14, "number_format": "0.00", "axis_title": "Average error in percentage points"},
+      "explanation": "One fixed revision removed report count from all five Ridge groups. Other settings and programs stayed fixed.",
+      "stat1": "7.32", "stat1_label": "History-only error after count removal",
+      "stat2": "0.09", "stat2_label": "Additional point gain from acceptance",
+      "caption": "P2 follow-up, same 218 programs. July 2022–June 2023 listings, published July 8, 2025.",
+      "notes": "The follow-up specification and typed configuration fixed removal of historical_target_count before calculating revised predictions. It retained the other inputs, transformations, imputation, scaling, Ridge alpha and evaluation population. Much of the original 4.14-point gain reflected how its comparison model reacted to report count. Revised history-only error is 7.320, revised history plus acceptance is 7.226. The rounded incremental gain is 0.09 points. This does not establish that acceptance lacks information or that access is unimportant. All five revisions, including unfavorable incremental results, remain reported.",
+      "sources": ["docs/patient_journey_v2_followup_results.md", "configs/patient_journey_v2_followup/experiment.yaml"]
+    },
+    {
+      "layout": "table", "template_slide": 14, "minutes": 0.75,
+      "title": "The remaining gains are uncertain in this period",
+      "intro": "Error differences in percentage points. Negative values favor the added information.",
+      "table": [["Count-removed comparison", "Difference", "Descriptive 95% interval"], ["Add acceptance to history", "−0.095", "[−0.491, 0.301]"], ["History + acceptance vs simple mean", "−0.383", "[−0.852, 0.103]"], ["Add access to history", "+0.046", "[−0.578, 0.647]"], ["Add acceptance to history + access", "+0.125", "[−0.271, 0.507]"], ["Add access to history + acceptance", "+0.266", "[−0.324, 0.849]"], ["Add eligible lagged safety to full", "−0.069", "[−0.411, 0.307]"]],
+      "caption": "P2, 218 programs, July 2022–June 2023 listings. 2,000 paired program resamples. One inspected period.",
+      "notes": "Resample the same whole programs for both models in each draw, using 2,000 resamples and seed 20260904. The interval covers variation among these observed programs in one period. It cannot establish performance in a new period. The six remaining incremental or baseline comparisons shown here all have intervals spanning zero. We report both directions. The appendix lists every original and revised model's error. These descriptive comparisons were defined after the original outcomes had already been seen, so they are not a new independent test and do not authorize model promotion.",
+      "sources": ["docs/patient_journey_v2_followup_results.md", "configs/patient_journey_v2_followup/experiment.yaml"]
+    },
+    {
+      "layout": "columns", "template_slide": 5, "minutes": 1.25,
+      "title": "Unknown-status associations leave causes unresolved",
+      "left": "Matched description\n\n218 programs with complete donor fields.\n\nAll eight original models' signed and absolute errors reported.\n\nShared denominators complicate interpretation.",
+      "right": "Information still missing\n\nStatus snapshots omit event and last-observed times.\n\nEquivalent counts over time could also support a survival calculation.\n\nUnknown outcomes remain unknown.",
+      "caption": "P3 follow-up. July 2022–June 2023 listings, published July 8, 2025. Target unchanged.",
+      "notes": "P3 matches the same program and listing group before describing associations. It reports every original approach in fixed order. Functioning and unknown percentages share a denominator and use mutually exclusive statuses. Signed error also subtracts the observed outcome, so correlation cannot identify reporting as a cause. Table B7 snapshots do not preserve the event and observation times, or equivalent risk-set counts, needed for a standard survival calculation. Standard censoring methods do not require knowing each reason for censoring, but interpreting them requires a suitable independent-censoring assumption. An unknown category alone neither proves nor disproves that assumption. This target also includes access to a transplant, not survival alone.",
+      "sources": ["docs/patient_journey_v2_component_results.md", "docs/project-guide.md", "https://www.itl.nist.gov/div898/handbook/apr/section2/apr215.htm", "https://pmc.ncbi.nlm.nih.gov/articles/PMC4282781/"]
+    },
+    {
+      "layout": "columns", "template_slide": 5, "minutes": 1.5,
+      "title": "One illustrative program, distinct measures and dates",
+      "left": "University of Alabama Hospital\nALUA:TX1, Birmingham, Alabama\n\nEarlier OAR: 2.00\n95% credible interval: 1.76–2.25\nCalendar 2021 offers\nPublished July 2022",
+      "right": "Reported functioning outcome\n\n28.07% of 431 earlier candidates\nJuly 2019–June 2020 listings\n\n17.52% of 548 later candidates\nJuly 2022–June 2023 listings\n22.99% post-transplant unknown",
+      "caption": "Illustrative, not representative. Later status at 18 months, published July 8, 2025. Original listing denominators.",
+      "notes": "The editorial selection rule sorts the original eligible programs by composite key and chooses the first with OAR above one, lower later functioning percentage and complete components. Sixty-one programs satisfy it and ALUA:TX1 is first. This is not an extreme-error case, random sample or quality ranking. The later total is published, not reconstructed. Both functioning percentages describe different listing groups. The unknown percentage uses the later 548-candidate group. An appropriate review question is what cohort composition, donor pathways and follow-up reporting records would help account for the recorded change. These aggregates cannot determine its cause or say what any offer decision should have been.",
+      "sources": ["docs/presentation/v2-followup/program-case.md", "artifacts/patient_journey_v2/patient_journey_panel.parquet", "docs/patient_journey_v2_component_results.md"]
+    },
+    {
+      "layout": "columns", "template_slide": 5, "minutes": 1.5,
+      "title": "The offline research view keeps the evidence visible",
+      "left": "Short demonstration\n\nSelect University of Alabama Hospital.\n\nOpen Program history and inspect the latest listing cohort and earlier OAR.\n\nKeep publication dates in view.",
+      "right": "Model evidence and provenance\n\nThe app shows the original study.\n\nThe later count-removed and component results are in this package.\n\nNo promoted model or future forecast.",
+      "caption": "Original V2 app, trusted bundle ce2844edbcec… . Static backup contains the case without an app dependency.",
+      "notes": "Use the app/patient_journey_v2.py entry point with installed locked dependencies. The program selector label contains ALUA:TX1. Program history shows the exact publication dates, listing groups and prior context. Its historical predictions are evaluated predictions, not future projections. Model evidence warns that baseline summaries cover four target releases while Ridge uses one usable period. Do not compare those differently pooled numbers as if they were the paired 218-program comparison. Methods and provenance exposes the bundle identity and frozen rules. If the live app is unavailable, use slide 12 or the self-contained HTML case and continue. The separate two-minute demo can also stand alone.",
+      "sources": ["app/patient_journey_v2.py", "docs/presentation/v2-followup/rehearsal-guide.md", "artifacts/patient_journey_v2/release_manifest.json"]
+    },
+    {
+      "layout": "columns", "template_slide": 5, "minutes": 1,
+      "title": "Verification protects the meaning of each result",
+      "left": "Source and calculation checks\n\nPinned source hashes and field names.\n\nProgram-key and timing validation.\n\nExact reconstruction of original predictions before the revision.",
+      "right": "AI-assisted work needs evidence\n\nSmall failing cases before fixes.\n\nIndependent source and result review.\n\nSeparate write-once outputs preserve earlier studies.",
+      "caption": "Repository evidence in Plan 0020. Passing software checks does not replace the scientific contract.",
+      "notes": "AI-generated code, tests and claims were treated as untrusted until checked. An independent review found a malformed component case: reported lower bounds exceeded 100 percent despite a missing component. A regression first failed, then the fix rejected it while preserving incomplete sums as missing. An all-missing figure initially failed and now displays Not reported. Exact reconstruction detected compatibility with the original predictions. Filesystem tests protect the original studies and reject overwrite, traversal and link destinations. The app reads trusted precomputed artifacts, with no fitting or workbook parsing at request time. Scientific validity still depends on the study specification, not just green tests.",
+      "sources": ["docs/plans/0020-v2-follow-up-and-interview-story.md", "AGENTS.md", "tests/unit/test_patient_journey_component_analysis.py"]
+    },
+    {
+      "layout": "columns", "template_slide": 5, "minutes": 1,
+      "title": "The next evidence needs a new period and better timing",
+      "left": "Future predictive value\n\nLock a revised design before a new compatible outcome release.\n\nRecheck cohort cadence and source definitions.\n\nRetain simple comparisons.",
+      "right": "Understanding unknown outcomes\n\nRequest event and last-observed times, or equivalent counts over time.\n\nVerify donor pathways and reporting schedules.\n\nKeep access and outcome questions distinct.",
+      "caption": "Proposals only. Current follow-up is exploratory, with promotion prohibited.",
+      "notes": "The follow-up changes how I interpret the original comparison. Much of the large gain reflected report-count extrapolation, and the remaining acceptance gain is small and uncertain in this one inspected period. The published outcome also has a substantial unknown portion that this analysis does not correct. The next predictive test requires a locked design and a new compatible listing cohort, not more resampling of this period. A separate outcome-methods study would need event and last-observed timing, or sufficiently detailed equivalent aggregate counts, plus justified assumptions. Requests for richer records would require their own scope and access process. No new data collection or patient-level analysis is authorized by this presentation.",
+      "sources": ["docs/project-guide.md", "docs/specs/patient-journey-v2.md", "docs/patient_journey_v2_followup_results.md"]
+    },
+    {
+      "layout": "table", "template_slide": 14, "minutes": 0,
+      "title": "Appendix: every original and revised comparison",
+      "intro": "Same 218 evaluation programs. Average absolute error, in percentage points.",
+      "table": [["Approach / input group", "Original", "Count removed"], ["History", "11.488", "7.320"], ["History + acceptance", "7.348", "7.226"], ["History + access", "14.522", "7.367"], ["History + access + acceptance", "10.572", "7.492"], ["History + access + acceptance + safety", "12.523", "7.422"], ["Simple historical mean", "7.609", "Unchanged"], ["Persistence", "8.931", "Unchanged"], ["Available-cohort reference", "9.867", "Unchanged"]],
+      "caption": "P2 follow-up. July 2022–June 2023 listings, published July 8, 2025. Original evidence preserved.",
+      "notes": "All five revisions and all three baselines remain visible. The available-cohort reference uses the cohort already public at prediction time and is not a published national statistic. The linked result document includes signed error, candidate-volume-weighted error, all twelve fixed contrasts, population and missingness evidence. Candidate-volume weighting changes the emphasis across programs, not the unit to individual patient predictions. Full plus safety uses eligible lagged waiting-list mortality inputs and does not combine safety outcomes into the patient-journey target.",
+      "sources": ["docs/patient_journey_v2_followup_results.md", "configs/patient_journey_v2_followup/experiment.yaml"]
+    },
+    {
+      "layout": "columns", "template_slide": 5, "minutes": 0,
+      "title": "Appendix: sources, units and study boundaries",
+      "left": "Preserved evidence\n\nOriginal V2 bundle: ce2844edbcec…\nP1/P2 reviewed run: c6cc2cea133e…\nP3 reviewed run: e95ab9db56aa…\n\nFull hashes and source fields are in the companion case note and results.",
+      "right": "Interpretation reminders\n\nPercentage points measure error size.\nA program median is not a pooled percentage.\nOAR is a ratio, not an acceptance %.\nTarget-period components are explanations, never earlier inputs.",
+      "caption": "Package version September 7, 2026. Sources: SRTR public reports and retained repository evidence.",
+      "notes": "The original experiment hash is ab8c01453c36039b293a8e7453b17b2b326faf734a081a4b67f8bfe132b1de79. The original bundle hash is ce2844edbcec92c09d0053720d5331dd37ed43ab75de7aa4dd1de431c79a9eee. Follow-up evaluation JSON hash is a9c873ddf303569bf628911baa60d147ebab72399083fbb574be1eba6473a774. Component analysis JSON hash is 90b0e02dc3817b3333dcf22389c964a3886ab31809105c4d050041af2bf73a0a. Native charts contain rounded display values taken from those results. Full precision remains in the original evidence. The package adds no analytical result, promotion, future prediction, clinical recommendation or regulatory claim.",
+      "sources": ["configs/data_sources.yaml", "docs/patient_journey_v2_followup_results.md", "docs/patient_journey_v2_component_results.md", "docs/presentation/v2-followup/program-case.md"]
+    }
+  ]
+}

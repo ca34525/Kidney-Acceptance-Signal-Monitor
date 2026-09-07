@@ -257,6 +257,41 @@ def test_app_ineligible_state_never_exposes_projection(
     assert not any(item.label == "Persistence projection" for item in app.metric)
 
 
+def test_offline_app_handles_activation_not_attempted(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    artifact_dir = tmp_path / "processed"
+    modeling_dir = tmp_path / "modeling"
+    _write_fixture(artifact_dir, public_eligible=True)
+    _write_modeling_fixture(
+        modeling_dir, panel_sha256=_sha256(artifact_dir / "model_panel.parquet")
+    )
+    metrics_path = next(modeling_dir.glob("frozen-replay/*/replay_metrics.json"))
+    metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+    metrics["point_promotion"]["failed_criteria"] = ["forecast_activation_not_attempted"]
+    metrics["band_promotion"] = None
+    metrics["bootstrap"] = None
+    _write_json(metrics_path, metrics)
+    completion_path = metrics_path.parent / "completion.json"
+    completion = json.loads(completion_path.read_text(encoding="utf-8"))
+    completion["artifact_sha256"]["metrics"] = _sha256(metrics_path)
+    _write_json(completion_path, completion)
+    monkeypatch.setenv("KASM_ARTIFACT_DIR", str(artifact_dir))
+    monkeypatch.setenv("KASM_MODELING_DIR", str(modeling_dir))
+
+    def reject_network(*args: object, **kwargs: object) -> None:
+        raise AssertionError("Offline app attempted network access")
+
+    monkeypatch.setattr(socket, "create_connection", reject_network)
+    app = AppTest.from_file(Path("app/streamlit_app.py").resolve(), default_timeout=10).run()
+    assert not app.exception
+    assert any(item.label == "Persistence projection" for item in app.metric)
+    assert any("not attempted" in item.value.lower() for item in app.info)
+    assert any("not calculated" in item.value.lower() for item in app.caption)
+    assert not any("calibrates the separate residual band" in item.value for item in app.markdown)
+
+
 def test_product_copy_excludes_prohibited_claims() -> None:
     app_path = Path(__file__).parents[2] / "app" / "streamlit_app.py"
     copy = app_path.read_text(encoding="utf-8").casefold()

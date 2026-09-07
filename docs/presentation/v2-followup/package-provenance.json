@@ -1,0 +1,104 @@
+{
+  "package_version": "2026-09-07",
+  "kind": "presentation_documentation",
+  "build_timestamp_utc": "2026-09-07T15:55:24.711Z",
+  "git_commit": "c95d0aff389885c7de53e8a996c9799f8f31fbe6",
+  "git_worktree_dirty": true,
+  "template": {
+    "bytes": 1519451,
+    "sha256": "2ae8105571f68403f438458cd51e6ad14f0d989c7af64239e280437a4ac2a633"
+  },
+  "template_slides": [
+    1,
+    5,
+    5,
+    22,
+    17,
+    5,
+    22,
+    22,
+    22,
+    14,
+    5,
+    5,
+    5,
+    5,
+    5,
+    14,
+    5
+  ],
+  "font": "Helvetica Neue",
+  "runtime": {
+    "node": "v24.19.0",
+    "artifact_tool": "2.8.59",
+    "bundle": "26.905.11957"
+  },
+  "inputs": {
+    "docs/presentation/v2-followup/slides.json": {
+      "bytes": 25799,
+      "sha256": "7d9bbc03698d7dcfd4721a2fa6d5f298bde33b69490de08bab3418ddc4d6e713"
+    },
+    "docs/presentation/v2-followup/build.mjs": {
+      "bytes": 14770,
+      "sha256": "39050999b8cdac79e48369de226ebebc1bd2aa5970fb9f47bb25d8d3e0c8c7a4"
+    },
+    "configs/data_sources.yaml": {
+      "bytes": 9162,
+      "sha256": "5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5"
+    },
+    "configs/patient_journey_v2/experiment.yaml": {
+      "bytes": 6258,
+      "sha256": "ab8c01453c36039b293a8e7453b17b2b326faf734a081a4b67f8bfe132b1de79"
+    },
+    "configs/patient_journey_v2/methodology.yaml": {
+      "bytes": 34382,
+      "sha256": "ba254a7cecb346618b863ce9a248e12ae5ed552bcd88a1e0cf1a6f2b0a9e8620"
+    },
+    "configs/patient_journey_v2_followup/experiment.yaml": {
+      "bytes": 4590,
+      "sha256": "da88d4180ff712680634755ee6b756d95a49ca27ab827b39bdc5bca656ba92b4"
+    },
+    "configs/patient_journey_v2_followup/outcome_components.yaml": {
+      "bytes": 1244,
+      "sha256": "9193473cc12bebd115f1db5e3dc79846d54925edecbee5b5082937cc92a435e5"
+    },
+    "artifacts/patient_journey_v2/release_manifest.json": {
+      "bytes": 3349,
+      "sha256": "d4572b07f6844b6346d228fcd2706509613f325e3ad2a86d49601c2807491a48"
+    },
+    "docs/patient_journey_v2_followup_results.md": {
+      "bytes": 10636,
+      "sha256": "2234e4820e92dc907aa554f8bad20386b76dd030d9cc9225df05fbe4590b548f"
+    },
+    "docs/patient_journey_v2_component_results.md": {
+      "bytes": 7999,
+      "sha256": "a193014e1276335df797a2a836393f6cec5c1941ea518e0e7e4919d1d76e04ec"
+    },
+    "docs/presentation/v2-followup/program-case.md": {
+      "bytes": 8010,
+      "sha256": "6ade84ea911698ed837bbae86a36ca75b79b0893c465a454f62467ddd5732af8"
+    },
+    "uv.lock": {
+      "bytes": 134669,
+      "sha256": "10f23b33f1b26e644c60c5a56126c7b73d884e874fa57319dd0a6928decbb02b"
+    }
+  },
+  "outputs": {
+    "interview.pptx": {
+      "bytes": 378431,
+      "sha256": "0dbefa72281f36c0460c50bcef25e8f17a7facfffaa4feb24caff44f95c51c4e"
+    },
+    "interview-backup.html": {
+      "bytes": 30929,
+      "sha256": "accdf578f0ecaa6dd3039a08746e94ee88c313dd67d97acd3d8386461f2e3916"
+    }
+  },
+  "original_bundle_sha256": "ce2844edbcec92c09d0053720d5331dd37ed43ab75de7aa4dd1de431c79a9eee",
+  "report_count_run": "c6cc2cea133e7e61e9e42ac284f170baef43d9989d3ab04eea543ffb47af1cfa",
+  "component_run": "e95ab9db56aad000f6a296c33fb4ad981a57b39f70ba2a6a0adb4b3fe388171b",
+  "model_fitting_performed": false,
+  "feature_schema": [],
+  "model_parameters": {},
+  "interpretation": "No new analytical release, model comparison, promotion or future forecast. Original configurations retain fitted-model parameters.",
+  "reproducibility": "HTML, displayed values and rendered slides reproduce. PPTX container metadata and generated object identifiers may vary."
+}

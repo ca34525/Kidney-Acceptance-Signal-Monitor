@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import pytest
+import yaml
 
 from kasm.config import load_data_source_manifest
 from kasm.reporting.artifacts import (
@@ -176,6 +177,50 @@ def test_release_manifest_contains_required_provenance(tmp_path: Path) -> None:
     }
 
 
+def test_release_preserves_explicit_absent_calibration_when_activation_skipped(
+    tmp_path: Path,
+) -> None:
+    processed, modeling = _canonical_fixture(tmp_path)
+    config_path = processed.parent / "frozen.yaml"
+    raw = yaml.safe_load(
+        (PROJECT_ROOT / "configs/frozen_experiment.yaml").read_text(encoding="utf-8")
+    )
+    raw["forecast_activation_attempted"] = False
+    raw["empirical_band"]["calibration_evidence"] = None
+    raw["pre_replay_freeze"]["candidate_gate_passed"] = False
+    config_path.write_text(yaml.safe_dump(raw), encoding="utf-8")
+    frozen_hash = _sha256(config_path)
+    metrics_path = next(modeling.glob("frozen-replay/*/replay_metrics.json"))
+    metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+    metrics["provenance"].update(
+        calibration_target_year=None,
+        forecast_activation_attempted=False,
+        frozen_experiment_sha256=frozen_hash,
+    )
+    _write_json(metrics_path, metrics)
+    completion_path = metrics_path.parent / "completion.json"
+    completion = json.loads(completion_path.read_text(encoding="utf-8"))
+    completion["frozen_experiment_sha256"] = frozen_hash
+    completion["artifact_sha256"]["metrics"] = _sha256(metrics_path)
+    _write_json(completion_path, completion)
+    metrics_path.parent.rename(
+        metrics_path.parent.with_name(f"{frozen_hash}_{completion['source_manifest_sha256']}")
+    )
+    result = build_release_bundle(
+        processed_dir=processed,
+        modeling_dir=modeling,
+        source_manifest_path=PROJECT_ROOT / "configs/data_sources.yaml",
+        experiment_config_path=PROJECT_ROOT / "configs/experiment.yaml",
+        frozen_experiment_path=config_path,
+        lock_path=PROJECT_ROOT / "uv.lock",
+        output_dir=processed.parent / "o",
+    )
+    manifest = json.loads(result.manifest_path.read_text(encoding="utf-8"))
+    assert manifest["provenance"]["calibration_target_year"] is None
+    assert manifest["provenance"]["forecast_activation_attempted"] is False
+    validate_release_bundle(result.manifest_path.parent)
+
+
 def test_app_bundle_matches_canonical_artifacts(tmp_path: Path) -> None:
     processed, modeling = _canonical_fixture(tmp_path)
     release = processed.parent / "o"
@@ -196,6 +241,32 @@ def test_app_bundle_matches_canonical_artifacts(tmp_path: Path) -> None:
         canonical = roots[entry["canonical_root"]] / entry["canonical_path"]
         assert _sha256(release / entry["path"]) == _sha256(canonical)
     assert summary.file_count == len(manifest["files"])
+
+
+def test_release_rejects_skipped_activation_marker_for_an_attempted_config(tmp_path: Path) -> None:
+    processed, modeling = _canonical_fixture(tmp_path)
+    metrics_path = next(modeling.glob("frozen-replay/*/replay_metrics.json"))
+    metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+    metrics["provenance"].update(
+        forecast_activation_attempted=False,
+        calibration_target_year=None,
+    )
+    _write_json(metrics_path, metrics)
+    completion_path = metrics_path.parent / "completion.json"
+    completion = json.loads(completion_path.read_text(encoding="utf-8"))
+    completion["artifact_sha256"]["metrics"] = _sha256(metrics_path)
+    _write_json(completion_path, completion)
+
+    with pytest.raises(ReleaseBundleError, match="activation.*frozen config"):
+        build_release_bundle(
+            processed_dir=processed,
+            modeling_dir=modeling,
+            source_manifest_path=PROJECT_ROOT / "configs/data_sources.yaml",
+            experiment_config_path=PROJECT_ROOT / "configs/experiment.yaml",
+            frozen_experiment_path=PROJECT_ROOT / "configs/frozen_experiment.yaml",
+            lock_path=PROJECT_ROOT / "uv.lock",
+            output_dir=processed.parent / "o",
+        )
 
 
 def test_rebuilding_a_valid_bundle_preserves_its_content_identity(tmp_path: Path) -> None:

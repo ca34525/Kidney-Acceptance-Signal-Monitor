@@ -4,6 +4,15 @@
 **Status:** done (source-cache gate handed to Plan 0002)
 **Started:** 2026-09-03
 
+## Reading this historical record — 2026-09-05
+
+This completed V1 step made the project installable and checked whether the required source files
+were already on the machine. The lockfile fixes the dependency versions; SHA-256 is a file
+fingerprint used with file size and type to detect a changed input. The original command correctly
+failed when all nine files were missing. That result below is historical: Plan 0002 later acquired
+and verified them. "CI" means the automated checks run outside the developer's local session;
+its pending status here records this step's state at the time.
+
 ## Scope and acceptance evidence
 
 | Behavior | Expected evidence | Status |

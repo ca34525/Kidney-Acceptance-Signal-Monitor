@@ -11,6 +11,11 @@ review. It is not patient- or offer-level data and must not be used to determine
 should have been accepted, infer a clinical or regulatory outcome, rank programs, or reproduce
 SRTR’s offer-level model.
 
+**Reading note, 2026-09-05:** This card describes the original V1 release. It counts published
+program-level offer measures for calendar years 2017–2025. The separate V2 study follows groups
+of listed candidates and uses a different outcome and calendar. The figures and release identity
+below retain their original meaning.
+
 ## Source and attribution
 
 The source is the Scientific Registry of Transplant Recipients (SRTR) national center-level
@@ -23,12 +28,17 @@ Raw workbooks total about 94 MiB and remain in the ignored immutable local cache
 redistributed in Git. The tracked release contains only the attributed, derived program-level
 tables and factual build/model evidence needed for the offline demonstration.
 
-## Grain and coverage
+## Grain — what one row represents and which years are covered
 
 `program_signals.parquet` has one row per
 `program_key × cohort_year × offer_group`. `program_key` is the composite `(CTR_CD, CTR_TY)`;
 program name is display-only and is never a join key. The five P0 offer groups are overall, low
 KDRI, medium KDRI, high KDRI, and hard-to-place.
+
+One program-year contributes five rows, one for each offer group; those rows are not five
+independent programs. KDRI means Kidney Donor Risk Index and names the source's donor-risk
+groups. Hard-to-place means an offer sequence greater than 100. It can overlap those groups, so
+adding the rows does not give a valid overall offer count.
 
 The table contains 10,515 rows representing 2,103 program-years across nine non-overlapping
 calendar-year cohorts from 2017–2025:
@@ -51,10 +61,16 @@ first-observed status, and `public_forecast_eligible`; the view never derives el
 
 ## Fields and source meaning
 
+The offer-acceptance ratio (OAR) compares completed-transplant acceptances with SRTR's expectation
+for similar offers. An OAR of 1 means in line with expectation; it is a ratio, not a percentage
+of offers accepted. Expected acceptances come from SRTR's offer-level calculations, not from a
+model fitted by this project. A 95% credible interval expresses SRTR's uncertainty about its
+published ratio; it is distinct from uncertainty about a future projection.
+
 Published OAR means and 95% credible bounds are authoritative. Observed and expected acceptances,
 offers, source URL/hash, exact publication value/precision, cohort dates, and display-only program
 location accompany each signal. Formula recreation using `(acceptances + 2) / (expected + 2)` is
-only a rounding-range QA diagnostic.
+only a quality-assurance (QA) check that allows for source rounding.
 
 Identifiers and ZIP codes remain strings. Published month-only dates remain month precision and do
 not acquire an invented day. Hard-to-place offers can overlap KDRI strata and are not summed with
@@ -71,6 +87,12 @@ First-observed programs are labeled. They may appear in prespecified diagnostics
 projection is withheld. The latest feature cohort contains 229 explicitly public-eligible programs
 and one first-observed program; its target is not yet published and therefore analytic-eligible
 count is zero for that projection row set.
+
+Here, public eligibility means the stored data permit displaying a projection; analytic eligibility
+means a later published outcome is available for measuring its error. These are different tests.
+The latest cohort is calendar year 2025, published on 2026-07-07; its next-calendar-year target is
+2026. A missing published outcome gives no information about whether the underlying outcome was
+good, bad, or zero.
 
 ## Exclusions and transformations
 
@@ -111,4 +133,3 @@ hashes, feature schema, model parameters, cohort roles, build time, and methodol
 Bundle content SHA-256 is
 `1de89083ceebfda9afaf2d6b1c6ba3f1e6d0c1a1da16df9d09d994c4ec3581ad`; total size is about
 1.23 MB. Reproduction starts with `uv run kasm data verify-cache` and does not depend on live URLs.
-

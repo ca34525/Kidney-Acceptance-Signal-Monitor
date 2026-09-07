@@ -1,4 +1,10 @@
-"""Trusted exploratory model evidence for patient-journey V2."""
+"""Save and verify the original V2 predictions and exploratory comparisons.
+
+Predictions describe programs and later listing cohorts. Evaluation measures
+errors against the published 18-month functioning-transplant percentage and
+retains every fixed model comparison. Saved evidence records the input files,
+settings, and build identity; no result can select a model for promotion.
+"""
 
 from __future__ import annotations
 
@@ -71,7 +77,7 @@ class PatientJourneyModelEvaluation:
 
 @dataclass(frozen=True)
 class PatientJourneyModelArtifactResult:
-    """Validated output paths for one atomic V2 model-evidence generation."""
+    """Paths and identity for a complete saved set of V2 predictions and comparisons."""
 
     output_directory: Path
     predictions_path: Path
@@ -133,7 +139,12 @@ def evaluate_patient_journey_rows(
     rows: Sequence[Mapping[str, object]],
     config: PatientJourneyConfig,
 ) -> PatientJourneyModelEvaluation:
-    """Apply the complete frozen retrospective evaluation without selecting a winner."""
+    """Run every original fixed comparison on the already-observed V2 outcomes.
+
+    Baselines use all eligible configured periods; Ridge uses the one period
+    with earlier published training outcomes. Paired comparisons retain the
+    same program/cohort rows and remain exploratory, with promotion prohibited.
+    """
     if config.model_design.ridge.promotion_allowed:
         raise PatientJourneyModelArtifactError(
             "Patient-journey V2 cannot evaluate with model promotion enabled."
@@ -288,7 +299,7 @@ def _prediction_rows(
 def patient_journey_prediction_table(
     predictions: Sequence[EvaluationPrediction],
 ) -> pa.Table:
-    """Construct the exact deterministic model-prediction schema."""
+    """Put predictions in the fixed column types and stable model/release/program order."""
     rows = _prediction_rows(predictions)
     arrays = [
         pa.array([row[field.name] for row in rows], type=field.type)
@@ -450,7 +461,10 @@ def validate_model_evaluation_directory(
     expected: PatientJourneyModelEvaluation,
     expected_provenance: Mapping[str, object],
 ) -> PatientJourneyModelArtifactResult:
-    """Reject incomplete, rehashed, or analytically changed model evidence."""
+    """Compare saved predictions and evaluation with the expected calculation.
+
+    Updating a file's recorded hash cannot legitimize changed analytical values.
+    """
     if not output_dir.is_dir() or {path.name for path in output_dir.iterdir()} != _ARTIFACT_NAMES:
         raise PatientJourneyModelArtifactError(
             "Model artifact directory does not contain the exact trusted file set."

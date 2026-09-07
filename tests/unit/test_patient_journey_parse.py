@@ -368,3 +368,148 @@ def test_safety_roster_can_include_program_absent_from_same_release_directory() 
     )
 
     assert parsed.safety_measures[0].program_key == "WXYZ:TX1"
+
+
+def _changed_cell(sheet_name: str, **values: object) -> tuple[WorkbookSheet, ...]:
+    sheets = list(_sheets())
+    for index, sheet in enumerate(sheets):
+        if sheet.name == sheet_name:
+            row = list(sheet.rows[2])
+            for field, value in values.items():
+                row[sheet.rows[0].index(field)] = value
+            sheets[index] = replace(sheet, rows=(*sheet.rows[:2], tuple(row)))
+    return tuple(sheets)
+
+
+@pytest.mark.parametrize(
+    ("sheet", "field", "value", "message"),
+    [
+        ("Tiers", "CTR_CD", "ABC", "CTR_CD"),
+        ("Tiers", "CTR_TY", "TX-1", "CTR_TY"),
+        ("Tiers", "ORGAN", "Liver", "ORGAN"),
+        ("Tiers", "PRIMARY_ZIP", True, "PRIMARY_ZIP"),
+        ("Table B7", "ORG", "LI", "ORG"),
+        ("Table B7", "SAL_N_C", -1, "cannot be negative"),
+        ("Table B7", "SAL_N_C", 40.5, "whole number"),
+        ("Table B7", "SAL_N_C", 0, "jointly reported"),
+        ("Table B7", "SAL_N_C", None, "jointly reported"),
+        ("Table B7", "SAL_TOTFTX_C18", None, "jointly reported"),
+        ("Table B7", "SAL_TOTFTX_C18", 37.0, "within rounding"),
+        ("Access", "center", "AB", "four-character"),
+        ("Access", "wl_org", "LI", "wl_org"),
+        ("Access", "TMR_TxPy_c", "invalid", "must be numeric"),
+        ("Access", "TMR_TxPy_c", True, "must be numeric"),
+        ("Access", "TX_RR", -0.1, "cannot be negative"),
+        ("Access", "TX_RR", float("inf"), "must be finite"),
+        ("Access", "begdate", "2020-01-01", "methodology ledger"),
+        ("Access", "begdate", "invalid", "must be a date"),
+        ("Access", "begdate", True, "must be a date"),
+        ("Access", "enddate", None, "must be a date"),
+        ("Table B10", "RELEASE_DATE", "2025-08-08", "publication date"),
+    ],
+)
+def test_parser_rejects_values_that_change_identity_units_or_timing(
+    sheet: str, field: str, value: object, message: str
+) -> None:
+    with pytest.raises(PatientJourneyParseError, match=message):
+        parse_patient_journey_workbook(
+            _source(), _methodology(), _changed_cell(sheet, **{field: value})
+        )
+
+
+def test_unreported_target_remains_unknown_in_every_derived_value() -> None:
+    parsed = parse_patient_journey_workbook(
+        _source(),
+        _methodology(),
+        _changed_cell("Table B7", SAL_N_C=None, SAL_TOTFTX_C18=" "),
+    )
+    outcome = parsed.outcomes[0]
+    assert outcome.target_n is None
+    assert outcome.published_percent is None
+    assert outcome.target_proportion is None
+    assert outcome.reconstructed_successes is None
+    assert outcome.target_logit is None
+
+
+@pytest.mark.parametrize("wait_time", [None, 8.0])
+def test_wait_time_keeps_missing_and_whole_month_values(wait_time: float | None) -> None:
+    parsed = parse_patient_journey_workbook(
+        _source(),
+        _methodology(),
+        _sheets(wait_time=wait_time),
+    )
+    assert parsed.wait_times[0].months_25th_percentile == wait_time
+    assert parsed.wait_times[0].raw_value == (None if wait_time is None else "8")
+
+
+def test_access_dates_accept_calendar_dates_and_us_source_text() -> None:
+    parsed = parse_patient_journey_workbook(
+        _source(),
+        _methodology(),
+        _sheets(access_start=date(2023, 1, 1), access_end="12/31/2024"),
+    )
+    assert parsed.transplant_rates[0].measurement_start == date(2023, 1, 1)
+    assert parsed.transplant_rates[0].measurement_end == date(2024, 12, 31)
+
+
+@pytest.mark.parametrize("published", ["2025-07", "2025-06", "2024-07"])
+def test_month_precision_publication_checks_month_and_year_without_inventing_a_day(
+    published: str,
+) -> None:
+    source = replace(_source(), published_value=published, published_precision="month")
+    methodology = replace(_methodology(), published_value=published, published_precision="month")
+    if published != "2025-07":
+        with pytest.raises(PatientJourneyParseError, match="month-precision"):
+            parse_patient_journey_workbook(source, methodology, _sheets())
+    else:
+        parsed = parse_patient_journey_workbook(source, methodology, _sheets())
+        assert parsed.outcomes[0].published_value == "2025-07"
+        assert parsed.outcomes[0].published_precision == "month"
+
+
+@pytest.mark.parametrize("sheet_name", ["Tiers", "Table B7", "Access", "Table B10"])
+def test_repeated_program_row_is_rejected_even_when_row_count_matches(sheet_name: str) -> None:
+    sheets = tuple(
+        replace(sheet, rows=(*sheet.rows, sheet.rows[2])) if sheet.name == sheet_name else sheet
+        for sheet in _sheets()
+    )
+    methodology = _methodology()
+    methodology = replace(
+        methodology,
+        identity_sheet=replace(methodology.identity_sheet, expected_rows=2)
+        if sheet_name == "Tiers"
+        else methodology.identity_sheet,
+        metrics=tuple(
+            replace(metric, sheet=replace(metric.sheet, expected_rows=2))
+            if metric.sheet.name == sheet_name
+            else metric
+            for metric in methodology.metrics
+        ),
+    )
+    with pytest.raises(PatientJourneyParseError, match="duplicate"):
+        parse_patient_journey_workbook(_source(), methodology, sheets)
+
+
+@pytest.mark.parametrize("failure", ["missing_sheet", "missing_field", "missing_row", "contract"])
+def test_source_schema_rejects_missing_content(failure: str) -> None:
+    sheets = list(_sheets())
+    methodology = _methodology()
+    if failure == "missing_sheet":
+        sheets.pop(0)
+        message = "available sheets"
+    elif failure == "missing_field":
+        identity = sheets[0]
+        headers = tuple("NEW_FIELD" if field == "ORGAN" else field for field in identity.rows[0])
+        sheets[0] = replace(identity, rows=(headers, *identity.rows[1:]))
+        message = "required machine fields"
+    elif failure == "missing_row":
+        sheets[0] = replace(sheets[0], rows=sheets[0].rows[:2])
+        message = "row count changed"
+    else:
+        methodology = replace(
+            methodology,
+            identity_sheet=replace(methodology.identity_sheet, required_fields=("CTR_CD",)),
+        )
+        message = "contract omits required fields"
+    with pytest.raises(PatientJourneyParseError, match=message):
+        parse_patient_journey_workbook(_source(), methodology, tuple(sheets))
