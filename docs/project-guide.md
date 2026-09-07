@@ -29,13 +29,13 @@ acceptance decision.
 |---|---|---|
 | V1 acceptance monitor | Released; carries the latest ratio forward because Ridge missed a frozen promotion rule | [V1 model card](model_card.md) |
 | Original V2 patient-journey study | Completed exploratory study; no model promoted and no future forecast displayed | [V2 model card](patient_journey_v2_model_card.md) |
-| V2 follow-up | Report-count comparison and matched outcome-component analysis implemented; local container verification remains blocked | [Report-count results](patient_journey_v2_followup_results.md), [component results](patient_journey_v2_component_results.md) |
+| V2 follow-up | Report-count comparison and matched outcome-component analysis complete; local container verification passes | [Report-count results](patient_journey_v2_followup_results.md), [component results](patient_journey_v2_component_results.md) |
 
 The first pass is complete as of 2026-09-05 UTC. It reviewed existing documentation, including
 older records and code comments/docstrings, and clarified their meaning while retaining the
 original facts and decisions. Plan 0020 contains the per-file record and verification evidence.
 The report-count investigation below is complete. The separate outcome-component analysis is
-implemented with verified numerical evidence; local Docker startup blocks its container check.
+complete with verified numerical evidence and successful container checks after Docker repair.
 The author's walkthrough and rehearsal remain separate work.
 
 The original V2 results remain available. The follow-up has its own specification, configuration,

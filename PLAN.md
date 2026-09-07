@@ -2,7 +2,7 @@
 
 **Plan version:** 1.2
 
-**Status:** V2 outcome-component analysis implemented; local Docker verification blocked
+**Status:** V2 outcome-component analysis complete; interview package next
 
 **Original build time box:** Seven full-time days
 
@@ -22,8 +22,8 @@ count reduces history-only Ridge's average error from 11.49 to 7.32 percentage p
 descriptive limits. P3 now also has a separate, source-verified
 [outcome-component analysis](docs/patient_journey_v2_component_results.md): all 218 evaluation
 programs match, and their median combined post-transplant unknown percentage is 16.05% of the
-original listing group. Numerical checks, reproduction and offline app health pass; Docker
-startup blocks the local container check. P3 remains open for that verification gap. P4's
+original listing group. Numerical checks, reproduction and offline app health pass. Docker
+startup is repaired; image-build and non-root offline container health checks pass, closing P3. P4's
 20-minute story, program case and author rehearsal follow. Original V1/V2 evidence and
 application behavior are preserved; current changes remain uncommitted.
 
@@ -93,7 +93,7 @@ Use these exact statuses: `not_started`, `in_progress`, `blocked`, `done`, `cut`
 | M11 | V2 temporal design and canonical panel | done | Plan 0017: four non-overlapping pairs, strict-vintage folds, deterministic 966-row in-memory panel, 181 tests, and required quality gates pass |
 | M12 | V2 canonical artifact publication | done | Plan 0018: config-owned processed bundle, source-derived QA evidence, provenance contract, trusted validation, and isolated offline build command; 214 tests pass and the real cache build publishes 966 rows |
 | M13 | V2 exploratory study and optional product | done | Plan 0019: canonical 679 KB bundle built from clean `cdea5c4` and published at `0353f99`; 236-test/83.93% suite, offline V2 flow, V1 isolation, and both remote CI jobs pass; no model promoted |
-| M14 | V2 follow-up and 20-minute interview story | in_progress | Plan 0020: P0a and P1/P2 complete; P3 source/component analysis implemented with 218 exact matches and reproducible outputs; local Docker verification blocked; P4 remains |
+| M14 | V2 follow-up and 20-minute interview story | in_progress | Plan 0020: P0a and P1–P3 complete; 218 exact component matches, reproducible outputs and local non-root/offline Docker health verified; P4 remains |
 
 ## 5. Day-by-day execution
 

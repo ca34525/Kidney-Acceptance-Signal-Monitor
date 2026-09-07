@@ -2,7 +2,7 @@
 
 **Milestone:** M14 V2 follow-up and 20-minute interview presentation
 
-**Status:** P0a and P1/P2 complete; P3 implemented with container verification blocked;
+**Status:** P0a and P1–P3 complete; Docker verification restored;
 presentation/rehearsal not started
 
 **Current work order, 2026-09-04 (2026-09-05 UTC):** The user-authorized hardening in
@@ -14,8 +14,9 @@ count-removed comparisons. Changes remain uncommitted. See the
 [follow-up results](../patient_journey_v2_followup_results.md) and execution evidence below.
 **Current update, 2026-09-07:** P3's source-verified outcome composition is implemented, with
 all 218 original evaluation programs matched and deterministic evidence reproduced. See the
-[component results](../patient_journey_v2_component_results.md). Local Docker startup blocks
-container verification, so P3 is not marked complete. P4 follows after this verification gap.
+[component results](../patient_journey_v2_component_results.md). Docker startup was repaired
+later the same day; the image builds and its non-root container passes health checks with
+networking disabled. P3 is complete. P4's interview package follows.
 
 **Started:** 2026-09-04
 
@@ -247,10 +248,10 @@ reach original output roots. Keep safety and source-boundary tests required by t
 
 ### P3 Explain the outcome and its unknown part
 
-**Status:** in progress, 2026-09-07. Scope is the original evaluation release 2505;
+**Status:** complete, 2026-09-07. Scope is the original evaluation release 2505;
 the separate component specification and Decision 0009 govern this batch. Implementation,
-source/numerical evidence and Python/app verification are complete; local Docker startup
-blocks the container check. Keep P3 open until that verification gap is resolved.
+source/numerical evidence and Python/app verification are complete. The subsequent Docker
+repair and successful image build/non-root offline health check close the verification gap.
 
 First verify the machine fields and definitions for each intended source release. Candidate fields
 identified during review are `SAL_CTXFNC_C18`, `SAL_LTXFNC_C18`, `SAL_CTXUNK_C18`, and
@@ -900,6 +901,9 @@ Fresh command evidence, with `UV_CACHE_DIR=.uv-cache` and `MPLCONFIGDIR=.uv-cach
 
 ### P3 implementation and verification — 2026-09-07
 
+**Later update:** The initial blocked verification below is retained as historical evidence.
+The subsequent Docker repair section records successful container verification and closes P3.
+
 The user-authorized substantial batch implements the separate outcome-component specification,
 typed configuration and Decision 0009, leaving all changes uncommitted. P3's numerical/source
 requirements are satisfied. Its final status remains open because local Docker verification
@@ -1012,3 +1016,61 @@ reads the preserved release, and its writer cannot reach original or P1/P2 roots
 covers their fixture pipelines and both offline app flows. No raw data, generated analytical
 bundle, serialized model, source checksum change, commit, push, PR, promotion or future forecast
 was created. All intended repository changes remain unstaged and uncommitted.
+
+### Docker startup repair and P3 verification closure — 2026-09-07 UTC
+
+The user explicitly requested repair of Docker's inaccessible `sailor-ingest.sock` endpoint.
+Scope and acceptance: restore the local Linux engine, build the existing project Dockerfile,
+verify non-root startup and app health with container networking disabled, and update current
+P3 status. Preserve the earlier failure record and original study evidence. This is a host
+repair with documentation-only repository changes; no new executable behavior requires a
+failing unit test. The observed startup failure is the before-repair evidence, and successful
+engine/build/container commands are the direct repair checks.
+
+Repair evidence:
+
+- Docker initially had no running processes. Its `Docker/run` directory contained only six
+  zero-byte socket entries. After verifying exact paths and entry types, preserved the directory
+  as `%LOCALAPPDATA%/Docker/run.before-repair-20260907-101556` and created a fresh `run` directory.
+- Startup passed Ingest initialization but encountered the same inaccessible socket error at
+  `%LOCALAPPDATA%/docker-secrets-engine/engine.sock`. Backend logs confirmed the local engines
+  had stopped. The graceful Desktop stop timed out; stopped only the failed Desktop/backend
+  processes before the next repair.
+- Verified that both runtime directories now contained only two zero-byte socket entries each.
+  Preserved them as `%LOCALAPPDATA%/Docker/run.before-repair-20260907-101923` and
+  `%LOCALAPPDATA%/docker-secrets-engine.before-repair-20260907-101923`, then recreated the two
+  empty directories. No settings, credentials, WSL disk, existing images or containers were
+  removed. All three backup directories remain in place.
+- Started Docker Desktop in the background. Desktop `4.89.0 (238018)` now reports Linux Engine
+  `29.7.2`; a Windows restart and factory reset were unnecessary. Directory replacement
+  resolved this occurrence; it does not establish why the sockets became inaccessible.
+
+The commands below use `docker` to mean the installed executable at
+`%LOCALAPPDATA%/Programs/DockerDesktop/resources/bin/docker.exe`. Host repair and Docker access
+used approved sandbox escalation. No Dockerfile, dependency, configuration or analytical output
+changed during the repair.
+
+| Command or check | Result |
+|---|---|
+| `docker version --format '{{json .Server}}'` | Passed; Linux Engine `29.7.2` responds |
+| `docker build -t kidney-acceptance-signal-monitor:v2-components .` | Passed; locked production dependencies installed and image exported |
+| `docker run --detach --network none --name kasm-docker-repair-20260907-1523 kidney-acceptance-signal-monitor:v2-components` | Passed; temporary container became `healthy` |
+| `docker inspect` user, network, health and image | `kasm`, `none`, `healthy`; image `sha256:51405749377b46f6598e04b2aec1dd8de468edb85da0139f5f9e71523fb76a3b` |
+| `docker exec kasm-docker-repair-20260907-1523 id -u` | `10001` (non-root) |
+| Python `urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=5)` inside the container | Returned `ok` with networking disabled |
+| `docker rm -f kasm-docker-repair-20260907-1523` | Removed only the temporary smoke container; Docker remains running |
+
+P3's previously recorded analysis, reproduction, review and Python checks remain the evidence
+for the unchanged implementation. The image contains the retained V1 application bundle, as
+specified by the existing Dockerfile; this check does not claim a new V2 container release.
+P4's program case, presentation, author walkthrough and rehearsal remain unfinished.
+
+Fresh repository verification after the repair used `UV_CACHE_DIR=.uv-cache` and
+`MPLCONFIGDIR=.uv-cache/matplotlib`. All six required commands from the P3 verification table
+were rerun successfully: frozen sync checked 74 packages; Ruff format/check passed for 80 Python
+files; mypy passed for 39 source files; all 493 tests passed in 38.27 seconds with 84.08% combined
+statement/branch coverage; the separate V2 coverage check passed at 83.62%. All 158 local file
+links across the five updated documents resolve, `git diff --check` passes, and all 43 protected
+input/result hashes remain unchanged. Independent review found no actionable issue in the
+documentation diff. Only these status/evidence documents changed in this repair turn; they
+remain uncommitted. No analysis writer, model fit or frozen replay ran.

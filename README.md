@@ -19,10 +19,9 @@ for all comparisons and their descriptive uncertainty. P3's separate
 [outcome-component analysis](docs/patient_journey_v2_component_results.md) matches all 218
 evaluation programs and finds a median 16.05% of listed candidates with post-transplant status
 yet unknown. This is a program median, not a pooled patient percentage or an explanation of
-prediction error. Local container verification is blocked by Docker startup; the interview
-package remains next after that verification gap. The original V2 results remain available;
-the commands and four-minute demo
-below describe the retained V1 product.
+prediction error. P3 is complete, including local image-build and non-root offline container
+health checks after Docker startup repair. The interview package remains next. The original V2
+results remain available; the commands and four-minute demo below describe the retained V1 product.
 
 The fixed evaluation on already-inspected 2025 outcomes did not qualify Ridge for display. Ridge
 is a regression model that limits how strongly it weights its inputs. Its average absolute error

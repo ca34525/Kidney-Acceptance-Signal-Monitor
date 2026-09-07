@@ -132,7 +132,8 @@ development evidence, not a tracked release.
 All five payloads reproduce byte-for-byte in a separate read-and-calculate run. Independent
 review checked the figures, medians, all error correlations and payload hashes. The
 [active plan](plans/0020-v2-follow-up-and-interview-story.md) records tests and verification,
-including the local Docker startup blocker. P4's program case, presentation, author walkthrough
-and rehearsal remain unfinished; this analysis does not establish interview readiness.
+including the repaired Docker startup and successful container checks. P4's program case,
+presentation, author walkthrough and rehearsal remain unfinished; this analysis does not establish
+interview readiness.
 
 Public aggregate research prototype — not clinical or regulatory decision support.
