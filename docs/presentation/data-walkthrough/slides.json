@@ -3,6 +3,29 @@
   "banner": "Public aggregate research prototype. Not clinical or regulatory decision support.",
   "slides": [
     {
+      "layout": "columns",
+      "title": "Kidney Acceptance Signal Monitor",
+      "intro": "Goal: use public reports to study kidney programs over time and test predictions of later published measures.",
+      "left_heading": "V1: a historical monitor",
+      "left_bullets": [
+        "Build a historical screening monitor using SRTR's published offer-acceptance ratios.",
+        "Test whether a model improves on carrying the latest value forward."
+      ],
+      "right_heading": "V2: an exploratory study",
+      "right_bullets": [
+        "Ask whether earlier acceptance and transplant access measures add predictive information.",
+        "Outcome: the percentage of listed candidates known alive with a functioning transplant 18 months after listing."
+      ],
+      "result": "The walkthrough connects source data, quality checks and model comparisons with a working reporting app.",
+      "caption": "Independent portfolio project using public aggregate SRTR data.",
+      "notes": "Introduce the project as an independent portfolio study built from public kidney program summaries. V1 provides a historical screening monitor and evaluates projections against simple comparisons. V2 asks a separate exploratory question about later reported outcomes among listed candidates, with no model promotion. Both studies concern program summaries. They do not evaluate an individual offer or prescribe a clinical action. The walkthrough begins with the source workbooks, explains the checks and study choices, demonstrates the app and examines what the results can support. The next slide introduces SRTR and the data.",
+      "sources": [
+        "SPEC.md",
+        "docs/specs/patient-journey-v2.md",
+        "docs/project-guide.md"
+      ]
+    },
+    {
       "title": "SRTR and the source data",
       "bullets": [
         "The Scientific Registry of Transplant Recipients (SRTR) publishes Program-Specific Reports (PSRs).",
@@ -18,7 +41,8 @@
         "https://srtr.hrsa.gov/transplant-professionals/program-specific-report/technical-methods-for-the-program-specific-reports/",
         "configs/data_sources.yaml",
         "docs/specs/patient-journey-v2.md"
-      ]
+      ],
+      "layout": "source"
     },
     {
       "title": "A small sample of the kidney workbook",
@@ -67,7 +91,8 @@
         "configs/data_sources.yaml",
         "configs/patient_journey_v2/methodology.yaml",
         "docs/specs/patient-journey-v2.md"
-      ]
+      ],
+      "layout": "workbook"
     },
     {
       "title": "Data quality and reproducibility",
@@ -89,7 +114,8 @@
         "SPEC.md",
         "docs/specs/patient-journey-v2.md",
         "docs/data_card.md"
-      ]
+      ],
+      "layout": "qa"
     },
     {
       "title": "The workbook tables contain different programs",
@@ -127,7 +153,8 @@
         "configs/patient_journey_v2/methodology.yaml",
         "src/kasm/data/parse.py",
         "docs/specs/patient-journey-v2.md"
-      ]
+      ],
+      "layout": "join"
     },
     {
       "title": "SRTR's offer-acceptance ratio",
@@ -149,7 +176,8 @@
         "https://srtr.hrsa.gov/getting-started/faqs/for-transplant-center-professionals/",
         "https://srtr.hrsa.gov/transplant-professionals/program-specific-report/technical-methods-for-the-program-specific-reports/",
         "SPEC.md"
-      ]
+      ],
+      "layout": "oar"
     },
     {
       "title": "V1 methodology",
@@ -173,7 +201,8 @@
         "docs/model_card.md",
         "configs/frozen_experiment.yaml",
         "SPEC.md"
-      ]
+      ],
+      "layout": "v1-method"
     },
     {
       "layout": "chart",

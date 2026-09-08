@@ -1,8 +1,8 @@
 # Project walkthrough
 
-[Open the complete PowerPoint](data-walkthrough.pptx): **18 main slides and six optional reference
-slides**, with editable charts/tables and speaking notes. This pass has no time limit. The first
-six slides preserve the author's approved data, QA and V1 sequence.
+[Open the complete PowerPoint](data-walkthrough-with-introduction.pptx): **19 main slides and six optional reference
+slides**, with editable charts/tables and speaking notes. This pass has no time limit. Slides 2-7 preserve the author's approved data, QA and V1 sequence.
+The updated deck has a separate filename because the previous PowerPoint is open and locked.
 
 ## Principles inferred from the author's walkthrough
 
@@ -20,15 +20,16 @@ six slides preserve the author's approved data, QA and V1 sequence.
 
 | Slides | Question answered |
 |---|---|
-| 1-2 | Where do the data come from, and what does a source record mean? |
-| 3-4 | What do the checks before modeling protect against? |
-| 5-6 | What does OAR mean, and how did V1 compare projections? |
-| 7 | What can someone learn from the V1 app? |
-| 8-11 | What does V2 ask, count and compare, and what was public when? |
-| 12-14 | Why was the initial result attractive, and what changed after investigation? |
-| 15-16 | What does known functioning mean for interpreting the outcome? |
-| 17-18 | How is evidence delivered, what was established, and what comes next? |
-| 19-24 | CSVs, transforms/Ridge, V1 rules, all V2 errors, cohorts and unknown follow-up |
+| 1 | What is the project trying to accomplish? |
+| 2-3 | Where do the data come from, and what does a source record mean? |
+| 4-5 | What do the checks before modeling protect against? |
+| 6-7 | What does OAR mean, and how did V1 compare projections? |
+| 8 | What can someone learn from the V1 app? |
+| 9-12 | What does V2 ask, count and compare, and what was public when? |
+| 13-15 | Why was the initial result attractive, and what changed after investigation? |
+| 16-17 | What does known functioning mean for interpreting the outcome? |
+| 18-19 | How is evidence delivered, what was established, and what comes next? |
+| 20-25 | CSVs, transforms/Ridge, V1 rules, all V2 errors, cohorts and unknown follow-up |
 
 The workbook example shows four named columns from July 2025 Table B7, Excel rows 3-5 after its
 two header rows. It is a schema illustration. The QA example compares source-order program keys
@@ -39,7 +40,7 @@ predictor/outcome join. Source definitions and selection rationale remain in the
 
 Run `uv run streamlit run app/streamlit_app.py` from the repository root. On **Program monitor**,
 select **University of Alabama Hospital (ALUA) — Birmingham, AL**.
-Slide 7 provides a static history chart if the app is unavailable.
+Slide 8 provides a static history chart if the app is unavailable.
 
 1. Show overall OAR: 0.74 in 2017, 2.00 in 2021, 0.81 in 2023 and 1.11 in 2025.
    Inspect SRTR's credible intervals. The latest 95% interval, 0.95-1.28, includes 1.
@@ -59,7 +60,7 @@ not replace the original app's evidence.
 
 [Slide text and speaking notes](slides.json) contain supporting source paths and URLs.
 [The builder](build.mjs) uses the earlier [V2 deck](../v2-followup/interview.pptx) as its visual
-reference. [Package provenance](package-provenance.json) is generated with the deck. This is a
+reference. [Package provenance](package-provenance-with-introduction.json) is generated with the deck. This is a
 documentation build; it fits no models and changes no analytical release bundles.
 
 Run with the supplied desktop runtime and a fresh build directory name:
@@ -77,7 +78,7 @@ contains the PowerPoint and provenance, with slide PNGs and validation outside i
 refuses an existing directory and does not overwrite the checked-in deck. PPTX metadata and
 object IDs may vary between builds; displayed content is reproducible.
 
-All 24 final slides are rendered and inspected. Content, editable evidence, package structure,
+All 25 final slides are rendered and inspected. Content, editable evidence, package structure,
 layout and the six required repository checks pass. The artifact renderer emits the inherited
 Helvetica Neue embedded-font decode warning; rendered text remains legible. Native PowerPoint
 rendering and fonts still need checking on the presentation machine during the author's rehearsal.

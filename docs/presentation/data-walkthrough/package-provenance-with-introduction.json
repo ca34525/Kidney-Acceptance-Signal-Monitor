@@ -1,0 +1,79 @@
+{
+  "package_version": "2026-09-07",
+  "kind": "presentation_documentation",
+  "source_scope": "Excerpt metadata below describes the opening workbook examples. Later source releases, periods and results are identified in each slide’s notes.",
+  "git_commit": "458f55ca54cbf81729c8dc7caa353ddbfb7d098b",
+  "git_branch": "codex/data-walkthrough-slides",
+  "git_worktree_dirty": true,
+  "built_at_utc": "2026-09-07T23:49:12.785Z",
+  "runtime_bundle": "26.905.11957",
+  "node_version": "v24.19.0",
+  "model_parameters": "Not applicable: no model is fitted or evaluated by this documentation build.",
+  "source_release": "2505",
+  "source_workbook_sha256": "032584a0a1fe3df70c1f4cc9806f9a2756f8d378795534dae38a47d441422ac5",
+  "source_archive_sha256": "359723874d5cdc2acaae98e0ebd3385f4a7d2f4dcc255e4dba90dba2a6036b8b",
+  "source_sheet": "Table B7",
+  "source_excel_rows": [
+    3,
+    4,
+    5
+  ],
+  "listing_period": [
+    "2022-07-01",
+    "2023-06-30"
+  ],
+  "published_date": "2025-07-08",
+  "displayed_fields": [
+    "CTR_CD",
+    "CTR_TY",
+    "SAL_N_C",
+    "SAL_TOTFTX_C18"
+  ],
+  "input_sha256": {
+    "configs/data_sources.yaml": "5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5",
+    "configs/patient_journey_v2/methodology.yaml": "ba254a7cecb346618b863ce9a248e12ae5ed552bcd88a1e0cf1a6f2b0a9e8620",
+    "SPEC.md": "a4e829546dcb8e223d1819377a034ee0cde7f432889d1e0b405888b132d2e221",
+    "docs/specs/patient-journey-v2.md": "06c8f15af388faf0133a10e6f135b419f50f528cdaa400285bd413b073478159",
+    "docs/model_card.md": "d68d0c18440ec4597b09623ee11c9bd28f738604e28ba313852b4d155df306c4",
+    "docs/patient_journey_v2_followup_results.md": "2234e4820e92dc907aa554f8bad20386b76dd030d9cc9225df05fbe4590b548f",
+    "docs/patient_journey_v2_component_results.md": "eb16bcb773f25983d917ffa753f7a2a8f16315850b176e36168974965b32b4f0",
+    "docs/presentation/v2-followup/program-case.md": "9f64b115a3c7199c061a0588d22d19f0b8d20f2798326a8d61eb5d7a51cd2ee0",
+    "src/kasm/data/parse.py": "50132f07b6cf9993e81e79e76a94cfd725b82e1e3d29c9b7da831d78524e4ef1",
+    "src/kasm/data/cache.py": "293644344e5ae3f6e1c6a25ecb176ee2eeb958ca70a1436e1e65a5931ce37d00",
+    "docs/presentation/v2-followup/interview.pptx": "0dbefa72281f36c0460c50bcef25e8f17a7facfffaa4feb24caff44f95c51c4e",
+    "docs/presentation/data-walkthrough/slides.json": "0e159193865a4ba6bfc1b6b873aefcf72b3b938d3d4a2ae48d253ff0183c5c94",
+    "docs/presentation/data-walkthrough/build.mjs": "b31b1926383c4ebb8d030cc9d5f25c2d3f51587f37d0439e9d6fe1d631be00f9",
+    "uv.lock": "34357af7a03a9cec4a1becab5444a047356b0c40d47c18ff79e703b82ec46041"
+  },
+  "output_sha256": "3a8d1173fe753ed5895175ec822f839cbe384889ff1380293ccb908f90067b00",
+  "additional_source_excerpt": {
+    "sheets": [
+      "Table B7",
+      "Table B11 & Figures B10-B14"
+    ],
+    "excel_rows": [
+      3,
+      4,
+      5
+    ],
+    "identity_fields": [
+      "CTR_CD",
+      "CTR_TY"
+    ],
+    "record_counts": [
+      234,
+      230
+    ],
+    "matched_identity_count": 229,
+    "correct_match": {
+      "program_key": "ALUA:TX1",
+      "b7_excel_row": 4,
+      "b11_excel_row": 74
+    },
+    "acceptance_cohort": [
+      "2024-01-01",
+      "2024-12-31"
+    ],
+    "role": "source QA illustration only; not a prediction-data join"
+  }
+}

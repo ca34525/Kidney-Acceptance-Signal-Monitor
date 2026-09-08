@@ -31,8 +31,9 @@ and M14 remain in progress. Original V1/V2 evidence and application behavior are
 current changes remain uncommitted.
 
 **Walkthrough update, 2026-09-07:** The author's question-led
-[complete project deck](docs/presentation/data-walkthrough/README.md) now contains 18 main slides
-and six optional reference slides, preserving the approved six-slide opening. The author removed
+[complete project deck](docs/presentation/data-walkthrough/README.md) now contains 19 main slides
+and six optional reference slides. A general goal slide precedes the approved six-slide data, QA
+and V1 sequence. The author removed
 the time limit for this pass. Sources, QA, V1/app, original V2, both follow-ups and conclusions form
 one walkthrough. The complete author review and rehearsal remain pending; no commit is authorized.
 

@@ -26,6 +26,21 @@ rehearsal remain pending; P4 is not yet complete.
 
 ### User-led data walkthrough — 2026-09-07
 
+**Opening slide, authorized 2026-09-07:** Prepend one general introduction stating the project
+goal and the separate V1/V2 questions. Retain the existing 24 slides in order and update slide
+numbers and companion references. Acceptance: a readable opening in the same visual style,
+unchanged existing content, 25-slide rendering/package checks and required repository checks.
+The documentation-only test exception applies. No analytical changes, staging or commit.
+
+Opening delivered with `DATA_SLIDES_BUILD_NAME=opening-slide-03`: 25 slides (19 main, six
+appendix). The opening was visually inspected. The previous 24 slides retain identical content
+and rendered appearance apart from page numbers. Layout, package and editable-evidence checks
+pass without findings or layout warnings. All six fresh repository checks pass: 493 tests,
+84.08% combined and 83.62% V2 coverage. Slide references and build metadata follow the new order.
+The original PowerPoint is open and locked, so the reviewed version is saved separately as
+`data-walkthrough-with-introduction.pptx`, with its own companion provenance. All 25 final renders
+match the preceding reviewed build. The original deck and its provenance remain preserved.
+
 **Complete deck, authorized 2026-09-07:** Finish the presentation using the author's established
 pattern: source data first, ordinary-language questions, overview followed by concrete evidence,
 simple alternatives, and explicit limits on conclusions. The author has removed the time limit
