@@ -26,9 +26,27 @@ acceptance decision.
 | Original V2 patient-journey study | Completed exploratory study; no model promoted and no future forecast displayed | [V2 model card](patient_journey_v2_model_card.md) |
 | V2 follow-up | Report-count comparison and matched outcome-component analysis complete | [Report-count results](patient_journey_v2_followup_results.md), [component results](patient_journey_v2_component_results.md) |
 | Deceased-donor receipt study | Complete; acceptance added too little improvement to continue under the fixed rule | [Receipt results](deceased_donor_receipt_results.md) |
+| Waiting-list viability screen | Complete; growing lists commonly coexist with more transplant removals, passing the fixed descriptive rules | [Waiting-list recommendation](waiting_list_viability_results.md) |
+| Waiting-list case study | Complete; signed change distributions, three fixed program examples and reusable offline briefs | [Case study](waiting_list_case_study.md), [reproduction](waiting_list_case_study_reproduction.md) |
 
 The original V2 results remain available. The follow-up has its own specification, configuration,
 results and provenance; it does not overwrite the earlier study.
+
+The separate waiting-list screen found increased transplant removals in 52.8%, 47.4% and
+42.3% of eligible programs with growing lists in 2023–2025. Analysts should examine registration
+demand and other removal categories alongside transplant activity before interpreting growth.
+The finding survives the fixed size and common-program checks; it supports a further descriptive
+direction, with no model or application change. These counts describe events at programs, not
+unique people nationally or clinical causes. The linked recommendation reports exclusions and limits.
+
+The completed [case study](waiting_list_case_study.md) adds the size of those changes. Across all
+growing-list programs, median transplant-removal changes were +2, 0 and −2 events; among those with
+increases, medians were +15, +12 and +8. Some increases were one event. A worked example shows a
+list growing by 56 registrations while transplant removals increased by 24, yet annual growth
+slowed from 108 the year before. Its two annual equations and the separate change-in-growth
+equation reconcile exactly. Three examples follow a fixed middle-record rule, and the same offline
+HTML template can describe another eligible program. This remains descriptive work, with no model
+promotion, quality ranking, causal claim or application integration.
 
 The [source audit](audits/source-feasibility-0022.md) found that the July 2026 report uses
 July 2023–June 2024 listings. The original ledger incorrectly recorded calendar 2023 and
