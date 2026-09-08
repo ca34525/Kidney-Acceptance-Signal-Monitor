@@ -1,0 +1,95 @@
+schema_version: 1
+analysis_id: kidney_deceased_donor_receipt_0023_v1
+target_scale: derived_deceased_donor_receipt_percent
+target_transform: log((N*p+0.5)/(N*(1-p)+0.5))
+denominator: SAL_N_C
+months_after_listing: 18
+primary_min_target_n: 10
+sensitivity_min_target_n:
+- 20
+- 30
+max_prediction_origin_month_offset: 1
+baselines:
+- persistence
+- historical_mean
+feature_groups:
+- - history
+  - - prior_target_logit
+    - historical_mean_target_proportion
+    - log1p_prior_target_n
+- - history_access
+  - - prior_target_logit
+    - historical_mean_target_proportion
+    - log1p_prior_target_n
+    - log_transplant_rate_ratio
+    - log1p_transplant_rate_person_years
+    - log1p_wait_time_months_25th_percentile
+    - missing_transplant_rate_ratio
+    - missing_transplant_rate_person_years
+    - missing_wait_time
+- - history_access_acceptance
+  - - prior_target_logit
+    - historical_mean_target_proportion
+    - log1p_prior_target_n
+    - log_transplant_rate_ratio
+    - log1p_transplant_rate_person_years
+    - log1p_wait_time_months_25th_percentile
+    - missing_transplant_rate_ratio
+    - missing_transplant_rate_person_years
+    - missing_wait_time
+    - log1p_acceptance_overall_expected_acceptances
+    - log_acceptance_overall_oar
+    - acceptance_interval_log_width
+    - log_acceptance_low_oar
+    - log_acceptance_medium_oar
+    - log_acceptance_high_oar
+    - log_acceptance_hard_to_place_oar
+    - missing_acceptance_expected_acceptances
+    - missing_acceptance_overall_oar
+    - missing_acceptance_interval
+    - missing_acceptance_low_oar
+    - missing_acceptance_medium_oar
+    - missing_acceptance_high_oar
+    - missing_acceptance_hard_to_place_oar
+contrasts:
+- - history
+  - persistence
+- - history
+  - historical_mean
+- - history_access
+  - persistence
+- - history_access
+  - historical_mean
+- - history_access_acceptance
+  - persistence
+- - history_access_acceptance
+  - historical_mean
+- - history_access
+  - history
+- - history_access_acceptance
+  - history
+- - history_access_acceptance
+  - history_access
+alpha: 1.0
+solver: lsqr
+tolerance: 1.0e-08
+max_iterations: 10000
+imputation: training_fold_median_keep_empty
+scaling: training_fold_standard
+primary_aggregation: equal_origin_mean_absolute_error_percentage_points
+signed_error: prediction_minus_observed_equal_origin
+volume_weighting: within_origin_listing_n_then_equal_origin
+bootstrap_resamples: 2000
+bootstrap_seed: 20260908
+bootstrap_percentiles:
+- 2.5
+- 97.5
+bootstrap_max_attempt_factor: 100
+minimum_improvement_points: 0.5
+minimum_relative_improvement: 0.05
+maximum_absolute_bias_points: 2.0
+maximum_bias_worsening_points: 0.5
+minimum_evaluation_origins: 2
+output_root: data/receipt-study/v1
+promotion_allowed: false
+future_forecast_available: false

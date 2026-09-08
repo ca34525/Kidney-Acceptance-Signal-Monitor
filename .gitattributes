@@ -7,3 +7,8 @@ configs/experiment.yaml text eol=lf
 configs/frozen_experiment.yaml text eol=lf
 configs/patient_journey_v2/experiment.yaml text eol=lf
 configs/patient_journey_v2/methodology.yaml text eol=lf
+
+# Plan 0023 freezes these three files before its one fixed comparison.
+configs/receipt_study/experiment.yaml text eol=lf
+configs/receipt_study/sources.json text eol=lf
+docs/specs/deceased-donor-receipt-0023.md text eol=lf

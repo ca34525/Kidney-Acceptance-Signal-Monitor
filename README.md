@@ -20,6 +20,14 @@ programs. Its [outcome-component analysis](docs/patient_journey_v2_component_res
 median 16.05% of the original listing group with unknown post-transplant status. This is a
 program median, not a pooled patient percentage or an explanation of prediction error. Both
 investigations describe already-inspected outcomes and preserve the original V2 results.
+
+The separate [deceased-donor receipt study](docs/deceased_donor_receipt_results.md) is also
+complete. Across two evaluation periods, adding acceptance to receipt history and access
+information reduced average error from 8.888 to 8.774 percentage points. The 0.113-point
+(1.27%) improvement missed the fixed continuation rule and did not occur in both periods,
+so development of that acceptance extension stops. Both periods use the same earlier training
+cohort; the result remains exploratory and promotes no model.
+
 The commands below open and reproduce the released V1 product.
 
 The fixed evaluation on already-inspected 2025 outcomes did not qualify Ridge for display. Ridge

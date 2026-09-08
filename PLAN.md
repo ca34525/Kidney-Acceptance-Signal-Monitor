@@ -1,9 +1,10 @@
 # Kidney Acceptance Signal Monitor — Project roadmap
 
-**Latest completed work:** [Plan 0022 — source and cleanup audit](docs/plans/0022-source-and-cleanup-audit.md).
-The released V1 monitor, original V2 study and two V2 follow-ups are complete. The audit corrected
-source guidance, simplified repository records and prepared conditional plans. It added no
-predictive analysis and changed no existing result. No analytical implementation is active.
+**Latest completed work:** [Plan 0023 — deceased-donor receipt study](docs/plans/0023-deceased-donor-receipt-study.md).
+Adding acceptance to receipt history and access reduced average error by 0.113 percentage
+points (1.27%), missing the fixed continuation rule. Development of this acceptance extension
+stops; no model is promoted. The released V1 monitor, original V2 study and both completed
+follow-ups remain unchanged. See the [complete results](docs/deceased_donor_receipt_results.md).
 
 Start with [the project guide](docs/project-guide.md) for the questions and findings. Use
 [AGENTS.md](AGENTS.md) for implementation and verification rules, [SPEC.md](SPEC.md) for the
@@ -14,7 +15,7 @@ V1 contract, and the applicable study specification/configuration for later work
 | Work | Status | Record |
 |---|---|---|
 | Source coverage, repository cleanup and consequential review | Complete; original source-date error documented | [Plan 0022](docs/plans/0022-source-and-cleanup-audit.md) |
-| Deceased-donor transplant receipt study | Conditional plan; unimplemented | [Plan 0023](docs/plans/0023-deceased-donor-receipt-study.md) |
+| Deceased-donor transplant receipt study | Complete; fixed acceptance continuation rule failed | [Plan 0023](docs/plans/0023-deceased-donor-receipt-study.md), [results](docs/deceased_donor_receipt_results.md) |
 | Earlier candidate characteristics study | Conditional plan; unimplemented | [Plan 0024](docs/plans/0024-candidate-mix-study.md) |
 | Project presentation | Packages prepared; source-date correction and author rehearsal remain | [Current walkthrough](docs/presentation/data-walkthrough/README.md), [Plan 0020 P4](docs/plans/0020-v2-follow-up-and-interview-story.md#p4-build-the-explanation-and-interview-package) |
 

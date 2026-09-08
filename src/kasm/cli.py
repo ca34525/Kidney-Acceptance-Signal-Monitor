@@ -35,6 +35,8 @@ from kasm.patient_journey.model_artifacts import (
 from kasm.patient_journey.modeling import PatientJourneyModelError
 from kasm.patient_journey.panel import PatientJourneyPanelError
 from kasm.patient_journey.parse import PatientJourneyParseError
+from kasm.patient_journey.receipt_artifacts import build_receipt_study, prepare_receipt_study
+from kasm.patient_journey.receipt_config import ReceiptError
 from kasm.patient_journey.release import (
     PatientJourneyReleaseError,
     build_patient_journey_release_bundle,
@@ -68,6 +70,8 @@ def build_parser() -> argparse.ArgumentParser:
         dest="patient_journey_command", required=True
     )
     followup_parser = patient_journey_commands.add_parser("follow-up")
+    receipt_parser = patient_journey_commands.add_parser("receipt-study")
+    receipt_parser.add_argument("--check-sources", action="store_true")
     followup_parser.add_argument(
         "--config", type=Path, default=Path("configs/patient_journey_v2_followup/experiment.yaml")
     )
@@ -189,6 +193,24 @@ def _print_command_error(error: Exception) -> int:
 
 
 def _run_patient_journey_command(args: argparse.Namespace) -> int:
+    if args.patient_journey_command == "receipt-study":
+        try:
+            if args.check_sources:
+                _, _, panel = prepare_receipt_study(Path.cwd())
+                result = {"ok": True, "qa": panel.qa, "models_fitted": False}
+            else:
+                output = build_receipt_study(Path.cwd())
+                result = {"ok": True, "output_directory": str(output)}
+        except (
+            ReceiptError,
+            PatientJourneyArtifactError,
+            PatientJourneyParseError,
+            ManifestError,
+            OSError,
+        ) as exc:
+            return _print_command_error(exc)
+        print(json.dumps(result, indent=2, sort_keys=True))
+        return 0
     if args.patient_journey_command == "outcome-components":
         try:
             output = build_components(repository_root=Path.cwd(), config_path=args.config)
