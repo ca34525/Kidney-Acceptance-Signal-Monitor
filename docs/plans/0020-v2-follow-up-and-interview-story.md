@@ -1,236 +1,31 @@
-# Plan 0020 — Explain and investigate the V2 results
+# Plan 0020 — V2 follow-ups and presentation evidence
 
-**Milestone:** M14 V2 follow-up and 20-minute interview presentation
+**Status:** P0a and P1–P3 complete. Presentation packages are prepared and verified;
+the author's timed rehearsal and native presentation-machine checks are not recorded.
+**Work dates:** 2026-09-04–2026-09-07.
 
-**Status:** P0a and P1–P3 complete; P4 interview package prepared and verified;
-author walkthrough and timed rehearsal pending
+This completed implementation record covers two exploratory investigations of the original V2
+study and their presentation. Current work is listed in [PLAN.md](../../PLAN.md). The earlier
+branch, permission and incremental slide-request instructions have been retired; the study
+contracts, results and substantive verification/correction evidence are retained below.
 
-**Current work order, 2026-09-04 (2026-09-05 UTC):** The user-authorized hardening in
-[Plan 0021](0021-focused-ai-coding-hardening.md) is complete, including local and CI Docker
-verification for commit `5f26ec9`. P0a's documentation and code-explanation pass is complete.
-The current substantial batch completes P1/P2 under a separate specification and typed
-configuration: exact original reconstruction, the report-count diagnosis, and all five fixed
-count-removed comparisons. Changes remain uncommitted. See the
-[follow-up results](../patient_journey_v2_followup_results.md) and execution evidence below.
-**Current update, 2026-09-07:** P3's source-verified outcome composition is implemented, with
-all 218 original evaluation programs matched and deterministic evidence reproduced. See the
-[component results](../patient_journey_v2_component_results.md). Docker startup was repaired
-later the same day; the image builds and its non-root container passes health checks with
-networking disabled. P3 is complete. The later P4 batch now supplies the
-[interview package](../presentation/v2-followup/README.md). Author walkthrough and timed
-rehearsal remain pending; P4 is not yet complete.
+## Purpose and study boundaries
 
-**Started:** 2026-09-04
+The original V2 study predicts the later published percentage of newly listed candidates known
+alive with a functioning transplant at 18 months. Its denominator is the original listing group,
+including candidates who never received a transplant. The follow-up asks:
 
-## Purpose
+1. Does acceptance still add useful predictive information after removing an input that counts
+   the program's earlier available reports?
+2. What do living-donor, deceased-donor and unknown-status components tell us about the published
+   outcome and its limits?
 
-### User-led data walkthrough — 2026-09-07
+Both investigations use already-inspected outcomes. They are exploratory and cannot create a
+new independent evaluation, change the original outcome or promote a model. Target-period
+components describe the observed outcome; they are never earlier model inputs. V1, original V2,
+report-count analysis and component analysis keep separate identities and output roots.
 
-**Opening slide, authorized 2026-09-07:** Prepend one general introduction stating the project
-goal and the separate V1/V2 questions. Retain the existing 24 slides in order and update slide
-numbers and companion references. Acceptance: a readable opening in the same visual style,
-unchanged existing content, 25-slide rendering/package checks and required repository checks.
-The documentation-only test exception applies. No analytical changes, staging or commit.
-
-Opening delivered with `DATA_SLIDES_BUILD_NAME=opening-slide-03`: 25 slides (19 main, six
-appendix). The opening was visually inspected. The previous 24 slides retain identical content
-and rendered appearance apart from page numbers. Layout, package and editable-evidence checks
-pass without findings or layout warnings. All six fresh repository checks pass: 493 tests,
-84.08% combined and 83.62% V2 coverage. Slide references and build metadata follow the new order.
-The original PowerPoint is open and locked, so the reviewed version is saved separately as
-`data-walkthrough-with-introduction.pptx`, with its own companion provenance. All 25 final renders
-match the preceding reviewed build. The original deck and its provenance remain preserved.
-
-**Complete deck, authorized 2026-09-07:** Finish the presentation using the author's established
-pattern: source data first, ordinary-language questions, overview followed by concrete evidence,
-simple alternatives, and explicit limits on conclusions. The author has removed the time limit
-for this pass. Preserve the first six slides and add the live-app bridge, original V2 study,
-report-count follow-up, outcome-composition example, delivery explanation and conclusions.
-Put optional technical answers in appendices. Keep notes brief and sources available without a
-provenance-heavy presentation. Acceptance requires accurate existing results, editable evidence,
-all final slides rendered and inspected, reproducible authoring and the six required repository
-checks. This remains documentation-only: no new analysis, application changes or failing test for
-slide wording. Author review/rehearsal and authorization for the single eventual commit remain
-pending. No staging, commit or push is authorized.
-
-Complete-deck delivery: `DATA_SLIDES_BUILD_NAME=complete-walkthrough-03` produced the reviewed
-24-slide PowerPoint (18 main, six appendix), five editable charts and six editable tables.
-All final slides were inspected; the first six retain their approved content. Independent content
-review corrected month-only date precision and refined record/feature descriptions. Package,
-geometry, native evidence and font-policy checks pass with no layout findings or warnings.
-`complete-walkthrough-reproduction` produced 24 identical rendered PNGs. Source paths and README
-links resolve. Fresh frozen sync, Ruff format/lint and mypy pass; 493 tests pass in 38.20 seconds,
-with 84.08% combined and 83.62% V2 coverage. No analytical build or replay was run. The inherited
-renderer font-decode warning remains documented; native PowerPoint/font rehearsal and the author's
-walkthrough remain pending. Brief principles and demo guidance replace lengthy presentation
-support notes. No staging, commit or push was performed.
-
-**Commit constraint:** The author will not commit until the complete slideshow and walkthrough
-pass is finished. Keep all current and subsequent walkthrough changes uncommitted. Do not create
-a commit, stage files or push as part of this pass.
-
-**V1 slides, authorized 2026-09-07:** Append an offer-acceptance-ratio slide covering the math,
-meaning, uncertainty and claim limits, followed by a V1 methodology slide. The deck will contain
-six slides before a live app demonstration. Recommend one illustrative app case from existing
-published histories; do not train a model, rerun the frozen replay or infer clinical quality.
-The author requests one eventual commit for the entire presentation and brief supporting notes,
-without adding elaborate traceability material. Reuse the current builder and source notes.
-Verify source/method claims, demo values, all rendered slides and required checks. The existing
-documentation-only failing-test exception applies. Record concise completion evidence here.
-
-V1 delivery: six-slide deck built with `DATA_SLIDES_BUILD_NAME=data-v1-03`. SRTR's FAQ directly
-confirms the formula; methods, frozen configuration and model card support the explanation.
-Independent review and all rendered slides pass; the first four slides remain unchanged.
-ALUA's demo values and projection were checked through trusted release readers. Required sync,
-format, lint and type checks pass; 493 tests pass (84.08% combined coverage, 83.62% V2 coverage).
-Brief demo notes are in the deck README. No analytical changes, staging or commit.
-
-**Next two slides, authorized 2026-09-07:** Append a data quality and reproducibility overview
-and one concrete source-QA example to the two existing slides, making four slides total. Explain
-file identity, expected table structure, value/join checks, timing rules and reproduction records
-without claiming that they guarantee correctness. Use a verified example of different program
-populations in two July 2025 workbook tables. Any same-release side-by-side display illustrates
-source-record matching only; it must not imply a valid predictor/outcome join. Retain the dates
-and scientific boundaries of both studies. The existing documentation-only test exception applies.
-Acceptance requires independent source verification, editable slide evidence, four-slide rendering
-and inspection, reproduction and the required repository checks. Discuss the next V1 step with
-the author after these slides; do not add V1 slides before that discussion.
-
-QA-slide delivery evidence, 2026-09-07:
-
-- The walkthrough now contains four slides. Slides 3–4 explain QA and reproduce a concrete
-  identifier-matching example from the verified July 2025 workbook. The first two rendered
-  slides remain byte-identical to the preceding delivery.
-- Independent inspection confirmed Table B7 Excel rows 3–5 are ALCH:TX1, ALUA:TX1 and ALVA:TX1,
-  while the acceptance sheet's same rows are PAUP:TX1, VANG:TX1 and MDUM:TX1. ALUA's correct
-  acceptance match is Excel row 74. Counts are 234 and 230, with 229 shared identities, five
-  B7-only and one acceptance-only. Both existing table parsers and archive/member checks passed.
-- The README's executable source check passed for the original 12 cells, new paired identifiers,
-  table counts, membership differences and correct ALUA match. Local links resolve. Independent
-  source/claim and final-image reviews found no corrections needed. The slide explicitly retains
-  different measurement periods and the separate requirement to check time eligibility.
-- The documented builder with `DATA_SLIDES_BUILD_NAME=data-qa-01` passed all finalizer checks:
-  four slides, native bullets, editable tables on slides 2 and 4, package structure, geometry,
-  heading fit, font policy and artifact-tool import. Every final slide was inspected. A second
-  build using `DATA_SLIDES_BUILD_NAME=data-qa-reproduction` produced four identical rendered PNGs.
-  The existing font warning and pending native PowerPoint rehearsal check remain documented.
-- Fresh `uv sync --frozen`, `uv run ruff format --check .`, `uv run ruff check .` and
-  `uv run mypy src/kasm` passed with the previously documented local cache settings. The exact
-  required pytest command recorded below passed again: 493 tests in 38.25 seconds, 84.08%
-  combined coverage. The separate patient-journey coverage command passed at 83.62%.
-- All 26 protected files match the canonical post-repair hashes from the previous delivery.
-  No source, configuration, model, original release, app or lock changed. No files were staged,
-  committed or pushed. The complete author walkthrough remains in progress.
-
-The author requested a new branch and exactly two opening slides, letting the walkthrough
-determine the eventual presentation structure. Work is on `codex/data-walkthrough-slides`.
-Create a separate editable deck under `docs/presentation/data-walkthrough/`, using the existing
-light presentation style. The earlier complete deck remains a reference while this new sequence
-develops from the author's questions.
-
-- Slide 1 introduces SRTR and its public kidney program summaries with bullets. Explain source
-  format, what a program record represents, the selected releases and the distinction between
-  measurement dates and publication dates.
-- Slide 2 shows a small, source-verified excerpt from one workbook table, with program identity,
-  candidate count, the published outcome and selected status fields. State the row grain, listing
-  dates, publication date, units and denominator. Preserve the source values and identify any
-  presentation-only relabeling. Choose rows by a disclosed editorial rule, without performance
-  ranking or claims of representativeness.
-- Keep field mappings, source hashes, selection rationale, speaking notes and reproduction
-  instructions with the deck. Temporary extraction evidence and renders remain under ignored
-  `data/patient_journey_v2_followup/p4_build/`. This creates documentation, not a new analysis or
-  analytical release, and changes no study, model, result or application behavior.
-- Acceptance evidence: exactly two slides, editable bullets/table, direct comparison with the
-  verified workbook, independent source/claim review, final render inspection and required
-  repository checks. This is the existing documentation-only failing-test exception. Tests for
-  slide wording or pixels would not add meaningful evidence. The author's review and rehearsal
-  remain pending after delivery.
-
-Delivery: [two-slide data walkthrough](../presentation/data-walkthrough/README.md). Artifact
-preparation is complete. The author's discussion of these slides and rehearsal remain pending.
-
-Verification evidence, 2026-09-07:
-
-- Source extraction used `load_workbook_payload` to verify the July 2025 archive and kidney member
-  against the manifest. The existing component parser validated all 234 Table B7 records and
-  reconciled program identity. The excerpt is four named columns from Excel rows 3–5, after the
-  two source header rows. ALCH, ALUA and ALVA occur first in source order; selection did not depend
-  on outcomes. All 12 selected values match the workbook exactly before display rounding.
-- Independent source/claim review passed. The table uses the original listing group as denominator
-  and preserves the known-alive-with-functioning-transplant definition. The README's source-check
-  command ran successfully, and every local README link resolves.
-- `DATA_SLIDES_BUILD_NAME=data-slides-02` with the documented Node/runtime paths built the final
-  deck. Both slides were rendered and visually inspected, including a repair to the gap below
-  the table. Finalizer checks passed for two slides, native bullets, one editable table, package
-  structure, slide geometry, heading fit, font policy and artifact-tool import. The inherited
-  embedded-font decode warning remains disclosed in the README; native PowerPoint rendering
-  remains an author rehearsal check.
-- The same documented builder with `DATA_SLIDES_BUILD_NAME=data-slides-reproduction` succeeded.
-  Both PNGs are byte-identical to the inspected final renders. The delivered 300,078-byte PPTX
-  matches the verified final file. Source hashes, configuration/document hashes, Git identity,
-  lock identity, build time, field list and source dates are in package provenance.
-- Required checks ran with `UV_CACHE_DIR=.uv-cache` and `MPLCONFIGDIR=.uv-cache/matplotlib`:
-  `uv sync --frozen` passed after approved network access for the local editable package build;
-  `uv run ruff format --check .` passed (80 files); `uv run ruff check .` passed;
-  `uv run mypy src/kasm` passed (39 files).
-- `uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting
-  --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80` passed: 493 tests in 39.35
-  seconds, 84.08% combined coverage. `uv run coverage report
-  --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2` passed at 83.62%.
-- The first full suite had two provenance failures caused by CRLF checkout bytes in original V2
-  `experiment.yaml` and `methodology.yaml`. Both were Git-clean, and their committed HEAD bytes
-  matched the original release manifest. A guarded restoration of those exact committed bytes
-  fixed both focused tests (2 passed in 1.60 seconds) before the successful full rerun. Git status
-  metadata was refreshed without staging. Neither file has a content diff.
-- An ignored 26-file preservation snapshot covers both original release roots, configs and lock.
-  Twenty-four files retain identical bytes; the two files above now match the original canonical
-  bytes. No analytical results, source cache, model fit, application or Docker behavior changed.
-  Analytical reproduction, the frozen replay and Docker were not rerun for this documentation
-  change. No commit or push was created.
-
-Prepare a project the author can understand, explain, and discuss with senior data scientists and
-a biostatistics hiring manager during a 20-minute presentation and panel interview. Clear
-explanations are a top-priority acceptance requirement, including in code comments and docstrings.
-
-The first implementation pass is P0a: bring the existing documentation into ordinary language.
-This includes past documentation and existing explanatory comments/docstrings, not only material
-written during the new analysis. Complete that pass before starting P1–P4.
-
-The completed V2 study asks whether earlier public reports help predict the percentage of listed
-candidates known to be alive with a functioning transplant 18 months after listing. The follow-up
-asks two narrower questions:
-
-1. Does acceptance information still help after addressing an input that mostly counts how many
-   earlier reports are available?
-2. How much can we learn by separating living-donor outcomes, deceased-donor outcomes, and unknown
-   follow-up status within the published patient-journey outcome?
-
-The initial request authorized planning and documentation, and the next implementation request
-authorized P0a. Later requests authorized P1/P2 and P3. The next substantial-change request
-authorizes P4 package preparation, leaving it uncommitted. Neither the investigations nor the
-presentation changes the application or creates a revised tracked analytical release.
-
-## Read this first
-
-- [Project explanation](../project-guide.md): the ordinary-language explanation, examples, and terms.
-- [Original V2 model card](../patient_journey_v2_model_card.md): the completed study's results.
-- [Original V2 specification](../specs/patient-journey-v2.md): the completed study's exact design.
-- [Decision 0007](../decisions/0007-preserve-v2-and-plan-explanatory-follow-up.md): why the follow-up
-  has its own identity and keeps the original evidence.
-
-Keep new decisions, unresolved questions, and command evidence here. Read production code and
-tests only when needed for the next step; the explanation guide is not a replacement for the
-source contracts or scientific specification.
-
-## Preserve the completed work
-
-V1 and the original V2 remain reproducible records. Retain the scientific content of their
-specifications and model/data cards, and preserve their configuration files, source data,
-predictions, evaluation results, and release bundles. P0a may improve explanatory prose and code
-documentation without changing its meaning or the executable analysis. An added explanation or
-dated correction must distinguish the original result from later interpretation.
-
-The original V2 release is identified by:
+The original V2 release identities are retained:
 
 | Record | Identity |
 |---|---|
@@ -239,418 +34,77 @@ The original V2 release is identified by:
 | Source build commit | `cdea5c40302de1797d83698566d2ebb51de16938` |
 | Publication commit | `0353f9924b61441dac52e11b71326e6310603e25` |
 
-The first three values come from the tracked release manifest. Publication history is recorded in
-[Plan 0019](0019-patient-journey-v2-completion.md). The original release exposes no future forecast.
+See the [original specification](../specs/patient-journey-v2.md),
+[model card](../patient_journey_v2_model_card.md) and
+[Decision 0007](../decisions/0007-preserve-v2-and-plan-explanatory-follow-up.md).
+The follow-ups preserve the original publication cutoffs, non-overlapping listing groups and
+single usable Ridge evaluation period.
 
-Before analytical implementation, write a separate follow-up specification and typed configuration. Give the
-study a distinct analysis identifier and output locations outside both original studies' output
-roots. Reject paths that could overwrite either original release or its generated inputs. Keep
-the original model commands and their configuration contracts unchanged. Do not rerun the V1
-frozen replay for this work.
+## Work and acceptance evidence
 
-The follow-up uses results already inspected. It is an exploratory investigation, not a new
-independent test, a prospective study, or a reason to promote a model. It retains the original
-publication-date rules, non-overlapping outcome cohorts, and one usable Ridge evaluation period.
-
-## What the review found and what still needs evidence
-
-The original model card reports these errors on the same 218-program evaluation population:
-
-| Approach | Average absolute error in percentage points |
-|---|---:|
-| Simple average of each program's earlier outcomes | 7.61 |
-| Ridge using history and acceptance information | 7.35 |
-| Carry forward the most recent outcome | 8.93 |
-| Ridge using history information | 11.49 |
-
-Thus the 4.14-point improvement over history-only Ridge is a different comparison from the
-0.26-point improvement over the simple historical average. The follow-up must explain both.
-
-The outside review also made these read-only observations. They are preserved as investigation
-leads, not new canonical release results. A checked-in calculation and command evidence are still
-needed before using them as presentation findings:
-
-- Report count was two for 212 of 215 training programs and five for 208 of 218 evaluation
-  programs. Its mean changed by about 25 training standard deviations.
-- Reconstructing the original fitted models reportedly matched every released prediction exactly.
-  In the history-only model, report count contributed most of the upward change in the model's
-  calculation before conversion to a percentage. This does not prove acceptance has no useful
-  information, or that access measures are uninformative.
-- An additional paired comparison of history-plus-acceptance against historical mean gave an
-  error difference of about -0.2604 percentage points, with a descriptive interval of
-  [-0.7389, 0.2375], using 2,000 program resamples and seed `20260904`. The comparison was added
-  after the original results were seen. Volume-weighted errors were about 6.25 versus 6.03.
-- A separate July 2025 source-table check reported a median combined post-transplant unknown
-  percentage of about 16.27% across 222 programs with at least ten listed candidates. The
-  denominator is the original listing group, not transplant recipients. This was not a matched
-  analysis of prediction errors and does not establish their cause.
-
-## Work sequence and acceptance evidence
-
-### P0 Document the direction and communication requirement
-
-**Status:** complete for this documentation request.
-
-- Preserve the original V2 record and link to it from the new material.
-- Add the ordinary-language guide, this plan, and Decision 0007.
-- Make ordinary-language explanations a standing requirement in `AGENTS.md` and `SPEC.md`.
-- Point the README and main plan to the current work, retaining the original V1 demo.
-- Correct the V2 data card's outdated description of the current build while retaining its earlier
-  development-build history.
-
-Evidence: changed-file review, local-link checks, verified manifest identities, and verification
-commands recorded below. Documentation-only work is exempt from the failing-test-first step:
-there is no new executable behavior to exercise. No production-code or generated-artifact change
-is part of P0.
-
-### P0a Make the existing documentation understandable
-
-**Status:** complete, 2026-09-05 UTC. The inventory covers root guidance, every
-existing document under `docs/`, and Python explanations under `src/kasm/`, `app/`, and tests.
-Independent reviews cover historical records, study documents, and V2 code explanations; the
-main review covers root guidance and remaining modules and integrates the accuracy checks.
-
-Read and revise existing documentation in the order below. This table defines the scope; maintain
-a per-file checklist here as the pass proceeds. Each file must end as `rewritten`, `already clear`,
-or `preserved with dated explanation`, with a short reason and review evidence. A glossary alone
-does not complete the pass.
-
-| Order | Existing material to cover | Status |
+| Item | Behavior and expected evidence | Outcome |
 |---|---|---|
-| 1 | README, project guide, AGENTS, main SPEC and PLAN | complete |
-| 2 | V1/V2 specifications, data/model cards, and reproduction guides | complete |
-| 3 | Existing rehearsal guide, presentation explanations, audits, and accessibility checklist | complete |
-| 4 | Past plans and decisions in `docs/plans/` and `docs/decisions/`, read one at a time | complete |
-| 5 | Existing explanatory comments/docstrings under `src/kasm/`, `app/`, and tests, reviewed by module | complete |
+| P0/P0a: explanation | Review existing documentation and code explanations; preserve scientific meaning, exact source details and executable behavior | Completed 2026-09-05; scope and corrections below |
+| P1: diagnose report count | Reconstruct all five fitted models, verify stored predictions and paired populations, then inspect report-count contributions before conversion to percentages | Original predictions matched exactly; [results and command](../patient_journey_v2_followup_results.md) |
+| P2: fixed comparison | Remove only `historical_target_count` from all five Ridge groups; keep rows, transformations and other settings fixed; report all 12 contrasts, including unfavorable results | Completed under a separate specification and typed configuration; no promotion |
+| P3: outcome components | Verify source definitions/rounding, original listing denominator and 18-month timing; match the original evaluation programs; preserve missingness and explain associations without causal claims | All 218 evaluation programs matched; [results and command](../patient_journey_v2_component_results.md) |
+| P4: presentation | Editable evidence, sourced illustrative case, independent offline backup, source/visual review and author rehearsal | Packages verified; author rehearsal not recorded |
 
-Rewrite explanatory prose in ordinary language where its original meaning stays the same. Explain
-purpose first, then population, dates, denominator, units, unknown values, and reasons for important
-rules where relevant. Define technical terms where they are used; keep precise mathematical and
-source details close enough to check. Existing comments should explain intent without becoming
-line-by-line narration. Prioritize source definitions, model inputs, evaluation, and reporting when
-reviewing code documentation; record all remaining modules in the checklist as well.
+P1/P2 fixed the original reconstruction tolerance at absolute `1e-10` proportion and zero
+relative tolerance before revisions ran. Contributions add on the logit scale, not in percentage
+points and not as effects of changing care. P2 did not search history windows or model families.
+P3 fixed release 2505, four donor components, PDF-precision rounding checks, program medians and
+all eight original-model error associations before calculation. Published totals remain
+authoritative; missing components are never zeros. Numerical scenarios for unknown outcomes
+were outside this scope.
 
-Preserve original numbers, dates, commands, citations, hashes, formulas, field names, requirements,
-and decisions. For completed plans, decisions, and frozen-study accounts, add a dated plain-language
-explanation where rewriting would obscure what was originally known or decided. Their recorded
-evidence must remain intact. Do not exempt historical files from the reading pass merely because
-they are old. Keep the original presentation file as a retained release; explain its existing
-story in ordinary-language notes, with the new 20-minute deck still belonging to P4.
+Documentation-only changes used source, syntax, link, provenance and render checks instead of
+tests asserting prose or chart pixels. New behavior required failing constructed tests; the
+substantive failures and corrections are recorded below.
 
-Keep current operating instructions current. If a factual error is discovered, record a dated
-correction with evidence rather than silently treating it as a wording change. Do not change
-executable logic, rename identifiers, relax a configuration contract, or rebuild generated outputs
-during this pass. A proposed scientific change goes into the relevant later investigation.
+## Original review observations and later findings
 
-Acceptance evidence:
+The original 218-program errors were 11.49 percentage points for history-only Ridge, 7.35 for
+history-plus-acceptance Ridge, 7.61 for the simple historical average and 8.93 for persistence.
+The apparent 4.14-point acceptance gain against history-only Ridge was therefore a different
+comparison from the 0.26-point gain against the historical average.
 
-- The per-file checklist accounts for the existing documentation and code explanations, including
-  already-clear files and historical records with dated explanations.
-- Each document explains its purpose and unfamiliar terms without requiring the reader to consult
-  the glossary repeatedly. Analytical explanations state who is counted, when, and in what units.
-- Readers can distinguish original V1 results, original V2 results, later review observations, and
-  work that is only planned. Hypothetical examples and percentage-point differences are explicit.
-- Review the wording changes against the original facts, formulas, source fields, and requirements.
-  For code comments/docstrings, check that executable statements and analytical behavior remain
-  unchanged; use a comparison that ignores comments/docstrings where appropriate.
-- Check local links and run the required repository verification. Record the documentation-only
-  failing-test exception; do not add tests that merely assert the new prose.
-- Finish a readability review before P1 starts. The author's own walkthrough and timed rehearsal
-  remain P4 requirements; this pass does not by itself establish interview readiness.
+The initial read-only review found report count equal to two for 212 of 215 training programs
+and five for 208 of 218 evaluation programs: a shift of about 25 training standard deviations.
+P1 reproduced that diagnostic and all original predictions. P2 reduced history-only error to
+7.32 percentage points; acceptance then improved it by about 0.09 points, with a descriptive
+error-difference interval crossing zero. This weakens the large-gain interpretation without
+proving that acceptance is uninformative.
 
-### P1 Reproduce the surprising result
+The review's additional history-plus-acceptance versus historical-mean comparison gave an
+error difference of about -0.2604 percentage points and interval [-0.7389, 0.2375], using 2,000
+program resamples and seed `20260904`; volume-weighted errors were about 6.25 versus 6.03.
+It was added after outcomes were inspected and was reproduced in P1.
 
-**Status:** complete, 2026-09-05 UTC; command and review evidence below.
+The preliminary 16.27% unknown-status median described 222 source programs with at least ten
+listed candidates. P3's 16.05% median describes the matched 218-program evaluation population.
+Both percentages use the original listing denominator and weight each program equally. Neither
+is a pooled patient percentage or evidence that unknown reporting caused prediction error.
 
-Write the smallest reproducible diagnostic using the original trusted panel and predictions. Save
-its command, input hashes, row-selection rules, and output in the separate follow-up location.
+## Documentation and implementation audit — 2026-09-05 UTC
 
-Acceptance evidence:
+P0a reviewed 112 files: 43 Markdown documents, 64 Python modules and five retained presentation
+or image files. The review recorded 36 rewritten, 37 already clear and 39 preserved with dated
+explanations. All 64 Python syntax trees matched the starting revision after excluding comments
+and docstrings; all compiled in memory. The 27 reviewed historical records retained their
+original text after removing the added dated notes. Protected configurations, release bundles,
+dependencies and media had no diff; 176 local file links and nine heading anchors resolved.
+The obsolete per-file work checklist remains in Git history.
 
-- Reproduce the report-count distribution for the exact training and evaluation rows.
-- Reconstruct all five original fitted models and compare with their stored predictions before
-  interpreting their weights. Specify numerical tolerance before running the comparison.
-- Show which inputs move the model's average calculation up or down. Record that these additive
-  contributions are on the logit scale, before conversion to percentages; they are not patient
-  effects or directly additive percentage-point changes.
-- Reproduce the same-program baseline comparisons and the review-only bootstrap comparison.
-- Produce one readable figure showing report counts at training and evaluation, and one showing
-  prediction errors against the simple historical average.
+Substantive clarifications retained V1's prior inspection of 2025 outcomes, distinguished a
+failed display rule from clinical safety, stated V2's fixed uses of candidate counts, clarified
+that package installation can need the network, and identified coverage as combined statement
+and branch counts. Review also corrected an overstatement of source-loader checks and explained
+the wholly missing training-column fill. One documentation-contract test failed because the V1
+data card lost the term `Grain` (352 passed, one failed). Restoring the term beside its plain
+explanation fixed the focused check and full suite without weakening an assertion.
 
-First failing tests: a small constructed model identifies a report-count-driven shift; a changed
-stored prediction is detected; mismatched programs cannot enter a paired comparison. Fixtures test
-the calculation rather than hard-coding the real-data scores.
-
-### P2 Make one defined model change
-
-**Status:** complete, 2026-09-05 UTC; all five revisions and 12 fixed contrasts reported.
-
-The planned first change is to remove `historical_target_count` from every Ridge input group in
-the separate follow-up. Keep report count in the descriptive data so its meaning stays visible.
-Keep the other inputs, transformations, training/evaluation programs, target, Ridge settings, and
-missing-value treatment the same. Do not try several history windows and choose the best one from
-these already-inspected outcomes.
-
-The follow-up specification and typed configuration must record that choice before revised
-predictions are computed. Reuse existing pure functions where their contracts permit it; do not
-weaken the original V2 feature allowlist to make the new experiment fit.
-
-Acceptance evidence:
-
-- Report all five revised versions, the original versions, historical mean, and persistence on
-  exactly the same evaluation programs. Present average absolute error, average signed error,
-  and candidate-volume-weighted error in percentage points. Explain that positive signed error
-  means predictions are too high on average, and weighting is not patient-level accuracy.
-- Save the exact comparison populations, missingness, and both favorable and unfavorable results.
-- Use the existing program-resampling method with recorded settings for planned comparisons;
-  describe its limits in ordinary language. It cannot establish performance in a new time period.
-- State whether the original interpretation changes. Improvement is not a completion requirement.
-- Verify that no original configuration, result, or release payload changed and no future forecast
-  became available.
-
-First failing tests: revised models cannot receive report count; original models keep their exact
-input contract; shared row selection and training-only preprocessing hold; follow-up writes cannot
-reach original output roots. Keep safety and source-boundary tests required by the working agreement.
-
-### P3 Explain the outcome and its unknown part
-
-**Status:** complete, 2026-09-07. Scope is the original evaluation release 2505;
-the separate component specification and Decision 0009 govern this batch. Implementation,
-source/numerical evidence and Python/app verification are complete. The subsequent Docker
-repair and successful image build/non-root offline health check close the verification gap.
-
-First verify the machine fields and definitions for each intended source release. Candidate fields
-identified during review are `SAL_CTXFNC_C18`, `SAL_LTXFNC_C18`, `SAL_CTXUNK_C18`, and
-`SAL_LTXUNK_C18`; waiting, death, lost/transferred, and transplant-total fields may provide further
-context. Their presence in some cached reports is not a substitute for a release-by-release ledger.
-
-Acceptance evidence:
-
-- Record source field, human explanation, original listing denominator, 18-month timing, missing
-  markers, and source citation for every displayed component.
-- Check functioning living-plus-deceased donor percentages against `SAL_TOTFTX_C18` within the
-  publication's rounding precision. Keep the published total authoritative.
-- Use mutually exclusive categories for any chart that adds to a total. Do not add overlapping
-  summary rows, or combine separate mortality/graft-failure ratios into this arithmetic.
-- Preserve unknown and suppressed values. Missing a component prevents a complete total; it does
-  not mean that component is zero. Do not assume unknown patients are healthy or have died.
-- Explain per-program medians separately from pooled counts. State whose percentage each number is.
-- Match the same program and listing cohort before comparing unknown status with recorded outcomes
-  or prediction errors. Show matched, unmatched, and missing counts, including exclusions.
-- Keep target-period components as explanations of the observed outcome, never as earlier model
-  inputs. An association with unknown status is not proof that reporting caused an error.
-- Produce one outcome-composition figure and a short explanation of what remains unknown. Do not
-  silently replace the target or claim a survival analysis has corrected the missing follow-up.
-
-First failing tests: donor components use the same denominator/time; overlapping categories cannot
-be added; missing components stay missing; rounding reconciliation behaves at boundaries; duplicate
-or mismatched program/cohort joins fail; target-period components are rejected as predictors.
-
-Any numerical scenarios for unknown outcomes require their own explicit assumptions and reporting
-rule in the follow-up specification before calculation. They are not part of the initial comparison.
-
-P3 execution started, 2026-09-07:
-
-- The current user request authorizes the next substantial related changes, uncommitted, with
-  independent research/review where useful. Starting worktree is clean.
-- Read mandatory and applicable contracts. Saved SHA-256 identities for 43 protected files
-  (original configurations, generated inputs/results and releases, plus the P1/P2 configuration)
-  at ignored `data/patient_journey_v2_followup/p3_preservation_before.json`.
-- Independent research verifies release 2505 machine fields and official SRTR definitions.
-  Before calculating results, fixed the one-release scope, four donor components, PDF-precision
-  rounding check, program medians, and all eight original-model error associations in the new
-  specification and typed configuration. No model fitting or report-count rerun belongs here.
-- Expected evidence: failing constructed tests for preserved numeric strings/nulls, source
-  schema/label drift, rounding boundaries, disjoint sums, cohort/count/target join agreement,
-  missing/unmatched audit, prediction integrity, feature exclusion and protected write-once
-  publication. Then a complete offline build, deterministic payload reproduction, source/figure
-  review, required quality checks and unchanged protected hashes.
-- Documentation-only source explanations/specification/decision updates are exempt from a
-  failing prose test. No new dependency is required; use existing Matplotlib for the figure.
-
-### P4 Build the explanation and interview package
-
-**Status:** in progress, 2026-09-07. The presentation, sourced case, independent backup and
-rehearsal guide are prepared and verified, left uncommitted. The author's own walkthrough,
-timed rehearsal and presentation-machine checks remain pending acceptance evidence.
-
-Choose one program case for a stated reason, such as a disagreement between acceptance context
-and the later recorded outcome. Label it illustrative, not representative or evidence of impact.
-Show the dates, candidate count, relevant patterns, and the specific question a quality-improvement
-reviewer would investigate next. Keep separately timed safety measures clearly identified.
-
-Suggested spoken allocation: problem 2 minutes; outcome and reporting 3; timing 3; results and
-investigation 5; program case 3; engineering and next evidence 2; buffer 2. Keep the old four-minute
-V1 package as a separate retained deliverable.
-
-Acceptance evidence:
-
-- The author can explain both investigations, the denominator, the simple comparison, and the
-  main limitation in their own words. A readable document alone does not establish this; record
-  a walkthrough and rehearsal before declaring interview readiness.
-- Figures state the question and takeaway in ordinary language and identify the study version.
-- New or touched analysis functions explain purpose, units, timing, missing values, and the reason
-  for important restrictions. Preserve exact names, equations, types, and concise technical detail.
-- Prepare answers about report-count behavior, unknown follow-up versus censoring, why only one
-  evaluation period was usable, what acceptance adds, the next useful data request, and how
-  AI-assisted work was checked.
-- Explain V1's actual MAE improvement and the rule that blocked promotion. Do not claim that
-  nonpromotion by itself establishes that persistence is clinically safer.
-- The 18-minute story, short demo, and static backup work independently. Update presentation links
-  only when the new package exists, keeping the original V2 results accessible.
-
-P4 execution scope, 2026-09-07:
-
-- Prepare a separate editable presentation, an offline HTML backup, a program-case evidence
-  note, and an 18-minute speaking/rehearsal guide with two minutes reserved for questions or
-  delay. Use the selected Simple Light Mode template. Preserve the old V1 package.
-- This is presentation/documentation work over completed evidence. It does not add analytical
-  behavior, model fitting, new comparisons or a tracked analytical release. Authoring source
-  belongs with the documentation; temporary renders stay in ignored
-  `data/patient_journey_v2_followup/p4_build`. This is the documentation-only failing-test
-  exception: verify the rendered artifact, numbers, sources, offline flow and preservation
-  instead of adding tests that assert prose or slide pixels.
-- Select one illustrative case by a disclosed rule: sort original eligible `2205→2505`
-  programs by composite program key, require complete prior/outcome/component evidence,
-  earlier overall OAR above 1 and a lower later published functioning percentage, then use
-  the first match. This editorial rule illustrates differing measures and periods; it is
-  not a new comparison population, a representative sample, or a ranking of care.
-- Expected evidence: independent case extraction and final scientific review, source-bound
-  numeric checks, every slide rendered and inspected, editable chart/table checks, an offline
-  backup with no external dependencies, an exercised original V2 case-selection demo, all six
-  required Python checks and unchanged hashes for both original studies and P1–P3 outputs.
-- Do not declare P4 or interview readiness complete from package creation. Leave explicit
-  spaces for the author's walkthrough, measured speaking time and rehearsal corrections.
-
-## One branch for the follow-up
-
-The original V2 PR (#1) has been merged into `main` at `ebe935f`. At the user's request, use one
-branch, `codex/v2-follow-up`, for the entire follow-up. It starts from that merged main commit and
-retains the uncommitted planning package. This replaces the earlier recommendation to split the
-passes across multiple branches and PRs.
-
-Keep the work order within this branch:
-
-1. Complete P0a, the existing-documentation rewrite and its accuracy/readability checks.
-2. Complete P1/P2, the reproducible report-count diagnosis and the defined revised comparison.
-3. Complete P3, the source-verified outcome components and unknown-status investigation.
-4. Complete P4, the interview story, demo, static backup, and rehearsal.
-
-Use focused commits when authorized so each pass remains understandable in review. A draft PR
-can be opened after the first push; request final review of the combined follow-up when its
-acceptance criteria and required checks pass. Separate analytical study identities and output
-locations are still required even though the work shares a Git branch. Keep the original V1 and
-V2 evidence intact.
-
-Branch setup evidence: fetched `cta/main`, verified its merge commit and unchanged tree relative
-to the completed V2 branch, then created `codex/v2-follow-up` from it. All ten uncommitted
-documentation files were preserved byte-for-byte during the switch before updating this section.
-At that branch-setup checkpoint, the documentation rewrite and analytical passes had not started.
-No commit or push was made during branch setup. The later P0a completion is recorded below.
-
-## Priorities and open questions
-
-This is a focused follow-up after the original seven-day build, not a reopening of its deadline.
-P0a now comes first and adds a substantial existing-documentation review to the scope. Its estimate
-depends on the file inventory. The later analysis estimates suggest roughly one substantial workday
-plus presentation and verification time; they are not a reason to stop useful work or weaken checks.
-After P0a, prioritize P1/P2, then the source-verified P3 explanation and P4. P3 field verification can
-run alongside P1/P2 after the documentation pass is complete.
-
-Additional model families, older archives, and deployment infrastructure are not in this first
-follow-up. Reconsider them only for a concrete unanswered question after these results.
-
-Open questions to resolve through the work:
-
-- How much of the original error pattern remains after report count is removed?
-- Are the donor and unknown-status fields comparable in every intended release?
-- How many original evaluation programs remain in a complete matched component analysis?
-- Which program case explains the findings without overstating them?
-
-## Verification and evidence log
-
-For implementation, run focused failing tests first, then the full required commands in
-`AGENTS.md`. Run cache/source checks and relevant build/app/container checks when those boundaries
-change. Do not overwrite preserved original outputs to perform a follow-up check.
-
-For this documentation request:
-
-- Starting worktree: clean.
-- Mandatory specification, plan, manifest, and active-plan reads completed.
-- Original release identity and clean-build provenance checked against the tracked V2 manifest.
-- Independent planning review checked original-study preservation, fixed first model change,
-  unknown-status denominators, prediction timing, and ordinary-language requirements.
-- Independent final review clarified that V2 predicts a percentage rather than a candidate count;
-  the guide now states that explicitly. No other material issue remained.
-- Documentation checks passed: ten Markdown-only changed/new files; all 29 local links in them
-  resolve; all four V2 payload sizes/hashes match the manifest; the current data-card provenance
-  matches the manifest. The check reads UTF-8 explicitly on Windows.
-- `git diff --check` passed after replacing new Markdown trailing-space line breaks with blank
-  lines. Protected-path comparison confirms no changes to code, tests, apps, configurations,
-  artifacts, dependencies, container/CI files, the original presentation, or Plan 0019.
-- Required commands below ran with `UV_CACHE_DIR` set to the repository's `.uv-cache`.
-- No new real-data model fitting, source refresh, artifact rebuild, or canonical frozen replay
-  was run. Tests exercised their existing fixture-based behavior; the released evidence stayed
-  unchanged. App/container rebuilds were not relevant to this Markdown-only change.
-
-| Command | Result |
-|---|---|
-| `uv sync --frozen` | Passed; 68 packages checked |
-| `uv run ruff format --check .` | Passed; 63 files already formatted |
-| `uv run ruff check .` | Passed |
-| `uv run mypy src/kasm` | Passed; 30 source files |
-| `uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov-branch --cov-fail-under=80` | Passed; 236 tests, 83.93% coverage with branches included |
-
-### Scope update: existing documentation comes first
-
-- User requested that past documentation be rewritten in ordinary language as the first pass.
-- Added P0a with a per-file checklist, existing comments/docstrings, preservation rules, and an
-  explicit dependency before P1–P4. This update defines that work; it does not claim the rewrite is
-  complete.
-- Independent scope review checked that historical files receive attention while dated facts,
-  exact requirements, and executable behavior are retained.
-- Live GitHub comparison and PR search informed the PR checkpoints above; no GitHub write occurred.
-- Verification of the planning amendment passed: `git diff --check`; all 29 local links in the
-  ten changed/new Markdown files resolve; P0a precedes P1 and explicitly gates P1–P4; all four V2
-  payload sizes/hashes still match the manifest; protected code/configuration/output paths remain
-  unchanged. The full 236-test and quality-check results above are from the preceding planning
-  update, not a new run for this prose-only amendment. No new behavioral tests were warranted.
-
-Future P0a–P4 command evidence belongs below, with input identities and limitations. The earlier
-conversation is not a substitute for a reproducible calculation.
-
-### P0a execution — 2026-09-05 UTC
-
-- Starting worktree clean on `codex/v2-follow-up`. The user requested the next substantial related
-  batch, left uncommitted, and authorized subagents for independent review.
-- Acceptance scope: complete P0a's file inventory, readability revisions and historical
-  explanations, without changing executable statements, configurations, source inputs, released
-  results, or presentation/media payloads. P1–P4 remain later work.
-- Documentation-only failing-test exception: wording and docstrings do not add executable
-  behavior. Verify Python syntax trees with docstrings removed against `HEAD`, resolve local
-  links, compare protected-file hashes, and run the required locked install, lint, type, and
-  coverage commands. Do not add tests that merely assert prose.
-- Original-data builds, real-data model evaluation, app/container rebuilds, and the V1 frozen
-  replay are outside this documentation-only pass; existing tests still check offline flows.
-- The per-file checklist below accounts for 112 files: 43 Markdown documents, 64 Python modules,
-  and five retained presentation/image files. Outcomes are 36 rewritten, 37 already clear, and
-  39 preserved with dated explanation. Files without explanatory prose were explicitly reviewed;
-  they did not receive artificial comments merely to create a diff.
-- Independent review covered historical records, study documents, and V2 module explanations.
-  A separate review of the root/V1 changes corrected an overstatement of source-loader checks
-  and documented the wholly missing training-column fill. The final V1 historical notes distinguish
-  the fixed replay comparison from the earlier planning inspection of 2025 outcomes.
-- Dated factual clarifications preserve earlier evidence: failure of the V1 display rule does
-  not establish clinical safety; candidate counts have several fixed V2 uses; installation can
-  download packages even though project data commands run offline; and historical coverage
-  percentages combine statement and branch counts, with their original directory scope retained.
-- The first full suite found one documentation-contract failure (352 passed, one failed): the
-  V1 data card no longer contained `Grain`. Restored the term beside its ordinary-language
-  explanation; the focused documentation check passed, then the full suite passed. No assertion
-  was weakened. Initial formatting checks identified two files; formatting was corrected before
-  the successful final checks.
-
-Required command evidence, run with `UV_CACHE_DIR` set to the repository's `.uv-cache`:
+Commands ran with `UV_CACHE_DIR=.uv-cache`:
 
 | Command | Result on 2026-09-05 UTC |
 |---|---|
@@ -663,275 +117,39 @@ Required command evidence, run with `UV_CACHE_DIR` set to the repository's `.uv-
 | `uv run pytest -q tests/unit/test_repository_config.py::test_required_release_documentation_and_diagrams_are_present` | Passed after restoring the explanatory heading's original term |
 | `git diff --check` | Passed |
 
-Preservation checks compared all 64 Python syntax trees with `HEAD`, ignoring only comments and
-docstrings; executable statements, strings, types, and test assertions match. All compile in
-memory, and existing lint/type/coverage directives are unchanged. The 27 delegated historical
-records retain their complete original text after removing just the newly added dated notes.
-Protected configuration, release, dependency, and media paths have no diff. All 176 local Markdown
-file links and nine local heading anchors resolve. Final independent review found no missing or
-duplicate checklist entries and no conflicting current work status. No source refresh, real-data
-model run, output rebuild, app/container rebuild, or canonical
-replay ran. The tests exercised their existing local fixtures and offline flows.
-
-To repeat the key executable-preservation check while this batch is uncommitted, run from the
-repository root in PowerShell. The temporary review helpers under `.uv-cache` are not required:
-
-```powershell
-@'
-import ast
-from pathlib import Path
-import subprocess
-
-def code_tree(text):
-    tree = ast.parse(text, type_comments=True)
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
-            if ast.get_docstring(node) is not None:
-                node.body = node.body[1:]
-        if isinstance(node, ast.TypeIgnore):
-            node.lineno = 0
-    return ast.dump(tree, include_attributes=False)
-
-paths = subprocess.check_output(['git', 'ls-files', '-z']).decode().strip('\0').split('\0')
-checked = 0
-for name in paths:
-    if not name.endswith('.py') or not name.startswith(('src/', 'app/', 'tests/')):
-        continue
-    before = subprocess.check_output(['git', 'show', f'HEAD:{name}']).decode('utf-8')
-    after = Path(name).read_text(encoding='utf-8')
-    assert code_tree(before) == code_tree(after), name
-    compile(after, name, 'exec')
-    checked += 1
-print(f'{checked} Python files: executable syntax unchanged; compilation passed')
-'@ | uv run python -
-git diff --exit-code HEAD -- configs artifacts uv.lock pyproject.toml Dockerfile .github docs/demo docs/presentation/*.pptx
-git diff --check
-```
-
-P0a is complete. P1/P2 next requires the separate follow-up specification, typed configuration,
-analysis identity, protected output paths, and failing behavior tests before any diagnostic or
-revised model runs. Report-count observations are still investigation leads. The donor/unknown
-components, new deck, author walkthrough, and timed rehearsal remain P3/P4 work. No commit or push
-was made for this batch.
-
 ### AI coding practices recheck — 2026-09-04
 
-The user requested a second check of the project's AI coding practices. This bounded review
-checks whether the written rules are enforced by code, tests, and CI. It does not complete P0a
-or begin P1–P4. Starting revision: `9df76eb`; starting worktree: clean.
+The review of `9df76eb` found six gaps: omitted V2 coverage, archive processing after failed
+verification, an unbounded download read, unchecked redirect schemes, a broken skipped-activation
+replay path and V1-specific instructions stated as shared rules. The shipped replay's attempted
+activation was unaffected. The [audit](../ai-code-and-context-audit.md#second-review--2026-09-04)
+retains the synthetic failures and coverage measurements; [Plan 0021](0021-focused-ai-coding-hardening.md)
+records all six fixes and local/CI verification. No canonical replay or real-data model run
+was used to diagnose these software defects.
 
-Acceptance evidence for this review: inspect the current guidance and relevant boundaries,
-compare the workflow with current official guidance, run the required quality checks, reproduce
-suspected failures with local fixtures, and record actionable findings with their limits in
-the [existing audit](../ai-code-and-context-audit.md#second-review--2026-09-04).
-This change records findings only. The documentation-only failing-test exception applies;
-future behavior fixes require their own failing regression tests before implementation.
+### Censoring and aggregate-data explanation — 2026-09-05 UTC
 
-Independent reviews covered source/download boundaries, scientific safeguards, and instruction
-consistency. Six open findings remain: missing V2 coverage enforcement; archive processing after
-failed verification; unbounded download size; non-HTTPS redirects; a failing no-activation replay
-path; and V1-specific agent instructions presented as repository-wide rules. The shipped replay
-configuration is unaffected by the no-activation finding. Fixes are not claimed by this review.
+The guide was corrected to distinguish the information missing from Table B7 snapshots from
+the assumptions of survival methods. Independent censoring does not require knowing each
+person's reason for leaving observation; unknown status alone does not show the assumption
+false. Aggregate data can support survival analysis when they retain exact event/observation
+counts over time. Table B7's 6-, 12- and 18-month status snapshots do not retain that information.
 
-Fresh command evidence, with `UV_CACHE_DIR` set to the repository's `.uv-cache`:
+The hypothetical ten-person example in [the guide](../project-guide.md) accounts for every person
+and reproduces Kaplan–Meier survival `(8/10) × (4/5) = 64%` from exact event-time counts.
+It is a teaching example, not an estimate of this study's unknown patient outcomes.
+Source review used [SRTR Table B7 methods](https://srtr.hrsa.gov/transplant-professionals/program-specific-report/technical-methods-for-the-program-specific-reports/),
+[Jackson et al.](https://pmc.ncbi.nlm.nih.gov/articles/PMC4282781/) and
+[NIST's calculation](https://www.itl.nist.gov/div898/handbook/apr/section2/apr215.htm).
+The published target and original listing denominator remained unchanged.
 
-| Command | Result |
-|---|---|
-| `uv sync --frozen` | Passed; 68 packages checked |
-| `uv lock --check` and `uv pip check` | Passed; lock agrees and installed dependencies are compatible |
-| `uv run ruff format --check .` and `uv run ruff check .` | Passed; 63 files already formatted |
-| `uv run mypy src/kasm` | Passed; 30 source files |
-| `uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov-branch --cov-fail-under=80` | Passed; 236 tests; 83.93% combined statement/branch coverage for the three V1 directories |
-| `uv run pytest -q --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80` | All 236 tests passed, but the command failed its coverage threshold: V2 measured 76.05% |
-
-The second coverage run used `COVERAGE_FILE=.test-tmp/ai-audit-coverage` to retain the first
-measurement. Combining the two reports' covered and total statement/branch counts gives 79.84%
-for the four core directories; this is calculated from the two runs, not a separate combined run.
-These percentages include branches; they are not branch-only percentages.
-
-No real-data fitting, source refresh, canonical replay, or artifact rebuild ran. Existing tests
-checked both tracked releases and offline application flows. Docker/process builds and live
-dependency-vulnerability or GitHub policy checks were not rerun for this documentation-only audit.
-Original scientific configuration, code, tests, and release outputs remain unchanged.
-
-Final documentation verification: `git diff --check` passed; all 15 local links in the two
-review documents resolve; exactly those two Markdown files changed. Independent review found
-no necessary corrections and confirmed that completed checks, inspected controls, open fixes,
-and the limits of the synthetic reproductions are distinguished. No commit was created.
-
-### P0a per-file checklist — 2026-09-05 UTC
-
-All 112 files in the existing scope are accounted for below. Historical plans were
-read individually. Python reviews cover explanatory comments and actual docstrings, not
-string literals used as fixtures or user-interface content. Such executable strings and
-all assertions remain unchanged. The retained media are explained by the rehearsal notes;
-this pass neither alters their bytes nor claims a new visual audit or author rehearsal.
-
-#### 1. Root guidance and project explanation
-
-| File | Outcome | Reason | Review evidence |
-|---|---|---|---|
-| [AGENTS.md](../../AGENTS.md) | rewritten | Explains why study contracts protect the meaning of results; all rules retained. | Reviewed against source contracts and original facts; diff and local-link checks. |
-| [PLAN.md](../../PLAN.md) | rewritten | Dates the safer-wording correction and records P0a completion without rewriting historical evidence. | Reviewed against source contracts and original facts; diff and local-link checks. |
-| [README.md](../../README.md) | rewritten | Explains the product, error result, study boundaries, timing and next work. | Reviewed against source contracts and original facts; diff and local-link checks. |
-| [SPEC.md](../../SPEC.md) | rewritten | Explains ratio units, input/target rows, Ridge and error metrics beside unchanged requirements. | Reviewed against source contracts and original facts; diff and local-link checks. |
-| [docs/project-guide.md](../project-guide.md) | rewritten | Original examples and terms already clear; updates P0a completion and remaining work. | Reviewed against source contracts and original facts; diff and local-link checks. |
-
-#### 2. Study contracts, cards and reproduction
-
-| File | Outcome | Reason | Review evidence |
-|---|---|---|---|
-| [docs/data_card.md](../data_card.md) | preserved with dated explanation | Explains program-year/group rows, offer-ratio units, overlapping donor groups, missingness, and public versus analytic eligibility. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
-| [docs/model_card.md](../model_card.md) | preserved with dated explanation | Retains V1 numeric results and defines log-OAR error, temporal folds, preprocessing, bootstrap, quartiles, display decision, and replay restrictions. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
-| [docs/patient_journey_v2_data_card.md](../patient_journey_v2_data_card.md) | preserved with dated explanation | Explains original listing denominator, unknown outcomes, nested eligibility sets, and separate safety populations; dates correction of too-narrow SAL_N_C use claim. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
-| [docs/patient_journey_v2_model_card.md](../patient_journey_v2_model_card.md) | preserved with dated explanation | Defines baseline versus fitted history, input groups, outcome/logit scale, publication timing, error units, weighting, and the 4.14 versus 0.26 point comparisons. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
-| [docs/patient_journey_v2_reproduction_log.md](../patient_journey_v2_reproduction_log.md) | preserved with dated explanation | Retains canonical build identities and commands; explains row units, provenance, trusted offline bundle, and separates environment downloads from offline project commands. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
-| [docs/reproduction_log.md](../reproduction_log.md) | preserved with dated explanation | Retains dated V1 commands and evidence; explains different row units, canonical versus audit, exact-byte identities, and write-once replay boundary. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
-| [docs/specs/patient-journey-v2.md](../specs/patient-journey-v2.md) | preserved with dated explanation | Preserves scientific requirements and equations; adds local denominator, timing, eligibility, model/error definitions and dated count-use clarification supported by fixed contract and code. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
-
-#### 3. Presentation, audits, accessibility and retained media
-
-| File | Outcome | Reason | Review evidence |
-|---|---|---|---|
-| [docs/accessibility_checklist.md](../accessibility_checklist.md) | preserved with dated explanation | Keeps the original V1 evidence and scope while explaining keyboard focus, contrast, WCAG, AppTest, and gap meaning; no new accessibility claim. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
-| [docs/ai-code-and-context-audit.md](../ai-code-and-context-audit.md) | preserved with dated explanation | Keeps historical findings, citations, command evidence and fixes; explains audit terms and directs readers from historical open status to completed hardening. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
-| [docs/demo/model-evaluation.png](../demo/model-evaluation.png) | preserved with dated explanation | Retained V1 media; its story is explained in the dated rehearsal notes. | Unchanged tracked bytes; no new visual audit or author rehearsal claimed. |
-| [docs/demo/persistence-projection.png](../demo/persistence-projection.png) | preserved with dated explanation | Retained V1 media; its story is explained in the dated rehearsal notes. | Unchanged tracked bytes; no new visual audit or author rehearsal claimed. |
-| [docs/demo/program-monitor-top.png](../demo/program-monitor-top.png) | preserved with dated explanation | Retained V1 media; its story is explained in the dated rehearsal notes. | Unchanged tracked bytes; no new visual audit or author rehearsal claimed. |
-| [docs/demo/program-monitor.png](../demo/program-monitor.png) | preserved with dated explanation | Retained V1 media; its story is explained in the dated rehearsal notes. | Unchanged tracked bytes; no new visual audit or author rehearsal claimed. |
-| [docs/presentation/interview-rehearsal-guide.md](../presentation/interview-rehearsal-guide.md) | rewritten | Rewrites spoken explanations while retaining slide names/results and the old deck; dates timing and nonpromotion clarifications and keeps V2 P4 rehearsal separate. | Contract/fact comparison; preserved fields, commands, result tables; link check. |
-| [docs/presentation/kidney-acceptance-signal-monitor-interview.pptx](../presentation/kidney-acceptance-signal-monitor-interview.pptx) | preserved with dated explanation | Retained V1 media; its story is explained in the dated rehearsal notes. | Unchanged tracked bytes; no new visual audit or author rehearsal claimed. |
-
-#### 4. Plans and decisions
-
-| File | Outcome | Reason | Review evidence |
-|---|---|---|---|
-| [docs/decisions/0001-month-precision-prediction-origin.md](../decisions/0001-month-precision-prediction-origin.md) | preserved with dated explanation | Explain prediction origin and elapsed-year metadata without inventing a publication day. | Full file read; original text preserved; dated-note review. |
-| [docs/decisions/0002-attempt-forecast-activation.md](../decisions/0002-attempt-forecast-activation.md) | preserved with dated explanation | Distinguish the original decision to attempt activation from the completed nonpromotion outcome. | Full file read; original text preserved; dated-note review. |
-| [docs/decisions/0003-tracked-release-bundle.md](../decisions/0003-tracked-release-bundle.md) | preserved with dated explanation | Explain bundle fingerprints, precomputed offline behavior, and the decision's V1-only one-bundle scope. | Full file read; original text preserved; dated-note review. |
-| [docs/decisions/0004-patient-journey-v2-scientific-and-path-boundaries.md](../decisions/0004-patient-journey-v2-scientific-and-path-boundaries.md) | preserved with dated explanation | Explain the listing denominator, published-versus-unknown outcome, missing patient detail, and separate safety comparisons. | Full file read; original text preserved; dated-note review. |
-| [docs/decisions/0005-v2-nonoverlapping-strict-vintage-design.md](../decisions/0005-v2-nonoverlapping-strict-vintage-design.md) | preserved with dated explanation | Explain the distinct cohort-overlap and publication-timing protections and limited evaluation evidence. | Full file read; original text preserved; dated-note review. |
-| [docs/decisions/0006-v2-modeling-and-nonpromotion-freeze.md](../decisions/0006-v2-modeling-and-nonpromotion-freeze.md) | preserved with dated explanation | Explain common-row comparisons, model transform versus reported units, resampling, and nonpromotion. | Full file read; original text preserved; dated-note review. |
-| [docs/decisions/0007-preserve-v2-and-plan-explanatory-follow-up.md](../decisions/0007-preserve-v2-and-plan-explanatory-follow-up.md) | already clear | Explains preservation, the two follow-up questions, P0a-first work order, and why inspected data cannot become fresh validation in ordinary language. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0001-repository-scaffold-and-cache-verification.md](0001-repository-scaffold-and-cache-verification.md) | preserved with dated explanation | Explain the locked tool environment and local source verification; distinguish the original missing-cache result from later completion. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0002-verified-atomic-source-sync.md](0002-verified-atomic-source-sync.md) | preserved with dated explanation | Explain temporary-file verification, immutable cache, and why repeat downloads are skipped. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0003-schema-aware-workbook-parser.md](0003-schema-aware-workbook-parser.md) | preserved with dated explanation | Explain workbook parsing, composite identity, the row unit, and the release-code meaning of 2006. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0004-canonical-panel-and-qa.md](0004-canonical-panel-and-qa.md) | preserved with dated explanation | Explain the two row units, evaluation versus display eligibility, and rounding checks. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0005-historical-service-and-walking-skeleton.md](0005-historical-service-and-walking-skeleton.md) | preserved with dated explanation | Explain the first complete offline user flow and why the display reads stored eligibility. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0006-ci-pytest-fresh-checkout.md](0006-ci-pytest-fresh-checkout.md) | preserved with dated explanation | Retain the clear temporary-directory fix and clarify the historical coverage denominator. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0007-baseline-temporal-backtest.md](0007-baseline-temporal-backtest.md) | preserved with dated explanation | Explain simple comparisons, forward-year evaluation, the error scale, and equal year weighting. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0008-ridge-pre-replay-backtest.md](0008-ridge-pre-replay-backtest.md) | preserved with dated explanation | Explain Ridge shrinkage, the alpha tie rule, training-only preprocessing, and the limited candidate gate. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0009-pre-replay-activation-freeze.md](0009-pre-replay-activation-freeze.md) | preserved with dated explanation | Explain prediction-error band calibration, resampling whole programs, separate display gates, and historical authorization state. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0010-frozen-2025-replay.md](0010-frozen-2025-replay.md) | preserved with dated explanation | Explain why lower average error did not meet all promotion requirements and clarify the band result. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0011-offline-product-flow.md](0011-offline-product-flow.md) | preserved with dated explanation | Explain the completed screen flow, matching evidence to displayed data, and preserved nonpromotion behavior. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0012-release-hardening-and-container.md](0012-release-hardening-and-container.md) | preserved with dated explanation | Explain the offline release bundle, separate reproduction evidence, and container permissions. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0013-interview-presentation-package.md](0013-interview-presentation-package.md) | preserved with dated explanation | Distinguish the retained four-minute V1 package from the planned V2 presentation and actual rehearsal readiness. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0014-ai-code-and-context-hardening.md](0014-ai-code-and-context-hardening.md) | preserved with dated explanation | Explain executable security checks, complexity limits, negative tests, and bounded historical audit claims. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0015-patient-journey-v2-foundation.md](0015-patient-journey-v2-foundation.md) | preserved with dated explanation | Explain V2's distinct observed outcome and how separate output locations protect V1. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0016-patient-journey-ledger-and-parser.md](0016-patient-journey-ledger-and-parser.md) | preserved with dated explanation | Explain release-specific definitions, target denominator, model-only transforms, missing wait-time values, and overlap. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0017-patient-journey-temporal-panel.md](0017-patient-journey-temporal-panel.md) | preserved with dated explanation | Explain feature-to-outcome pairs, publication-aware training, missing later reports, and listing-count thresholds. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0018-patient-journey-artifact-publication.md](0018-patient-journey-artifact-publication.md) | preserved with dated explanation | Explain source-bound saved data, semantic checks beyond hashes, and development versus canonical provenance. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0019-patient-journey-v2-completion.md](0019-patient-journey-v2-completion.md) | preserved with dated explanation | Explain one-period evidence, percentage-point errors, differing comparison populations, and clean-source versus development release identities. | Full file read; original text preserved; dated-note review. |
-| [docs/plans/0020-v2-follow-up-and-interview-story.md](0020-v2-follow-up-and-interview-story.md) | rewritten | Records batch scope, file reviews, evidence and the next analytical prerequisites. | Reviewed against source contracts and original facts; diff and local-link checks. |
-| [docs/plans/0021-focused-ai-coding-hardening.md](0021-focused-ai-coding-hardening.md) | already clear | Recent bounded engineering record already explains every fix, coverage denominator, null-evidence representation, and corrected Docker conclusion. | Full file read; original text preserved; dated-note review. |
-
-#### 5. Module and test explanations
-
-| File | Outcome | Reason | Review evidence |
-|---|---|---|---|
-| [app/patient_journey_v2.py](../../app/patient_journey_v2.py) | rewritten | Adds the original V2 offline-view purpose and separation from fitting/source logic. | Reviewed 1 docstrings and 0 comments; AST/compile checks. |
-| [app/streamlit_app.py](../../app/streamlit_app.py) | already clear | Existing docstring clearly identifies the trusted offline V1 view; no other prose comments. | Reviewed 1 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/__init__.py](../../src/kasm/__init__.py) | already clear | Package name already clear; no analytical explanation to rewrite. | Reviewed 1 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/cli.py](../../src/kasm/cli.py) | already clear | Existing short docstrings explain command parsing, exit status and entry points. | Reviewed 4 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/config.py](../../src/kasm/config.py) | rewritten | Explains source metadata and file fingerprints without overstating loader enforcement. | Reviewed 7 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/data/__init__.py](../../src/kasm/data/__init__.py) | rewritten | States download and validation purpose. | Reviewed 1 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/data/build.py](../../src/kasm/data/build.py) | rewritten | Explains row units, missing future targets, stored eligibility and rounding QA. | Reviewed 14 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/data/cache.py](../../src/kasm/data/cache.py) | rewritten | Explains unchanged source identity and rejection before archive opening. | Reviewed 5 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/data/download.py](../../src/kasm/data/download.py) | rewritten | Explains temporary downloads, verification and completed-file publication. | Reviewed 8 docstrings and 6 comments; AST/compile checks. |
-| [src/kasm/data/parse.py](../../src/kasm/data/parse.py) | rewritten | Explains named-field parsing, program/year/group rows and null source values. | Reviewed 12 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/modeling/__init__.py](../../src/kasm/modeling/__init__.py) | rewritten | States earlier-information and year-order purpose. | Reviewed 1 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/modeling/activation.py](../../src/kasm/modeling/activation.py) | rewritten | Explains log-scale band width, coverage denominator and paired program resampling. | Reviewed 11 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/modeling/backtest.py](../../src/kasm/modeling/backtest.py) | rewritten | Explains intact evaluation years, volume groups and error averaging units. | Reviewed 11 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/modeling/challenger.py](../../src/kasm/modeling/challenger.py) | rewritten | Explains fixed penalty selection and training-only median/empty-column treatment. | Reviewed 15 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/modeling/experiment.py](../../src/kasm/modeling/experiment.py) | rewritten | Explains fixed configuration and disruption-year exclusions. | Reviewed 7 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/modeling/features.py](../../src/kasm/modeling/features.py) | rewritten | Explains the matrix and exact allowed input list. | Reviewed 4 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/modeling/replay.py](../../src/kasm/modeling/replay.py) | rewritten | Explains fixed fitting years, separate band role and already-inspected replay limits. | Reviewed 13 docstrings and 3 comments; AST/compile checks. |
-| [src/kasm/patient_journey/__init__.py](../../src/kasm/patient_journey/__init__.py) | rewritten | Explain the V2 study purpose and separate nonpromotion boundary. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [src/kasm/patient_journey/artifacts.py](../../src/kasm/patient_journey/artifacts.py) | rewritten | Explain complete-bundle staging, file hashes, build identity, and protected V1 output. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [src/kasm/patient_journey/config.py](../../src/kasm/patient_journey/config.py) | rewritten | Explain fixed input-report/outcome-report relationships, count thresholds, error units, and program resampling. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [src/kasm/patient_journey/evaluation.py](../../src/kasm/patient_journey/evaluation.py) | rewritten | Explain percentage-point errors, equal-release averaging, candidate weighting, paired program resampling, and descriptive limits. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [src/kasm/patient_journey/ledger.py](../../src/kasm/patient_journey/ledger.py) | rewritten | Explain source definitions, measurement/follow-up/publication dates, workbook contracts, and cohort overlap. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [src/kasm/patient_journey/model_artifacts.py](../../src/kasm/patient_journey/model_artifacts.py) | rewritten | Explain original fixed comparisons, the single usable Ridge period, expected-calculation checks, and nonpromotion. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [src/kasm/patient_journey/modeling.py](../../src/kasm/patient_journey/modeling.py) | rewritten | Explain Ridge purpose, retained missing predictors, exact log transforms, training-only preprocessing, and simple baselines. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [src/kasm/patient_journey/panel.py](../../src/kasm/patient_journey/panel.py) | rewritten | Explain program/listing-cohort rows, publication cutoffs, report count, calculated available-cohort reference, and missing later reports. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [src/kasm/patient_journey/parse.py](../../src/kasm/patient_journey/parse.py) | rewritten | Explain listed-candidate denominator, published versus reconstructed outcomes, suppression, composite identity, and exact empirical-logit transform. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [src/kasm/patient_journey/product.py](../../src/kasm/patient_journey/product.py) | rewritten | Explain offline saved results, explicit unreported values, and included measurement spans. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [src/kasm/patient_journey/release.py](../../src/kasm/patient_journey/release.py) | rewritten | Explain the four-file offline bundle, shared build identity, staged validation, and absence of future forecasts. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [src/kasm/reporting/__init__.py](../../src/kasm/reporting/__init__.py) | rewritten | States saved-result display purpose. | Reviewed 1 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/reporting/artifacts.py](../../src/kasm/reporting/artifacts.py) | rewritten | Explains the tracked bundle, fingerprints and recorded origins. | Reviewed 5 docstrings and 1 comments; AST/compile checks. |
-| [src/kasm/reporting/history.py](../../src/kasm/reporting/history.py) | rewritten | Explains published history, missingness, stored eligibility and interval labels. | Reviewed 22 docstrings and 0 comments; AST/compile checks. |
-| [src/kasm/reporting/product.py](../../src/kasm/reporting/product.py) | rewritten | Explains saved error comparisons and unchanged display rules. | Reviewed 6 docstrings and 0 comments; AST/compile checks. |
-| [tests/integration/test_baseline_backtest.py](../../tests/integration/test_baseline_backtest.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/integration/test_data_build.py](../../tests/integration/test_data_build.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/integration/test_frozen_replay.py](../../tests/integration/test_frozen_replay.py) | already clear | Existing comment explains the offline test boundary; assertions unchanged. | Reviewed 0 docstrings and 1 comments; AST/compile checks. |
-| [tests/integration/test_historical_app.py](../../tests/integration/test_historical_app.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/integration/test_release_bundle.py](../../tests/integration/test_release_bundle.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/integration/test_ridge_backtest.py](../../tests/integration/test_ridge_backtest.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_activation.py](../../tests/unit/test_activation.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_baselines.py](../../tests/unit/test_baselines.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_build.py](../../tests/unit/test_build.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_cache.py](../../tests/unit/test_cache.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_cli.py](../../tests/unit/test_cli.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_config.py](../../tests/unit/test_config.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_download.py](../../tests/unit/test_download.py) | already clear | Existing comment explains the offline test boundary; assertions unchanged. | Reviewed 0 docstrings and 1 comments; AST/compile checks. |
-| [tests/unit/test_experiment.py](../../tests/unit/test_experiment.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_history.py](../../tests/unit/test_history.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_modeling_features.py](../../tests/unit/test_modeling_features.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_parse.py](../../tests/unit/test_parse.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_patient_journey_config.py](../../tests/unit/test_patient_journey_config.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [tests/unit/test_patient_journey_evaluation.py](../../tests/unit/test_patient_journey_evaluation.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [tests/unit/test_patient_journey_ledger.py](../../tests/unit/test_patient_journey_ledger.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [tests/unit/test_patient_journey_model_artifacts.py](../../tests/unit/test_patient_journey_model_artifacts.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [tests/unit/test_patient_journey_modeling.py](../../tests/unit/test_patient_journey_modeling.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [tests/unit/test_patient_journey_panel.py](../../tests/unit/test_patient_journey_panel.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [tests/unit/test_patient_journey_parse.py](../../tests/unit/test_patient_journey_parse.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [tests/unit/test_patient_journey_product.py](../../tests/unit/test_patient_journey_product.py) | already clear | Existing explanation already states the missing-value and malformed-timing regression purpose in ordinary language. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [tests/unit/test_patient_journey_release.py](../../tests/unit/test_patient_journey_release.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [tests/unit/test_patient_journey_v2_app.py](../../tests/unit/test_patient_journey_v2_app.py) | already clear | No explanatory comments/docstrings to rewrite; descriptive test names and executable fixture/assertion text remain unchanged. | All prose reviewed; AST unchanged; compile and Ruff checks. |
-| [tests/unit/test_product.py](../../tests/unit/test_product.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_release_artifacts.py](../../tests/unit/test_release_artifacts.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_replay.py](../../tests/unit/test_replay.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_repository_config.py](../../tests/unit/test_repository_config.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
-| [tests/unit/test_ridge.py](../../tests/unit/test_ridge.py) | already clear | No explanatory prose to rewrite; descriptive test names and assertions retained. | Reviewed 0 docstrings and 0 comments; AST/compile checks. |
+Both wording passes checked all 125 local links and the example's exact-fraction arithmetic.
+Each ran the six required commands with `UV_CACHE_DIR=.uv-cache` and
+`MPLCONFIGDIR=.uv-cache/matplotlib`: sync passed (74 packages), Ruff format/check passed
+(72 files), mypy passed (34 source files), and 437 tests passed with 83.42% combined coverage
+and 82.43% V2 coverage. No real-data calculation, output rebuild or frozen replay ran.
 
 ### P1/P2 execution — 2026-09-05 UTC
-
-- Starting worktree clean; the current request authorizes the next substantial related batch,
-  using independent review where useful and leaving changes uncommitted.
-- Scope: complete P1/P2 under the new follow-up specification and typed configuration.
-  Decision 0008 authorizes only the ignored local output root. P3/P4 remain later work.
-- Before analytical implementation, recorded the exact five count-removed input groups,
-  original reconstruction tolerance (absolute 1e-10 proportion, zero relative tolerance),
-  contribution definition, paired population, 12 fixed bootstrap contrasts, and write-once
-  output/provenance rules in the separate contract. No revised prediction has run yet.
-- Expected evidence: constructed failing tests for reconstruction tampering, contribution sums,
-  count removal and training-only fitting; malformed input/path and overwrite tests; original
-  release reconstruction followed by one fixed revised comparison, readable report and figures.
-- Original config/release/input hashes are read-only. No V1 frozen replay or original-output
-  rebuild is authorized by this batch.
-- P1's two standalone, offline figures require a plotting library. Add Matplotlib as a direct
-  dependency, verified against its official PyPI project and savefig documentation on 2026-09-05.
-  Review the lock diff for unchanged existing numerical-package versions. Retain the original
-  release's recorded lock identity and identify the new build lock separately; do not rebuild
-  either original bundle merely to update its provenance. The original lock remains available
-  at its recorded source commit. Prediction reconstruction gates numerical compatibility.
-- Report acceptance: one-period population, dates, original listing denominator and units;
-  fixed-order tables of all models/contrasts; unavailable wording when training SD is zero;
-  deterministic standalone SVG/PNG figures. Focused tests check numerical text, missing states,
-  nonpromotion and output determinism without asserting chart pixels.
-
-
-P1/P2 completion evidence:
 
 - Separate contract and Decision 0008 preceded analytical implementation. The typed loader pins
   all five revised groups, 12 contrasts, reconstruction/contribution tolerances, bootstrap settings
@@ -968,7 +186,7 @@ P1/P2 completion evidence:
   and five transitive packages; comparing parsed lock package/version maps showed no changed or
   removed pre-existing version. Official verification: [PyPI](https://pypi.org/project/matplotlib/)
   and [Matplotlib savefig](https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html).
-  Initial sandbox network access failed; the approved dependency download then succeeded.
+
 - SHA-256 checks before/after cover 42 existing files across both original configurations,
   manifests, generated inputs/results, and release roots: all remain byte-identical. Cache
   verification separately passed all nine source inputs. App/CI/container configuration and
@@ -1016,90 +234,11 @@ result = evaluate_followup(inputs.rows, inputs.stored_predictions, inputs.config
 # compare each render_followup_report(result.evidence) byte payload and each manifest size/hash.
 ```
 
-Original data-build/model/artifact writers were deliberately not rerun because this follow-up
-reads their preserved release. The full suite covers their fixture pipelines and both offline
-application flows. No V1 frozen replay, model promotion, future forecast, tracked analytical
-bundle, commit, push or PR was created. P3 and P4 remain unfinished; interview readiness is not
-claimed by P1/P2 completion.
-
-Final handoff checks: all 153 local links in the seven touched/new documents resolve;
-`git diff --check`, Ruff format/check and strict mypy pass on the final worktree. Temporary
-agent files, application process and smoke container are cleaned up. Both final figures were
-visually verified, and the independent results/narrative review found no actionable issue.
-All intended source/documentation/configuration changes remain unstaged and uncommitted.
-
-### Censoring explanation clarification — 2026-09-05 UTC
-
-- User-authorized scope: clarify the project guide's censoring explanation under P0a's
-  ordinary-language requirements and P3's outcome-definition safeguards. This is a wording
-  clarification, not completion of P3's planned analysis.
-- Acceptance: distinguish Table B7's aggregate status snapshots from observation histories;
-  explain that standard censoring methods need not know each person's reason for censoring;
-  separate the missing data needed to fit those methods from the independent-censoring
-  assumption. Preserve the published target, denominator, original results, and unknown outcomes.
-- Evidence sources: [SRTR's Table B7 methods](https://srtr.hrsa.gov/transplant-professionals/program-specific-report/technical-methods-for-the-program-specific-reports/)
-  describe status at 6, 12, and 18 months and the unknown categories;
-  [Jackson et al.'s methodological study](https://pmc.ncbi.nlm.nih.gov/articles/PMC4282781/)
-  describes independent censoring and sensitivity to departures from it. Both were inspected
-  during the discussion preceding this edit.
-- Documentation-only failing-test exception: no executable behavior changes, so no new test
-  asserting prose is warranted. Expected evidence is source/wording review, local-link and
-  diff checks, and the required locked-environment, lint, type, and coverage commands.
-- Completed wording/source review: the guide now states the data limitation explicitly,
-  defines independent censoring, and does not claim that unknown status proves the assumption
-  false. The mortality example is labeled hypothetical and separate from the study target.
-- Verification: all 125 local file links in the two edited documents resolve; `git diff --check`
-  passes. Only the guide and this plan changed. Real-data builds and app/container rebuilds
-  were not run for this documentation change; original study outputs remain preserved.
-
-Fresh command evidence, with `UV_CACHE_DIR=.uv-cache` and `MPLCONFIGDIR=.uv-cache/matplotlib`:
-
-| Command | Result |
-|---|---|
-| `uv sync --frozen` | Passed; 74 packages checked |
-| `uv run ruff format --check .` | Passed; 72 files already formatted |
-| `uv run ruff check .` | Passed |
-| `uv run mypy src/kasm` | Passed; 34 source files |
-| `uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov=src/kasm/patient_journey --cov-branch --cov-fail-under=80` | Passed; 437 tests, 83.42% combined statement/branch coverage |
-| `uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2` | Passed; 82.43% V2 statement/branch coverage |
-
-### Explain what aggregation preserves — 2026-09-05 UTC
-
-- Follow-up scope: make the censoring section concrete by showing which information an
-  aggregate survival calculation retains and which information Table B7's snapshots omit.
-  This continues the guide clarification under P0a/P3; P3's source-data analysis remains pending.
-- Acceptance: a clearly hypothetical mortality example lists every death and observation
-  ending, reproduces the same unadjusted Kaplan–Meier estimate from aggregate counts, and
-  distinguishes those counts from final known/unknown status totals. State the censoring
-  assumption separately and retain the published functioning-transplant target and denominator.
-- Source: [NIST's Kaplan–Meier explanation](https://www.itl.nist.gov/div898/handbook/apr/section2/apr215.htm),
-  inspected in the preceding discussion, describes the event-time calculation and how censoring
-  changes the number still observed. This teaching example is not an estimate or a scenario for
-  the study's unreported patient outcomes.
-- Documentation-only failing-test exception: no executable behavior changes. Check the example's
-  arithmetic, cited definitions, local links, and final diff; run the required repository checks.
-- Verification complete: all 125 local file links in both changed documents resolve, and
-  `git diff --check` passes. Exact-fraction arithmetic checks reconcile every example row,
-  account for all ten patients, and reproduce the 64% estimate. Source/wording review confirms
-  that exact event counts, status snapshots, and the study's different outcome remain distinct.
-- Reran all six commands in the preceding clarification's verification table with the same
-  writable cache settings: locked sync passed (74 packages); Ruff format/check passed
-  (72 Python files); mypy passed (34 source files); all 437 tests passed with 83.42% combined
-  statement/branch coverage; the separate V2 coverage check passed at 82.43%.
-- Only this plan and the project guide changed. No real-data analysis, output rebuild,
-  app/container rebuild, or frozen replay ran. Original studies, configurations, and outputs
-  remain preserved; P3's investigation and P4's rehearsal are still pending.
+Original data-build/model/artifact writers and the V1 frozen replay were not rerun. The
+follow-up reads their preserved release; fixture tests cover both original offline app flows.
+This investigation produced no model promotion, future forecast or tracked analytical bundle.
 
 ### P3 implementation and verification — 2026-09-07
-
-**Later update:** The initial blocked verification below is retained as historical evidence.
-The subsequent Docker repair section records successful container verification and closes P3.
-
-The user-authorized substantial batch implements the separate outcome-component specification,
-typed configuration and Decision 0009, leaving all changes uncommitted. P3's numerical/source
-requirements are satisfied. Its final status remains open because local Docker verification
-could not run successfully; do not describe this as a fully verified completion or interview
-readiness. P4's case, presentation, author walkthrough and rehearsal remain subsequent work.
 
 Source and scientific evidence:
 
@@ -1162,7 +301,7 @@ Final verification used `UV_CACHE_DIR=.uv-cache` and `MPLCONFIGDIR=.uv-cache/mat
 | Repeat component command | Expected exit 1: existing run cannot be overwritten |
 | Separate read/calculate/render audit | All five payloads reproduced byte-for-byte; all manifest sizes/hashes agree |
 | `uv run streamlit run app/streamlit_app.py --server.headless true --server.port 8504 --browser.gatherUsageStats false` (via the same Python module entry point) | `/_stcore/health` returned `ok`; temporary hidden process stopped |
-| Docker build with installed `%LOCALAPPDATA%/Programs/DockerDesktop/resources/bin/docker.exe` | Blocked: Linux engine pipe absent; see environment evidence below |
+| Docker build with installed `%LOCALAPPDATA%/Programs/DockerDesktop/resources/bin/docker.exe` | Initially blocked: Linux engine pipe absent; resolved in the repair record below |
 | Local links and `git diff --check` | Passed; 162 local links across the eight touched/new documents |
 | Protected input/result SHA-256 comparison | All 43 recorded files unchanged |
 
@@ -1189,57 +328,24 @@ files = render_component_report(evidence) | {
 # rehash each entry in p3_preservation_before.json and require no change.
 ```
 
-Local container verification remains blocked by an environment failure. The installed Docker
-executable first needed approved sandbox escalation, then reported the absent
-`dockerDesktopLinuxEngine` pipe. `docker desktop start --detach` reported starting, but Docker
-quit before the engine became available. The backend log identified failure to access/rename
-`%LOCALAPPDATA%/Docker/run/sailor-ingest.sock` and its `.stale` endpoint. With no active Docker
-processes, both were verified as zero-byte reparse-point runtime endpoints. An approved,
-nonrecursive `Remove-Item -LiteralPath` attempt failed with "The file cannot be accessed by the
-system" for both; despite the shell script's subsequent success text, **neither removal
-succeeded**. A read-only reparse query also returned error 1920. No image build or container
-health result is claimed. No Docker images, containers, settings or project files were removed.
-Repair of the host's inaccessible Docker runtime endpoints is outside this analytical batch;
-rerun the build and non-root/offline health check once the engine can start.
-
-Original data-build/model/artifact writers and the V1 frozen replay were not run: the follow-up
-reads the preserved release, and its writer cannot reach original or P1/P2 roots. The full suite
-covers their fixture pipelines and both offline app flows. No raw data, generated analytical
-bundle, serialized model, source checksum change, commit, push, PR, promotion or future forecast
-was created. All intended repository changes remain unstaged and uncommitted.
-
 ### Docker startup repair and P3 verification closure — 2026-09-07 UTC
 
-The user explicitly requested repair of Docker's inaccessible `sailor-ingest.sock` endpoint.
-Scope and acceptance: restore the local Linux engine, build the existing project Dockerfile,
-verify non-root startup and app health with container networking disabled, and update current
-P3 status. Preserve the earlier failure record and original study evidence. This is a host
-repair with documentation-only repository changes; no new executable behavior requires a
-failing unit test. The observed startup failure is the before-repair evidence, and successful
-engine/build/container commands are the direct repair checks.
+P3's first Docker build could not reach `dockerDesktopLinuxEngine`. The backend logs showed
+inaccessible `sailor-ingest.sock` and then `docker-secrets-engine/engine.sock` runtime endpoints.
+The initial nonrecursive removal attempt failed: neither endpoint was removed, despite a
+misleading success message from the shell script. No image or health success was claimed then.
 
-Repair evidence:
+After verifying that the stopped engines' runtime directories contained only zero-byte sockets,
+the directories were preserved and replaced with empty runtime directories. Backups remain at
+`%LOCALAPPDATA%/Docker/run.before-repair-20260907-101556`,
+`%LOCALAPPDATA%/Docker/run.before-repair-20260907-101923` and
+`%LOCALAPPDATA%/docker-secrets-engine.before-repair-20260907-101923`.
+No settings, credentials, WSL disk, existing images or containers were removed. Docker Desktop
+`4.89.0 (238018)` then started Linux Engine `29.7.2`. This resolved the occurrence without
+establishing why the sockets became inaccessible.
 
-- Docker initially had no running processes. Its `Docker/run` directory contained only six
-  zero-byte socket entries. After verifying exact paths and entry types, preserved the directory
-  as `%LOCALAPPDATA%/Docker/run.before-repair-20260907-101556` and created a fresh `run` directory.
-- Startup passed Ingest initialization but encountered the same inaccessible socket error at
-  `%LOCALAPPDATA%/docker-secrets-engine/engine.sock`. Backend logs confirmed the local engines
-  had stopped. The graceful Desktop stop timed out; stopped only the failed Desktop/backend
-  processes before the next repair.
-- Verified that both runtime directories now contained only two zero-byte socket entries each.
-  Preserved them as `%LOCALAPPDATA%/Docker/run.before-repair-20260907-101923` and
-  `%LOCALAPPDATA%/docker-secrets-engine.before-repair-20260907-101923`, then recreated the two
-  empty directories. No settings, credentials, WSL disk, existing images or containers were
-  removed. All three backup directories remain in place.
-- Started Docker Desktop in the background. Desktop `4.89.0 (238018)` now reports Linux Engine
-  `29.7.2`; a Windows restart and factory reset were unnecessary. Directory replacement
-  resolved this occurrence; it does not establish why the sockets became inaccessible.
-
-The commands below use `docker` to mean the installed executable at
-`%LOCALAPPDATA%/Programs/DockerDesktop/resources/bin/docker.exe`. Host repair and Docker access
-used approved sandbox escalation. No Dockerfile, dependency, configuration or analytical output
-changed during the repair.
+The following commands used the installed executable at
+`%LOCALAPPDATA%/Programs/DockerDesktop/resources/bin/docker.exe`:
 
 | Command or check | Result |
 |---|---|
@@ -1251,109 +357,90 @@ changed during the repair.
 | Python `urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health', timeout=5)` inside the container | Returned `ok` with networking disabled |
 | `docker rm -f kasm-docker-repair-20260907-1523` | Removed only the temporary smoke container; Docker remains running |
 
-P3's previously recorded analysis, reproduction, review and Python checks remain the evidence
-for the unchanged implementation. The image contains the retained V1 application bundle, as
-specified by the existing Dockerfile; this check does not claim a new V2 container release.
-P4's program case, presentation, author walkthrough and rehearsal remain unfinished.
+The image contains the retained V1 app bundle; this verifies the existing container, not a
+new V2 container release. The six required repository commands were rerun: sync passed
+(74 packages), Ruff format/check passed (80 files), mypy passed (39 source files), 493 tests
+passed in 38.27 seconds with 84.08% combined coverage, and V2 coverage passed at 83.62%.
+All 43 protected input/result hashes remained unchanged. No analytical writer or replay ran.
+This closed P3's remaining verification gap.
 
-Fresh repository verification after the repair used `UV_CACHE_DIR=.uv-cache` and
-`MPLCONFIGDIR=.uv-cache/matplotlib`. All six required commands from the P3 verification table
-were rerun successfully: frozen sync checked 74 packages; Ruff format/check passed for 80 Python
-files; mypy passed for 39 source files; all 493 tests passed in 38.27 seconds with 84.08% combined
-statement/branch coverage; the separate V2 coverage check passed at 83.62%. All 158 local file
-links across the five updated documents resolve, `git diff --check` passes, and all 43 protected
-input/result hashes remain unchanged. Independent review found no actionable issue in the
-documentation diff. Only these status/evidence documents changed in this repair turn; they
-remain uncommitted. No analysis writer, model fit or frozen replay ran.
+### P4 Build the explanation and interview package
+
+The [V2 follow-up package](../presentation/v2-followup/README.md) contains a 17-slide editable
+deck (15 main slides for an 18-minute story and two appendices), self-contained HTML backup,
+source-bound ALUA:TX1 case, short demo/rehearsal guide and reproducible authoring/provenance.
+Four charts have embedded workbooks and two model tables remain editable. Its eight files
+total 490,114 bytes. The original V1 presentation remains preserved.
+
+The illustrative-case rule sorted original eligible `2205→2505` programs by composite key,
+required complete prior/outcome/component evidence, earlier overall OAR above 1 and a lower
+later published functioning percentage, and chose the first match. Independent extraction
+confirmed 61 qualifying programs and the selected case's joins, dates, count and values. This
+is an editorial example, not a ranking, representative sample or estimate of clinical impact.
+
+The author's own-words walkthrough, timed rehearsal and native presentation-machine font
+check remain unrecorded. Key discussion requirements are the comparison model's report-count
+behavior, the listing denominator, unknown status versus censoring, the single usable evaluation
+period, V1's actual bias-rule failure and what additional evidence would be useful.
 
 ### P4 package preparation and verification — 2026-09-07 UTC
 
-The next substantial batch prepares the interview deliverables under
-`docs/presentation/v2-followup/`, leaving them unstaged and uncommitted. **P4 remains in
-progress:** the author's own-words walkthrough, measured speaking rehearsal and checks in the
-native presentation application on the presentation machine are not yet recorded. The package
-does not establish interview readiness by itself.
+- Independent review checked all 13 model approaches and six displayed contrasts against the
+  completed JSON. Review corrected an overly categorical unknown-status heading, percentage-label
+  precision and a chart/footer overlap. The final claim leaves causes unresolved.
+- All 17 slides were rendered and inspected. Package, layout, font-policy, import and native
+  chart-workbook checks passed. A second build reproduced all rendered PNGs and the HTML bytes;
+  package IDs/timestamps may differ. The HTML has no scripts, external assets or server dependency.
+- `uv sync --frozen`, Ruff format/check and mypy passed (74 packages, 80 Python files, 39 source
+  files). The required suite passed 493 tests in 37.22 seconds: 84.08% combined coverage and
+  83.62% V2 coverage. All 72 protected hashes and 188 local links passed verification.
+- With `socket.socket.connect` blocked, AppTest verified ALUA selection, candidate count 548,
+  displayed outcome 17.5%, month-precision origin and original nonpromotion. The live app's
+  loopback health and program/method routes also passed. An initial scratch assertion expected
+  slash-separated dates; correcting it to the app's valid `2025-07-08` fixed the test expectation.
+- Build used runtime `26.905.11957`, Node `24.19.0` and artifact-tool `2.8.59`.
+  `node --check docs/presentation/v2-followup/build.mjs` and `git diff --check` passed.
+  The unsupported embedded-font decode warning remained; native PowerPoint/Google Slides font
+  appearance was not checked. The independent HTML backup uses a system font.
 
-Completed related deliverables:
-
-- Editable `interview.pptx`: 15 main slides allocating 18 minutes and two appendix slides.
-  Four native charts have embedded value workbooks; two model-comparison tables remain editable.
-  All 17 slides have speaking notes, source references, package version and claim boundaries.
-- Self-contained `interview-backup.html`: the same story and case, with semantic tables for
-  chart values and expandable notes. It has no scripts, external assets or server dependency.
-- `program-case.md`: the source-bound ALUA:TX1 case. Independent read-only extraction verified
-  the stated selection rule, 61 qualifying programs, composite-key joins, dates, counts and
-  original/preserved follow-up values. The case is illustrative, not representative or causal.
-- `rehearsal-guide.md`: timed allocation, standalone two-minute demo and compressed 90-second
-  version, likely panel questions, own-words prompts and an explicitly pending rehearsal log.
-- `slides.json`, `build.mjs`, package README and `package-provenance.json`: reproducible
-  documentation authoring, source/input hashes, chosen template identity and build context.
-  The eight-file package totals 490,114 bytes. It is a presentation, not an analytical release.
-
-The presentation uses the selected Simple Light Mode reference, preserving its light style,
-Helvetica Neue family and 16:9 canvas. Sample text and evidence objects were replaced in its
-retained layouts. Necessary adaptations fit the source/claim footers and editable evidence.
-The template and original V1 deck, screenshots and rehearsal package remain unchanged.
-
-The documentation-only test-first exception stated above applies. No production or application
-code changed. Artifact checks initially caught missing native-table validation arguments and a
-validation receipt placed in the delivery directory; the authoring script now satisfies both
-requirements. Visual review fixed percentage-label precision and chart-frame overlap with the
-footer. A claim review changed an overly categorical heading to “Unknown-status associations
-leave causes unresolved.” Independent numerical review checked all chart values, all 13 model
-approaches and all six displayed contrast tuples against completed JSON, with no remaining
-scientific or numerical finding. Its two label suggestions were incorporated.
-
-Fresh repository commands used `UV_CACHE_DIR=.uv-cache` and
-`MPLCONFIGDIR=.uv-cache/matplotlib`:
-
-| Command or check | Result |
-|---|---|
-| `uv sync --frozen` | Passed; 74 packages checked, no dependency or lock change |
-| `uv run ruff format --check .` | Passed; 80 Python files |
-| `uv run ruff check .` | Passed, including configured security checks |
-| `uv run mypy src/kasm` | Passed; 39 source files |
-| Required four-root coverage command from `AGENTS.md` | 493 tests passed in 37.22 seconds; 84.08% combined statement/branch coverage |
-| `uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2` | Passed; 83.62% V2 statement/branch coverage |
-| Presentation build command in the package README | Passed with runtime bundle `26.905.11957`, Node `24.19.0` and artifact-tool `2.8.59` |
-| Finalizer | 17 slides, four charts, two tables; package/layout/font-policy/import and chart-workbook checks pass |
-| Fresh presentation reproduction | All 17 rendered PNGs and HTML reproduce byte-for-byte; container IDs/timestamps may differ |
-| Selected-program AppTest with `socket.socket.connect` blocked | ALUA selection, candidate count 548, displayed outcome 17.5%, month-precision origin and original nonpromotion state pass |
-| Existing V2 Streamlit process, loopback port 8504 | Health returned `ok`; browser program-selection and Methods and provenance route verified |
-| HTML browser check | All 17 sections present, no scripts or external assets, no horizontal overflow; case anchor and display verified |
-| Protected evidence comparison | All 72 pre-recorded file hashes unchanged |
-
-The initial scratch AppTest expected the later publication in slash-separated form; the app
-correctly displays exact-day dates as `2025-07-08`. The corrected smoke assertion passed.
-This was a verification-script expectation error, not an application defect. The app rounds
-the selected outcome to one decimal, while the presentation shows two and the case note
-retains source precision. No display code changed.
-
-Final development build: ignored `data/patient_journey_v2_followup/p4_build/final03`.
-Separate reproduction: the sibling `reproduction` directory. Input/output hashes match the
-copied delivery. Final PPTX SHA-256 is
+Final ignored build: `data/patient_journey_v2_followup/p4_build/final03`; reproduction is its
+sibling `reproduction` directory. PPTX SHA-256:
 `0dbefa72281f36c0460c50bcef25e8f17a7facfffaa4feb24caff44f95c51c4e`.
-The preservation snapshot is `p4_build/preservation-before.json`. Source, configuration,
-original output and completed P1–P3 hashes are preserved. Reproduction performs no model fit
-or analytical writer call.
+The preservation snapshot is `p4_build/preservation-before.json`. Original source/configuration,
+release and P1–P3 hashes matched. No analytical writer, model fit, source/cache rebuild,
+Docker rebuild or frozen replay was run for this presentation-only batch.
 
-The final build keeps temporary chart-check files inside its ignored output directory. Its
-17 rendered slides and HTML match the separately reproduced content. The six earlier chart
-check directories were removed after their exact contents were verified.
+### User-led data walkthrough — 2026-09-07
 
-Final handoff checks verified every package input/output hash and all 188 local Markdown links
-across the updated documentation. `node --check docs/presentation/v2-followup/build.mjs` and
-`git diff --check` pass. The two task-created loopback servers and their verification browser
-tabs were closed. The final working tree contains only four updated status/guide documents and
-the eight-file presentation package; all changes remain unstaged and uncommitted.
+The later [project walkthrough](../presentation/data-walkthrough/README.md) follows source data,
+QA, V1 and an app bridge, original V2, the two follow-ups, delivery and conclusions. Its final
+25 slides contain 19 main slides and six optional references. This is a documentation artifact
+built from completed evidence; it adds no comparison or analytical release.
 
-Every final slide was rendered, with visual checks of content and edited regions. The artifact
-runtime reports an unsupported embedded-font decode for one template font payload; encoded
-font-family checks pass and the renders were reviewed. Native PowerPoint/Google Slides font
-appearance was not tested and remains a presentation-machine check in the rehearsal guide.
-The independent HTML backup uses a system font. No native-app rendering claim is made.
+The source-QA example independently verified July 2025 Table B7 rows 3–5 as ALCH:TX1, ALUA:TX1
+and ALVA:TX1, while the acceptance sheet's same rows are PAUP:TX1, VANG:TX1 and MDUM:TX1.
+ALUA's correct acceptance match is row 74. The tables have 234 and 230 programs: 229 shared,
+five B7-only and one acceptance-only. Same-release identity matching does not make their different
+measurement periods eligible for a predictor/outcome join.
 
-Original data/model/artifact writers, cache rebuilds, Docker rebuilds and the V1 frozen replay
-were not run for this presentation-only batch. Their boundaries did not change; the full suite
-exercises both original offline app flows. No clinical/regulatory/causal claim, model promotion,
-future forecast, new analytical release, commit, push or PR was introduced.
+The first two source slides matched all 12 extracted workbook cells. Subsequent QA/V1 additions
+preserved the earlier approved slide content; source checks verified the OAR formula, interpretation,
+uncertainty, ALUA example and original modeling evidence. The complete 24-slide build reproduced
+all rendered PNGs, including five editable charts and six tables. Independent review corrected
+month-only date precision and record/feature descriptions before final verification.
+
+`DATA_SLIDES_BUILD_NAME=opening-slide-03` produced the final 25-slide introduction version.
+It preserved the preceding 24 slides' content and appearance apart from numbering. All final
+renders, package, layout, editable-evidence and font-policy checks passed without layout warnings.
+The original PPTX was open and locked, so the reviewed introduction version and its provenance
+were saved as `data-walkthrough-with-introduction.pptx` and a separate companion file. Both are
+retained. Native font appearance and the author's timed rehearsal were not established by renders.
+
+Each delivery ran the six required repository checks. The final run passed frozen sync,
+Ruff format/lint and mypy; 493 tests passed with 84.08% combined and 83.62% V2 coverage.
+An earlier run found two provenance failures from CRLF checkout bytes in original V2
+`experiment.yaml` and `methodology.yaml`. Their committed bytes matched the original manifest;
+restoring those exact bytes fixed both focused tests (two passed in 1.60 seconds) and the full
+suite without a content diff or altered source/configuration identity. The remaining 24 files
+in the 26-file preservation snapshot stayed byte-identical. No source, fitted model, original
+release, app, lock or analytical behavior changed in these slide deliveries.

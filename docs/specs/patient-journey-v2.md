@@ -5,6 +5,13 @@
 **Specification date:** 2026-09-04
 **Primary audience:** Transplant-program quality and performance staff
 
+> **Source correction, 2026-09-07:** The July 2026 kidney report lists candidates from
+> **July 1, 2023 through June 30, 2024**, not calendar year 2023. The overlap rationale for
+> excluding `2305→2605` below is incorrect. The [source audit](../audits/source-feasibility-0022.md)
+> binds the report to the pinned workbook. This historical specification, frozen configuration
+> and completed results retain their original design; a new study may assess that additional
+> retrospective period after independently checking source dates.
+
 > **Record retained, 2026-09-04:** This is the completed original V2 design, including its fixed
 > model inputs and nonpromotion rule. [Plan 0020](../plans/0020-v2-follow-up-and-interview-story.md)
 > describes a separate proposed investigation; it does not amend this experiment's inputs or

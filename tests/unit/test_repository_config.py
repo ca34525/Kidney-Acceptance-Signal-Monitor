@@ -4,6 +4,7 @@ import json
 import shlex
 import subprocess
 import tomllib
+from hashlib import sha256
 from pathlib import Path
 
 from kasm.patient_journey.release import validate_patient_journey_release_directory
@@ -156,3 +157,27 @@ def test_release_artifact_bytes_are_checkout_stable() -> None:
     attributes = (PROJECT_ROOT / ".gitattributes").read_text(encoding="utf-8")
     assert "artifacts/release/** binary" in attributes
     assert "artifacts/patient_journey_v2/** binary" in attributes
+
+
+def test_frozen_input_hashes_survive_windows_checkout_filters() -> None:
+    v1 = json.loads((PROJECT_ROOT / "artifacts/release/release_manifest.json").read_text())[
+        "provenance"
+    ]
+    v2 = json.loads(
+        (PROJECT_ROOT / "artifacts/patient_journey_v2/release_manifest.json").read_text()
+    )["provenance"]
+    expected = {
+        "configs/data_sources.yaml": v1["source_manifest_sha256"],
+        "configs/experiment.yaml": v1["experiment_config_sha256"],
+        "configs/frozen_experiment.yaml": v1["frozen_experiment_sha256"],
+        "configs/patient_journey_v2/experiment.yaml": v2["experiment_config_sha256"],
+        "configs/patient_journey_v2/methodology.yaml": v2["methodology_config_sha256"],
+    }
+    for path, digest in expected.items():
+        checkout = subprocess.run(  # noqa: S603 - fixed Git command and five literal repository paths
+            ["git", "-c", "core.autocrlf=true", "cat-file", "--filters", f"HEAD:{path}"],
+            cwd=PROJECT_ROOT,
+            check=True,
+            capture_output=True,
+        ).stdout
+        assert sha256(checkout).hexdigest() == digest, path

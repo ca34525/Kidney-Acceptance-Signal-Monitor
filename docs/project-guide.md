@@ -1,12 +1,7 @@
-# Understanding the project and the next investigation
+# Understanding the project
 
-This guide explains what the project does, what the original V2 results and report-count follow-up
-say, and what remains to investigate. It is written for the author preparing a 20-minute interview presentation and
-for readers who want the meaning before the statistical details.
-
-Ordinary language is a project requirement. Precise equations, field names, and methods remain in
-the linked specifications and code. Explain the idea first, then give the technical term when it
-helps someone check or implement the work.
+This guide explains the questions, data, results and limits of the completed studies.
+Precise equations, field names and methods remain in the linked specifications and code.
 
 ## What V1 and V2 do
 
@@ -29,19 +24,18 @@ acceptance decision.
 |---|---|---|
 | V1 acceptance monitor | Released; carries the latest ratio forward because Ridge missed a frozen promotion rule | [V1 model card](model_card.md) |
 | Original V2 patient-journey study | Completed exploratory study; no model promoted and no future forecast displayed | [V2 model card](patient_journey_v2_model_card.md) |
-| V2 follow-up | Report-count comparison and matched outcome-component analysis complete; local container verification passes | [Report-count results](patient_journey_v2_followup_results.md), [component results](patient_journey_v2_component_results.md) |
-
-The first pass is complete as of 2026-09-05 UTC. It reviewed existing documentation, including
-older records and code comments/docstrings, and clarified their meaning while retaining the
-original facts and decisions. Plan 0020 contains the per-file record and verification evidence.
-The report-count investigation below is complete. The separate outcome-component analysis is
-complete with verified numerical evidence and successful container checks after Docker repair.
-The [interview package](presentation/v2-followup/README.md) now includes the 18-minute story,
-an illustrative program case and independent offline backup. The author's own-words walkthrough
-and timed rehearsal remain separate, pending work.
+| V2 follow-up | Report-count comparison and matched outcome-component analysis complete | [Report-count results](patient_journey_v2_followup_results.md), [component results](patient_journey_v2_component_results.md) |
 
 The original V2 results remain available. The follow-up has its own specification, configuration,
 results and provenance; it does not overwrite the earlier study.
+
+The [source audit](audits/source-feasibility-0022.md) found that the July 2026 report uses
+July 2023–June 2024 listings. The original ledger incorrectly recorded calendar 2023 and
+excluded that report for overlap. This opens a possible additional historical comparison;
+earlier archives may add others. No added period has been modeled. The original one-period
+results remain unchanged. [Plan 0023](plans/0023-deceased-donor-receipt-study.md) proposes a
+deceased-donor receipt outcome, and [Plan 0024](plans/0024-candidate-mix-study.md) proposes earlier
+candidate characteristics. Both require verified dates and fixed comparisons before fitting.
 
 ## First investigation: is the comparison model being misled by report count?
 
@@ -60,7 +54,7 @@ later predictions upward. The separate follow-up now reproduces this diagnostic 
 evaluation predictions exactly; its saved command and evidence are in the
 [follow-up results](patient_journey_v2_followup_results.md).
 
-The original results make this worth investigating:
+The original results motivated the investigation:
 
 | Approach on the same 218 programs | Average size of the error |
 |---|---:|
@@ -181,9 +175,8 @@ To find a median across programs, order their percentages from smallest to large
 middle value. Each program contributes one value regardless of size. That is different from
 pooling people across programs; people may also be listed at more than one program.
 
-The review's initial check of unknown status did not match those figures to each program's model
-errors. It showed that unknown status warrants investigation, not that it explained the errors.
-Its preliminary numerical results and reproduction requirements are retained in Plan 0020.
+The initial review used 222 source programs without matching prediction errors. The completed
+218-program analysis above makes that match; neither summary establishes why errors occurred.
 
 ## Terms used in the technical record
 
@@ -230,7 +223,5 @@ Keep mathematical definitions, types, exact identifiers, and source references. 
 established code or source fields just to avoid a technical word. Explain their meaning nearby.
 Comments should explain intent and reasons rather than repeat every line of code.
 
-For the interview, distinguish original results, later diagnoses, planned changes, and unresolved
-questions. The author should be able to explain the question, comparison, result, and limitation
-without relying on this glossary. That understanding must be checked in a walkthrough and timed
-rehearsal; creating this guide alone does not establish interview readiness.
+Distinguish original results, later diagnoses and proposed studies. The
+[roadmap](../PLAN.md) links their separate records and the current presentation package.

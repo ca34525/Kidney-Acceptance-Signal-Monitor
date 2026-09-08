@@ -164,10 +164,6 @@ For V1, the historical monitor is the product. Show the ridge challenger as the 
 
 - Use ordinary language first in user explanations, documentation, presentations, chart text,
   and new or touched code comments/docstrings. Explain the idea before naming the method.
-- Plan 0020 also requires an ordinary-language pass over existing documentation and explanatory
-  comments/docstrings before its analytical work begins. Inventory the files, including past plans
-  and decisions. Retain their scientific meaning, numbers, commands, and historical evidence;
-  use dated explanations when a rewrite would obscure the original record.
 - State the purpose, what one record represents, the people or programs counted, the relevant
   dates, and the units. Explain denominators, unknown values, and the reason for important rules.
 - Keep exact source field names, formulas, types, and statistical definitions wherever needed
@@ -179,8 +175,9 @@ For V1, the historical monitor is the product. Show the ridge challenger as the 
   original study results from later investigations, and proposals from completed work.
 - Comments explain intent and reasons, not every line of implementation. Do not rename stable
   identifiers, add redundant prose, or refactor unrelated code solely to remove technical terms.
-- Follow `docs/project-guide.md` for the current explanation. Interview readiness requires a
-  walkthrough and rehearsal in the author's own words; documentation alone does not establish it.
+- Follow `docs/project-guide.md` for the current explanation. Keep plans concise: record the
+  decision, evidence and remaining work once. Completed requests and old branch instructions
+  are history, not a standing requirement to repeat audits or presentation rehearsals.
 
 ### Implementation requirements
 
@@ -201,7 +198,12 @@ For V1, the historical monitor is the product. Show the ridge challenger as the 
 
 ## 8. Required verification
 
-Run the smallest relevant command while developing, then the full required set before marking a plan item complete:
+Run the smallest relevant check while developing. For executable code, tests, dependencies,
+build, scientific/executable configuration or source-manifest changes, run the full set below
+before marking the item complete. Documentation-only
+changes need a content review, working links and `git diff --check`; presentation changes also
+need rendered inspection. Do not repeat the Python suite for successive prose or slide revisions
+unless they reveal a code or data concern. CI retains its full gates.
 
 ```bash
 uv sync --frozen
@@ -212,7 +214,11 @@ uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/repo
 uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2
 ```
 
-When the relevant components exist, also run:
+Run the following additional checks when the changed boundary warrants them: source/cache
+changes need cache verification; parser changes need an isolated data build; modeling changes
+need the relevant authorized backtest; artifact changes need packaging and trusted loading;
+application changes need offline startup; container/dependency changes need a Docker build.
+Do not refit or overwrite a completed study merely to check documentation or packaging.
 
 ```bash
 uv run kasm data verify-cache
@@ -270,9 +276,8 @@ Prefer assertions on observable domain behavior over assertions that repeat the 
 A task is done only when:
 
 - its acceptance criterion is satisfied;
-- the new test failed first and now passes, or the recorded exception is justified;
-- focused and relevant full tests pass;
-- lint and type checks pass;
+- new behavior has a regression that failed first and now passes, or its exception is justified;
+- verification appropriate to the change passes, including full tests/lint/types for code changes;
 - documentation and provenance are updated;
 - the active plan records evidence;
 - no scientific or claim rule has been weakened; and

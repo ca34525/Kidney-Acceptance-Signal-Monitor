@@ -1,2 +1,9 @@
 artifacts/release/** binary
 artifacts/patient_journey_v2/** binary
+
+# Published manifests also bind these input files to exact LF bytes.
+configs/data_sources.yaml text eol=lf
+configs/experiment.yaml text eol=lf
+configs/frozen_experiment.yaml text eol=lf
+configs/patient_journey_v2/experiment.yaml text eol=lf
+configs/patient_journey_v2/methodology.yaml text eol=lf

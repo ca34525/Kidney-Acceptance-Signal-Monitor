@@ -3,6 +3,12 @@
 **Status:** accepted
 **Date:** 2026-09-04
 
+> **Correction, 2026-09-07:** The overlap finding below was based on an incorrect ledger date.
+> The release-bound July 2026 report uses July 2023–June 2024 listings, not calendar 2023.
+> [Plan 0022's source audit](../audits/source-feasibility-0022.md) records the evidence and
+> implications. The non-overlap and publication-cutoff rules remain necessary. This decision
+> records the original design; its exclusion rationale must not be reused in a new study.
+
 ## Reading this historical record — 2026-09-05
 
 This decision prevents two different timing errors. Non-overlapping listing cohorts avoid

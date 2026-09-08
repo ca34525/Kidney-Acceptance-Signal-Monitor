@@ -8,22 +8,19 @@ and a separately evaluated next-calendar-year Program-Specific Report (PSR) proj
 
 > Public aggregate prototype — not clinical or regulatory decision support.
 
-For an ordinary-language explanation of V1, the completed V2 study, and its follow-up
-investigations, start with [Understanding the project](docs/project-guide.md).
-[Plan 0020](docs/plans/0020-v2-follow-up-and-interview-story.md) describes the follow-up and
-20-minute interview presentation. P0a's explanation pass and P1/P2's separate report-count
-investigation are complete. Removing report count lowers history-only Ridge's average error
-from 11.49 to 7.32 percentage points; acceptance then adds only a 0.09-point improvement on the
-same 218 programs. Read the [follow-up results and reproduction command](docs/patient_journey_v2_followup_results.md)
-for all comparisons and their descriptive uncertainty. P3's separate
-[outcome-component analysis](docs/patient_journey_v2_component_results.md) matches all 218
-evaluation programs and finds a median 16.05% of listed candidates with post-transplant status
-yet unknown. This is a program median, not a pooled patient percentage or an explanation of
-prediction error. P3 is complete, including local image-build and non-root offline container
-health checks after Docker startup repair. The [V2 follow-up interview package](docs/presentation/v2-followup/README.md)
-now includes an editable deck, an independent offline backup, a sourced program case and a
-rehearsal guide. The author's walkthrough and timed rehearsal remain pending. The original V2
-results remain available; the commands and four-minute demo below describe the retained V1 product.
+Start with [Understanding the project](docs/project-guide.md) for the questions, results and
+limits of V1 and the separate V2 patient-journey study. The
+[project walkthrough](docs/presentation/data-walkthrough/README.md) presents both studies and
+their follow-ups. [PLAN.md](PLAN.md) links current work and completed implementation evidence.
+
+V2's [report-count follow-up](docs/patient_journey_v2_followup_results.md) found that removing
+the number of earlier available reports reduced history-only Ridge's average error from 11.49
+to 7.32 percentage points. Acceptance then added a 0.09-point improvement on the same 218
+programs. Its [outcome-component analysis](docs/patient_journey_v2_component_results.md) found a
+median 16.05% of the original listing group with unknown post-transplant status. This is a
+program median, not a pooled patient percentage or an explanation of prediction error. Both
+investigations describe already-inspected outcomes and preserve the original V2 results.
+The commands below open and reproduce the released V1 product.
 
 The fixed evaluation on already-inspected 2025 outcomes did not qualify Ridge for display. Ridge
 is a regression model that limits how strongly it weights its inputs. Its average absolute error

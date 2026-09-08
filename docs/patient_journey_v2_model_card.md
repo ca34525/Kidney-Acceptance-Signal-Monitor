@@ -1,5 +1,12 @@
 # Patient-journey V2 model card
 
+> **Source correction, 2026-09-07:** One fitted evaluation period describes the original
+> configured study, not a proven limit of the public archive. The
+> [source audit](audits/source-feasibility-0022.md) corrected the cohort dates behind the
+> `2305→2605` exclusion and identified possible earlier sources. The model results below are
+> unchanged; additional historical periods remain unevaluated and cannot be called untouched
+> validation.
+
 This card retains the completed original V2 study and its results. A later review raised questions
 about the report-count input and unknown follow-up status. Those questions and their reproduction
 requirements are recorded separately in [Plan 0020](plans/0020-v2-follow-up-and-interview-story.md).
