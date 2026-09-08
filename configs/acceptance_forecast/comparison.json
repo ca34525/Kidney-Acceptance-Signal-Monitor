@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "study_id": "acceptance-forecast-0027",
+  "phase": "comparison_v1",
+  "years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "models": [
+    "persistence",
+    "historical_mean",
+    "ridge",
+    "ridge_recent3",
+    "adjusted_persistence"
+  ],
+  "alpha": 10.0,
+  "seed": 20260903,
+  "training_start": 2018,
+  "warmup_year": 2020,
+  "recent_window": 3,
+  "output_root": "data/research/acceptance-forecast-0027",
+  "bootstrap_resamples": 10000,
+  "bootstrap_seed": 20260908,
+  "bootstrap": "whole_program_paired_equal_year_percentile_linear_95_skip_empty_year",
+  "policy": {
+    "minimum_log_mae_improvement": 0.05,
+    "maximum_year_mae_worsening": 0.1,
+    "minimum_improved_years": 4,
+    "maximum_absolute_log_bias": 0.05,
+    "maximum_year_absolute_log_bias": 0.15,
+    "maximum_tail_ratio": 1.1,
+    "minimum_group_n": 30,
+    "maximum_group_mae_worsening": 0.1,
+    "large_worsening_log_threshold": 0.25,
+    "maximum_large_worsening_fraction": 0.1,
+    "band_nominal_coverage": 0.8,
+    "band_confidence": 0.95,
+    "maximum_band_width_ratio": 1.0
+  },
+  "band": {
+    "calibration": "previous_year_complete_procedure_out_of_sample",
+    "minimum_n": 30,
+    "nominal": 0.8,
+    "rank": "min(n,ceil((n+1)*0.8))",
+    "refit": "expanding_at_each_origin"
+  },
+  "tuning": "none_alpha10_inherited_retrospective_choice",
+  "population": "original_analytic_with_public_subset",
+  "publication": "same_release_or_latest_publication_before_earliest_origin",
+  "selection_order": [
+    "ridge",
+    "adjusted_persistence",
+    "ridge_recent3"
+  ],
+  "stopping_rule": "report_all_five_once_no_design_revision",
+  "diagnostic_config_sha256": "fa1069a11eff1055b7f460a950f1b1264bc2ed0edae1bd59f997f8acb8fad265"
+}

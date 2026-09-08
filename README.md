@@ -32,10 +32,19 @@ The commands below open and reproduce the released V1 product.
 
 The fixed evaluation on already-inspected 2025 outcomes did not qualify Ridge for display. Ridge
 is a regression model that limits how strongly it weights its inputs. Its average absolute error
-(MAE) on the log-OAR scale improved by 10.13%, but its average over- or underprediction was farther
-from zero than persistence (carrying the latest value forward). The rule required both measures
-to pass. The application therefore uses persistence and withholds the Ridge forecast band. This
-is a result of the rules fixed before evaluation, not evidence about clinical safety.
+(MAE) on the log-OAR scale improved by 10.13% over persistence (carrying the latest value forward).
+Its absolute average signed log error was 0.01145 versus persistence's 0.00885, failing the exact
+no-worse-bias comparison; the other fixed point-promotion criteria passed. The application uses
+persistence and withholds the Ridge forecast band. The original result remains recorded.
+
+[Plan 0027](docs/plans/0027-v1-forecast-improvement.md) is complete. Its fixed five-method comparison
+selects a fitted adjustment of the latest ratio for a future point projection, with 6.90% lower
+average absolute log error than persistence. Its edge over full Ridge is small (0.66%), and its
+forecast band fails the separate coverage criteria. See the [results and reproduction commands](docs/acceptance_forecast_results.md).
+The [revised policy](docs/specs/acceptance-forecast-0027.md) permits practical bias tradeoffs while
+preserving the original failed gate. This is exploratory retrospective evidence. The current
+app remains unchanged; [Plan 0028](docs/plans/0028-v1-point-projection-release.md) defines the
+separate deployment handoff.
 
 ## Start the tracked offline demo
 

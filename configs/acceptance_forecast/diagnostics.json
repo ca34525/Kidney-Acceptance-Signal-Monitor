@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "study_id": "acceptance-forecast-0027",
+  "phase": "saved_diagnostics",
+  "years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "models": [
+    "persistence",
+    "ridge"
+  ],
+  "tolerances": [
+    0.1,
+    0.25,
+    0.5
+  ],
+  "percentile_method": "linear",
+  "output_root": "data/research/acceptance-forecast-0027",
+  "population": "original_analytic_with_public_subset",
+  "aggregation": "equal_year_means_secondary_row_pooled_quantiles",
+  "earlier_oar_cutpoints": [
+    0.5,
+    1.0,
+    2.0
+  ],
+  "groups": [
+    "expected_acceptance_quartile",
+    "earlier_oar_group",
+    "predictor_missingness",
+    "public_forecast_eligible",
+    "first_observed_program"
+  ],
+  "training_roles": {
+    "2021": "2018-2020_alpha_selected_on_2021-2023",
+    "2022": "2018-2021_alpha_selected_on_2021-2023",
+    "2023": "2018-2022_alpha_selected_on_2021-2023",
+    "2024": "2018-2023_validation_and_band_calibration",
+    "2025": "2018-2023_original_frozen_fit_2024_band_only"
+  },
+  "percentage_denominator": "published_target_oar",
+  "missing_targets": "count_exclude_never_zero",
+  "pairing": "exact_program_year_unrounded_absolute_error_difference",
+  "input_sha256": {
+    "artifacts/release/release_manifest.json": "44a9dc5b9a4f0859938070ebbd8d43a30a0b78a4ac53d15f2ae96f334dcb81eb",
+    "configs/data_sources.yaml": "5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5",
+    "configs/experiment.yaml": "36db92a54184b4f17e7ee8a7a83dce6e1124573ea23fe2559e5d94be15253bce",
+    "configs/frozen_experiment.yaml": "7b25737b054973386379088ccf27b66bfc9d5fd325dc4969d8449c80867f1ff1"
+  },
+  "release_identity": "1de89083ceebfda9afaf2d6b1c6ba3f1e6d0c1a1da16df9d09d994c4ec3581ad"
+}

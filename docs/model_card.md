@@ -5,6 +5,15 @@
 **Activation status:** `attempted_not_promoted`
 **Displayed projection:** persistence
 
+**Follow-up boundary, 2026-09-08:** This card preserves the original V1 experiment and decision.
+[Plan 0027](plans/0027-v1-forecast-improvement.md) completed a separate comparison under a
+[revised promotion policy](specs/acceptance-forecast-0027.md). It recommends a fitted adjustment
+of the latest ratio for a future point release (6.90% lower average absolute log error than
+persistence), with its band withheld. Full Ridge also passed the revised point criteria; its
+original failed gate remains recorded here. The [new results](acceptance_forecast_results.md)
+are retrospective and exploratory. The current application remains unchanged pending the
+separate [deployment handoff](plans/0028-v1-point-projection-release.md).
+
 ## Intended use
 
 This model is a public-data screening signal for transplant-program quality-improvement review.

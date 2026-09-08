@@ -1,6 +1,6 @@
 # Understanding the project
 
-This guide explains the questions, data, results and limits of the completed studies.
+This guide explains the completed studies and the current forecast-improvement plan.
 Precise equations, field names and methods remain in the linked specifications and code.
 
 ## What V1 and V2 do
@@ -23,6 +23,7 @@ acceptance decision.
 | Work | Current state | Detailed record |
 |---|---|---|
 | V1 acceptance monitor | Released; carries the latest ratio forward because Ridge missed a frozen promotion rule | [V1 model card](model_card.md) |
+| V1 forecast improvement | Complete; fitted latest-ratio adjustment selected for a future point release, band withheld | [Plan 0027](plans/0027-v1-forecast-improvement.md), [results](acceptance_forecast_results.md) |
 | Original V2 patient-journey study | Completed exploratory study; no model promoted and no future forecast displayed | [V2 model card](patient_journey_v2_model_card.md) |
 | V2 follow-up | Report-count comparison and matched outcome-component analysis complete | [Report-count results](patient_journey_v2_followup_results.md), [component results](patient_journey_v2_component_results.md) |
 | Deceased-donor receipt study | Complete; acceptance added too little improvement to continue under the fixed rule | [Receipt results](deceased_donor_receipt_results.md) |
@@ -65,6 +66,29 @@ its fixed rule. Both periods use the same earlier training cohort; two periods d
 this fresh validation. The target adds five published deceased-donor statuses among everyone
 originally listed, including recipients with unknown later health status. It measures recorded
 receipt, not survival, graft function or a patient's chance of receiving a transplant.
+
+## Improving V1 forecasts
+
+The original Ridge model predicted the next published annual acceptance ratio with 10.13% lower
+average absolute log error than persistence in the 2025 replay. It was not promoted because its
+absolute average signed log error was 0.01145 versus persistence's 0.00885. That exact comparison
+was the only failed point-promotion criterion. The original configuration, results and product
+decision remain preserved; the current application still displays persistence.
+
+[Plan 0027](plans/0027-v1-forecast-improvement.md) is complete. The saved Ridge forecasts typically
+missed by about 19%–32% of the published ratio across years, and their largest tenth of errors
+were much larger. The fixed follow-up compared persistence, historical mean, full Ridge, Ridge
+with three recent training years, and a simple fitted adjustment of the latest ratio.
+
+The fitted adjustment had 6.90% lower average absolute log error than persistence and met the
+[revised policy](specs/acceptance-forecast-0027.md). It is recommended for a future point release,
+with its band withheld because coverage varied across years and groups. Its advantage over full
+Ridge was small (0.66%), and it worsened individual errors about 40% of the time. The
+[complete results](acceptance_forecast_results.md) explain the units, comparisons and limits.
+
+This remains exploratory retrospective evidence. The current app retains persistence until
+the separate [Plan 0028 handoff](plans/0028-v1-point-projection-release.md) is implemented. The
+original V1 decision and original V2 prohibition on promotion remain intact.
 
 ## First investigation: is the comparison model being misled by report count?
 
