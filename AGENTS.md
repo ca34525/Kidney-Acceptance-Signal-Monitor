@@ -157,6 +157,12 @@ bias, uncertainty, year/group and point-versus-band policy; record a new decisio
 identity rather than changing the original result. This is permission for a revised policy,
 not automatic promotion. Original V2 remains exploratory with promotion prohibited.
 
+Decision 0016 records the original exact-bias comparison as a design mistake and retires it
+for future model selection. Keep its executable contract/results only to reproduce historical
+evidence. Do not endorse that rule in current explanations. Plan 0027's numerical thresholds
+are provisional research judgments, not established utility limits or automatic deployment
+permission. Source-method compatibility and a reasoned intended-use decision precede Plan 0028.
+
 ## 6. Application boundary
 
 - Streamlit is a view layer.

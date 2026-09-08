@@ -1,6 +1,10 @@
 # V2 follow-up interview rehearsal guide
 
-Use the [editable deck](interview.pptx) for an **18-minute story with a two-minute buffer**.
+**Historical and superseded.** Use the [current corrected walkthrough](../data-walkthrough/README.md).
+The retained PowerPoint and HTML contain a known July 2026 listing-date error and an obsolete
+V1 selection narrative. These notes preserve the earlier package, with current clarifications.
+
+The historical [editable deck](interview.pptx) planned an **18-minute story with a two-minute buffer**.
 The [offline HTML backup](interview-backup.html) carries the story independently; the
 [program-case note](program-case.md) supplies the selected program's exact evidence and dates.
 The two-minute app demonstration below can also stand alone. Its compressed 90-second version
@@ -42,11 +46,11 @@ the slide title may express the takeaway more briefly.
 | Slide | Planned time | Running clock | Explain in your own words |
 |---|---:|---:|---|
 | 1. Question and problem | 1:00 | 0:00–1:00 | A program wants useful context from earlier public reports. One record describes a kidney program and a listing group. This is aggregate research for quality-improvement review. |
-| 2. What V1 taught us | 1:00 | 1:00–2:00 | Ridge lowered average absolute log-OAR error by 10.13% in the fixed 2025 replay, but missed the rule requiring absolute average signed error no greater than persistence. The app retained persistence. |
+| 2. What V1 taught us | 1:00 | 1:00–2:00 | Ridge lowered average absolute log-OAR error by 10.13% in the fixed 2025 replay. The exact-bias rule that rejected the gain was a design mistake, now withdrawn. The unchanged historical app retains persistence. |
 | 3. Define the V2 target | 1:30 | 2:00–3:30 | The published percentage counts those known alive with a functioning transplant at 18 months among everyone originally listed, including people never transplanted. It combines living and deceased donation and is not officially risk adjusted. |
 | 4. Explain unknown outcomes | 1:30 | 3:30–5:00 | Unknown post-transplant status establishes neither success nor failure. The matched 218 programs have a median combined unknown percentage of 16.05% of their listing groups. This is a median across programs; the four component medians cannot be added. |
 | 5. Show both timing rules | 1:30 | 5:00–6:30 | Inputs must have been public by the prediction origin, and their measurement periods must end before the target listing group starts. Month-only publication dates keep their month precision. |
-| 6. Explain the one usable split | 1:30 | 6:30–8:00 | Fit 215 programs from the July 2019–June 2020 listing group; evaluate 218 from July 2022–June 2023. The earlier outcome became public in July 2022. Other apparent historical splits lack an outcome that was available for training then. |
+| 6. Explain the original configured split | 1:30 | 6:30–8:00 | Fit 215 programs from the July 2019–June 2020 listing group and evaluate 218 from July 2022–June 2023. The earlier outcome became public in July 2022. This describes the original configuration. The corrected July 2026 report covers July 2023–June 2024 listings, which the later receipt study used separately. |
 | 7. Show the original comparison | 1:00 | 8:00–9:00 | On those same 218 programs, average errors were 11.49 points for history-only Ridge, 7.35 for history plus acceptance, and 7.61 for the simple historical average. The 4.14-point and 0.26-point gains answer different comparisons. |
 | 8. Diagnose report count | 1:00 | 9:00–10:00 | Count was two for 212 of 215 training programs and five for 208 of 218 evaluation programs. It counts available reports, not program age. The original model extended a relationship learned over very little training variation. |
 | 9. Show the fixed removal comparison | 1:00 | 10:00–11:00 | Removing only report count reduced history-only Ridge's error to 7.32 points; history plus acceptance reached 7.23. The observed added gain from acceptance was about 0.09 points. |
@@ -145,15 +149,16 @@ revised history-plus-access model instead raises average error by 0.125 points. 
 visible too. These findings concern these prediction formulas; they do not measure the clinical
 importance of acceptance or access.
 
-**Why only one usable training/evaluation split with several reports?**
+**Why does the original configuration have one fitted evaluation period?**
 
 The training outcome must already have been published at the later prediction origin. In July
 2022, the outcome for candidates listed July 2019–June 2020 was available, allowing that group
 to train predictions for July 2022–June 2023. The earlier configured prediction dates had no
-earlier configured outcome available for fitting Ridge. The July 2026 target also changes to
-calendar-year 2023, overlapping six months of the preceding July–June cohort. It cannot be
-counted as another independent adjacent evaluation period. Four baseline periods therefore do
-not establish four fitted-model evaluations.
+earlier configured outcome available for fitting Ridge. The original ledger mistakenly excluded
+the July 2026 report for overlap. It actually covers July 2023–June 2024 listings, following the
+previous group without overlap. The separate receipt study subsequently evaluated that period
+under its own target and configuration. Four original baseline periods do not establish four
+original fitted-model evaluations, and the corrected date creates no new independent validation.
 
 **What does the bootstrap interval tell you?**
 
@@ -208,9 +213,9 @@ outcomes or establish the reason for the lower published functioning percentage.
 
 **What evidence would you request next?**
 
-For prediction, seek another non-overlapping listing cohort with compatible definitions and
-publication timing. Lock the comparison and its interpretation before inspecting that outcome;
-check whether the small acceptance increment persists across time. For the unknown-status
+The completed receipt follow-up found a small acceptance increment across two historical periods.
+Any future comparison needs compatible definitions, verified publication timing and a design fixed
+before scoring. An unseen period would add evidence about performance over time. For the unknown-status
 question, request a documented account of reporting completeness and data that preserve event
 and last-observed timing, or equivalent aggregate event and observation counts. Such a request
 would need its own study scope and governance. The current public-data project does not acquire
@@ -245,14 +250,14 @@ repeat that item; a checked box records demonstrated understanding, not document
 
 - [ ] State the question, what one row represents, the listing denominator and 18-month outcome.
 - [ ] Explain one hypothetical percentage-point error and distinguish it from percent change.
-- [ ] Draw the publication and measurement cutoffs, then explain why only one Ridge split works.
+- [ ] Explain the original configured split and corrected additional July–June listing period.
 - [ ] Distinguish history-only Ridge from the simple historical average using the original errors.
 - [ ] Explain how available report count shifted and what the fixed removal comparison changes.
 - [ ] Describe what the paired program interval can and cannot establish.
 - [ ] Explain unknown status, why medians cannot be added, and what timing survival methods need.
 - [ ] Walk the ALUA case, its selection rule and dates without making a causal or quality claim.
 - [ ] Trace one source value and one meaningful regression test through the repository.
-- [ ] Explain V1's 10.13% log-OAR MAE gain, its failed bias rule and the separate V2 contract.
+- [ ] Explain V1's 10.13% log-OAR MAE gain, the withdrawn bias rule and separate V2 contract.
 - [ ] State the next useful evidence request and why no future V2 forecast is exposed.
 
 All entries begin **pending**. Add actual dates, observed times and corrections after each session.

@@ -5,10 +5,15 @@
 **Activation status:** `attempted_not_promoted`
 **Displayed projection:** persistence
 
+**Current assessment, September 8, 2026:** The original exact-bias gate was a design mistake
+and is retired. Its detailed decision below is an audit of the original release, not the
+current model-selection policy. [Decision 0016](decisions/0016-retire-bias-gate-and-correct-readiness.md)
+separates research comparisons from demonstrated usefulness and deployment suitability.
+
 **Follow-up boundary, 2026-09-08:** This card preserves the original V1 experiment and decision.
 [Plan 0027](plans/0027-v1-forecast-improvement.md) completed a separate comparison under a
-[revised promotion policy](specs/acceptance-forecast-0027.md). It recommends a fitted adjustment
-of the latest ratio for a future point release (6.90% lower average absolute log error than
+[fixed research policy](specs/acceptance-forecast-0027.md). It selects a fitted adjustment
+of the latest ratio as a provisional research candidate (6.90% lower average absolute log error than
 persistence), with its band withheld. Full Ridge also passed the revised point criteria; its
 original failed gate remains recorded here. The [new results](acceptance_forecast_results.md)
 are retrospective and exploratory. The current application remains unchanged pending the
@@ -33,9 +38,9 @@ program reports to predict the next calendar year's published value. That value 
 the outcome year, so the display is a delayed-report nowcast.
 
 Persistence carries forward the latest reported OAR. Ridge is the fitted comparison model; it
-limits the size of its input weights to reduce overfitting. Ridge's lower average error did not
-satisfy every fixed display rule. Retaining persistence establishes the specified product
-decision, not clinical superiority or a finding that ridge failed on every error measure.
+limits the size of its input weights to reduce overfitting. Ridge reduced average absolute
+error. The retained release uses persistence because of the original, now-withdrawn decision;
+this behavior is not evidence that persistence was superior or that the gate was justified.
 
 ## Data and feature contract
 
@@ -105,7 +110,7 @@ The paired bootstrap repeatedly draws whole programs and compares both models on
 Its interval describes variability across the observed programs. It does not add a new evaluation
 year or turn the already-inspected 2025 replay into an independent test.
 
-### Point-promotion decision
+### Historical point decision under the withdrawn exact-bias rule
 
 | Frozen criterion | Evidence | Result |
 |---|---|---|
@@ -115,20 +120,22 @@ year or turn the already-inspected 2025 replay into an independent test.
 | Absolute bias no greater than persistence | 0.01145 vs 0.00885 | **fail** |
 | Lowest-quartile MAE ≤1.10 × persistence with at least 30 rows | 0.3140 vs 0.3463; n=58 | pass |
 
-Because every criterion was required, ridge was not promoted. Persistence remains the displayed
-projection. The result is recorded as `attempted_not_promoted`; the favorable error difference is
-reported without overriding the prespecified bias safeguard.
+The original implementation required every criterion and recorded `attempted_not_promoted`.
+Its exact-bias rule rejected a lower average absolute error for a small mean-error difference
+without a demonstrated use-case rationale. That was a design mistake. The table preserves the
+decision actually made; none of these historical results changes into a pass by removing the rule.
 
 ### Separate empirical-band decision
 
 Ridge's frozen band covered 187 of 229 replay outcomes (81.66%). Its two-sided 95% exact binomial
 interval was 76.03%–86.45%, which includes the nominal 80% rate. Its mean OAR-scale width was
-90.05% of the persistence-band width, so the statistical band gate passed.
+90.05% of the persistence-band width, satisfying the original configured band rule. Inclusion
+of 80% in that confidence interval does not prove calibration or establish a coverage guarantee.
 
-This gate is kept separate from the point gate. A passing ridge-band gate does not expose a ridge
-band when the ridge point model was not promoted; the effective release decision suppresses that
-ridge output. The historical SRTR 95% credible intervals remain distinct from any empirical
-forecast band.
+The original release suppressed the band together with the point output. The current assessment
+continues to withhold forecast bands because stable coverage across periods and groups has not
+been established for a deployed procedure. Historical SRTR 95% credible intervals remain
+distinct from empirical forecast bands.
 
 ## Expected-acceptance quartiles
 
@@ -164,7 +171,11 @@ Both drift sensitivities retained lower ridge MAE than persistence:
 
 These exclusions are drift checks, not causal analyses. Calendar year 2023 is a mixed
 offer-acceptance monitoring context because the metric took effect on 2023-07-27; 2024 and 2025
-are full post-policy cohorts, but there are too few to fit or validate a separate era model.
+are full post-monitoring cohorts. Separately, the offer definition changed in the July 2025
+and January 2026 report cycles. The original ledger omitted that boundary; the COVID and
+allocation sensitivities above do not assess it. See the
+[source-definition audit](audits/source-definition-0029.md). No effect on these scores can be
+attributed to the definition change from this audit alone.
 
 ## Limitations
 
@@ -176,7 +187,8 @@ are full post-policy cohorts, but there are too few to fit or validate a separat
 - The bootstrap interval is descriptive and resamples programs; it is not a confirmatory p-value.
 - Empirical-band coverage is marginal and may change under drift.
 - There is no patient-level fairness, clinical-benefit, causal, or regulatory claim.
-- A genuinely prospective assessment requires the later calendar-year 2026 PSR signal.
+- A prospective assessment requires the calendar-year 2026 signal, expected around mid-2027,
+  and a forecast procedure fixed before its outcome is inspected.
 
 ## Reproduction and provenance
 

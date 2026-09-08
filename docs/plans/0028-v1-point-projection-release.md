@@ -1,12 +1,16 @@
 # Plan 0028 — Release the selected point projection
 
 **Status:** defined deployment handoff; not started. Execution is a separate request.
+**Prerequisite:** [Plan 0029](0029-interview-readiness-corrections.md) corrects source definitions
+and trusted loading. Before starting this release, apply
+[Decision 0016](../decisions/0016-retire-bias-gate-and-correct-readiness.md): justify the intended
+use and error tradeoff. Plan 0027's passed research gates are not deployment permission.
 **Basis:** [Plan 0027 results](../acceptance_forecast_results.md) and
 [Decision 0015](../decisions/0015-select-adjusted-persistence-point.md).
 
 ## Purpose and fixed boundary
 
-Implement the selected fitted adjustment of the latest published log ratio as an experimental
+After that review, implement the selected fitted adjustment of the latest published log ratio as an experimental
 next-calendar-year PSR point projection. Preserve the original release and its failed Ridge
 gate. This handoff does not authorize a new model search, forecast band, source refresh or
 relabeling of already-inspected outcomes as new validation.

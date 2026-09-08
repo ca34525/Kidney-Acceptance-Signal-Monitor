@@ -30,21 +30,25 @@ cohort; the result remains exploratory and promotes no model.
 
 The commands below open and reproduce the released V1 product.
 
-The fixed evaluation on already-inspected 2025 outcomes did not qualify Ridge for display. Ridge
-is a regression model that limits how strongly it weights its inputs. Its average absolute error
-(MAE) on the log-OAR scale improved by 10.13% over persistence (carrying the latest value forward).
-Its absolute average signed log error was 0.01145 versus persistence's 0.00885, failing the exact
-no-worse-bias comparison; the other fixed point-promotion criteria passed. The application uses
-persistence and withholds the Ridge forecast band. The original result remains recorded.
+The released application displays historical measures and persistence, which carries the latest
+ratio forward. Ridge reduced average absolute log error by 10.13% in the original retrospective
+2025 comparison. The exact-bias rule that blocked it was a design mistake and is retired.
+The [original model card](docs/model_card.md) retains the numerical audit record.
 
 [Plan 0027](docs/plans/0027-v1-forecast-improvement.md) is complete. Its fixed five-method comparison
-selects a fitted adjustment of the latest ratio for a future point projection, with 6.90% lower
+selects a fitted adjustment of the latest ratio as a provisional research candidate, with 6.90% lower
 average absolute log error than persistence. Its edge over full Ridge is small (0.66%), and its
 forecast band fails the separate coverage criteria. See the [results and reproduction commands](docs/acceptance_forecast_results.md).
-The [revised policy](docs/specs/acceptance-forecast-0027.md) permits practical bias tradeoffs while
-preserving the original failed gate. This is exploratory retrospective evidence. The current
-app remains unchanged; [Plan 0028](docs/plans/0028-v1-point-projection-release.md) defines the
-separate deployment handoff.
+The fixed comparison's thresholds are research judgments, not evidence of user benefit.
+[Decision 0016](docs/decisions/0016-retire-bias-gate-and-correct-readiness.md) separates model
+choice from deployment suitability. [Plan 0029](docs/plans/0029-interview-readiness-corrections.md)
+addresses source definitions, trusted loading and presentation corrections. A future release
+still requires the separate [Plan 0028 handoff](docs/plans/0028-v1-point-projection-release.md).
+
+SRTR changed which offers count in the July 2025 and January 2026 reports. The
+[source-definition audit](docs/audits/source-definition-0029.md) records the two changes and
+the limits of comparing published OARs across them. Historical score differences do not
+separate a change in program behavior from a change in measurement.
 
 ## Start the tracked offline demo
 
@@ -59,8 +63,10 @@ uv run streamlit run app/streamlit_app.py
 ```
 
 Open <http://localhost:8501>. No raw workbook, model fitting, or live source is needed at app
-startup. `KASM_ARTIFACT_DIR` and `KASM_MODELING_DIR` may override the default release paths for
-development or an audited reproduction.
+startup. To use a copied or reproduced complete release, set `KASM_ARTIFACT_DIR` to its
+`processed` directory and `KASM_MODELING_DIR` to its sibling `modeling` directory. Both must
+belong to the same release with a valid manifest and payload hashes. Bare analysis directories
+and mixed releases fail before display; there is no validation bypass for overrides.
 
 ## Four-minute offline demo
 
@@ -73,15 +79,15 @@ development or an audited reproduction.
    missing values are “Not reported” and hard-to-place offers overlap KDRI strata.
 4. **Projection (45 seconds):** show the eligible persistence next-calendar-year PSR projection,
    prediction origin, and elapsed target-cohort fraction; call it a delayed-report nowcast.
-5. **Validity and result (45 seconds):** open model evaluation. Show intact target-year folds,
-   the frozen 2025 descriptive replay, ridge non-promotion, and band suppression.
+5. **Validity and result (45 seconds):** open model evaluation. Explain the average error,
+   individual misses, changing source definitions and why the forecast band remains unavailable.
 
 Networking can be disabled after `uv sync`; the critical path is covered by an offline Streamlit
 AppTest and a process health smoke test.
 
-The interview package includes an [eight-slide presentation](docs/presentation/kidney-acceptance-signal-monitor-interview.pptx),
-a [rehearsal and likely-question guide](docs/presentation/interview-rehearsal-guide.md), and three
-wide [backup screenshots](docs/demo/) of the tracked offline flow.
+Use the [current project walkthrough](docs/presentation/data-walkthrough/README.md) for corrected
+slides and notes. The original eight-slide deck and [backup screenshots](docs/demo/) preserve
+the earlier release appearance and are superseded presentation material.
 
 ## Methodology in brief
 

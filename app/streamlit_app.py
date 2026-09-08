@@ -7,6 +7,7 @@ from pathlib import Path
 
 import streamlit as st
 
+from kasm.reporting.artifacts import ReleaseBundleError, validate_application_release
 from kasm.reporting.history import (
     HistoricalDataError,
     HistoricalPoint,
@@ -198,7 +199,10 @@ def _model_status_message(evaluation: ModelEvaluation) -> str:
     if evaluation.activation_status == "not_attempted":
         return "Persistence retained because forecast activation was not attempted."
     if evaluation.activation_status == "promoted":
-        return "The ridge point model passed the frozen promotion criteria."
+        return (
+            "The historical artifact records Ridge passing its original point criteria. "
+            "That alone does not establish usefulness for a review task."
+        )
     reasons = {
         "minimum_skill": "ridge skill was below the frozen minimum",
         "bootstrap_interval_below_zero": "the paired-bootstrap interval did not stay below zero",
@@ -210,7 +214,17 @@ def _model_status_message(evaluation: ModelEvaluation) -> str:
     rendered = [
         reasons.get(reason, reason.replace("_", " ")) for reason in evaluation.point_failed_criteria
     ]
-    return "Persistence retained after the frozen 2025 replay because " + "; ".join(rendered) + "."
+    message = (
+        "Persistence retained in this historical release. The original 2025 replay rejected "
+        "Ridge because " + "; ".join(rendered) + "."
+    )
+    if "bias_not_exceed_persistence" in evaluation.point_failed_criteria:
+        message += (
+            " The exact-bias comparison was a design mistake: the tiny difference in mean error "
+            "had no established connection to the review task. That rule is retired for future "
+            "model selection. No replacement forecast is deployed."
+        )
+    return message
 
 
 def _comparison_rows(evaluation: ModelEvaluation) -> list[dict[str, object]]:
@@ -248,12 +262,13 @@ st.caption(
 )
 
 try:
-    artifacts = load_historical_artifacts(_artifact_dir())
+    release = validate_application_release(_artifact_dir(), _modeling_dir())
+    artifacts = load_historical_artifacts(release.output_directory / "processed")
     evaluation = load_model_evaluation(
-        _modeling_dir(), expected_panel_sha256=artifacts.panel_sha256
+        release.output_directory / "modeling", expected_panel_sha256=artifacts.panel_sha256
     )
     choices = program_options(artifacts)
-except (HistoricalDataError, ProductDataError) as exc:
+except (ReleaseBundleError, HistoricalDataError, ProductDataError) as exc:
     st.error(f"Trusted offline artifacts are unavailable: {exc}")
     st.stop()
 
@@ -284,6 +299,10 @@ st.caption(
     f"Data version: {artifacts.artifact_version} · "
     f"Model version: {evaluation.model_version} · "
     f"Source-manifest version: {evaluation.source_manifest_version}"
+)
+st.caption(
+    "SRTR changed which offers count in the July 2025 and January 2026 reports. "
+    "Annual OAR changes can reflect these definition changes as well as program behavior."
 )
 
 program_tab, evaluation_tab = st.tabs(["Program monitor", "Model evaluation and methodology"])
@@ -356,8 +375,9 @@ with program_tab:
                 )
             elif evaluation.band_suppression_reason == "ridge_point_not_promoted":
                 st.info(
-                    "No nominal 80% empirical forecast band is displayed because the ridge point "
-                    "model was not promoted. The ridge band gate was evaluated separately."
+                    "No nominal 80% empirical forecast band is displayed. This historical "
+                    "release has no deployed Ridge point or band; its original band checks "
+                    "do not establish future coverage."
                 )
             else:
                 st.info(
@@ -403,8 +423,8 @@ with evaluation_tab:
     )
     st.write(
         f"Mean signed log error: ridge {replay.ridge_mean_signed_log_error:.3f}; "
-        f"persistence {replay.persistence_mean_signed_log_error:.3f}. The frozen point gate "
-        "uses absolute bias as a separate criterion from MAE."
+        f"persistence {replay.persistence_mean_signed_log_error:.3f}. The original design "
+        "included an exact absolute-bias comparison with persistence; that rule is now retired."
     )
 
     with st.expander("Methodology and limitations"):

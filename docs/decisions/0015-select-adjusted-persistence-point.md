@@ -3,6 +3,11 @@
 Accepted September 8, 2026 for the completed [Plan 0027](../plans/0027-v1-forecast-improvement.md)
 recommendation; deployment is a separate implementation item.
 
+**Interpretation superseded by [Decision 0016](0016-retire-bias-gate-and-correct-readiness.md):**
+This remains the recorded Plan 0027 research selection. Its thresholds do not demonstrate
+usefulness. Treat adjusted persistence as a provisional research candidate pending source
+comparability and intended-use review, with no automatic deployment permission.
+
 Apply [Decision 0014's fixed comparison](0014-fix-forecast-comparison-0027.md) once. Full Ridge,
 recent-three-year Ridge and the fitted adjustment of the latest log ratio all pass its point
 criteria. Select `adjusted_persistence`, the method with the lowest year-balanced absolute log

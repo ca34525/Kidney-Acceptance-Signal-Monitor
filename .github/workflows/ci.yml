@@ -38,10 +38,13 @@ jobs:
           --cov=src/kasm/modeling
           --cov=src/kasm/reporting
           --cov=src/kasm/patient_journey
+          --cov=src/kasm/acceptance_forecast
           --cov-branch
           --cov-fail-under=80
       - name: Require V2 coverage independently
         run: uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2
+      - name: Require forecast research coverage independently
+        run: uv run coverage report --include="src/kasm/acceptance_forecast/*" --fail-under=80 --precision=2
       - name: Smoke-test tracked offline application process
         shell: bash
         run: |

@@ -133,7 +133,10 @@ def test_ci_enforces_release_and_container_gates() -> None:
         "--cov=src/kasm/modeling",
         "--cov=src/kasm/reporting",
         "--cov=src/kasm/patient_journey",
+        "--cov=src/kasm/acceptance_forecast",
         'uv run coverage report --include="src/kasm/patient_journey/*" '
+        "--fail-under=80 --precision=2",
+        'uv run coverage report --include="src/kasm/acceptance_forecast/*" '
         "--fail-under=80 --precision=2",
         "--cov-branch",
         "--cov-fail-under=80",

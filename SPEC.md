@@ -5,6 +5,14 @@
 **Specification date:** 2026-09-03  
 **Primary audience:** Transplant-program quality and performance staff  
 
+> **Correction, September 8, 2026:** The original exact-bias comparison with persistence
+> was a design mistake. Its configuration and failed result remain historical evidence;
+> that rule is retired for future model choice. [Decision 0016](docs/decisions/0016-retire-bias-gate-and-correct-readiness.md)
+> governs current interpretation and [Plan 0029](docs/plans/0029-interview-readiness-corrections.md)
+> corrects source-definition coverage, trusted app loading and presentation errors.
+> Future deployment requires a reasoned intended-use decision; passing historical project
+> thresholds does not establish usefulness. Existing analytical artifacts remain unchanged.
+
 > **Version boundary:** This document remains the authoritative specification for the released v1
 > acceptance monitor. The separate patient-journey v2 study is specified in
 > `docs/specs/patient-journey-v2.md`. Shared repository safety and claim rules apply to both, but
@@ -403,13 +411,19 @@ The empirical band has a separate display gate. Its two-sided 95% Clopper–Pear
 
 The residual order statistic, bootstrap count/seed/percentiles, Clopper–Pearson method, volume-quartile algorithm, and all thresholds are serialized in `configs/frozen_experiment.yaml` before replay and covered by unit tests.
 
-All replay-based evidence is retrospective and descriptive; ridge remains prospectively unvalidated even if promoted. If the point gate fails, persistence remains the displayed projection and the model card records ridge as not promoted. This is a successful scientific outcome, not a failed project.
+All replay-based evidence is retrospective and descriptive; ridge remains prospectively unvalidated even if promoted. The original implementation retained persistence when its point gate failed. Decision 0016 records the exact-bias rule as a design mistake and retires it for future model choice; retaining the original result does not endorse that rule.
 
 ## 10. Product requirements
 
 ### Application
 
 Use one Streamlit application backed by precomputed Parquet and JSON artifacts. The app must work without network access after artifacts are built.
+
+Plan 0029 requires validation of the complete release manifest and every payload before app
+ingestion. The configured processed and modeling directories must be siblings in that same
+release, including when environment overrides select a reproduced bundle. Invalid or mixed
+inputs fail before display. Show the documented July 2025/January 2026 offer-definition
+boundary with the historical measures; source hashes do not establish constant definitions.
 
 The guaranteed week-one application is the historical monitor plus a temporal model-evaluation summary and persistence reference. `configs/frozen_experiment.yaml` records `forecast_activation_attempted`. Activating a ridge point nowcast in that original release requires its complete point-promotion path; activating an empirical band separately requires its complete band path. If activation was not attempted, either path is unfinished, or a gate fails, the original UI omits that output and says why. A later Plan 0027 release requires its own recorded decision, trusted artifact identity and tested display implementation. No release is blocked by an honest non-promotion result.
 

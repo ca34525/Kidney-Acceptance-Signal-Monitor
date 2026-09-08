@@ -6,13 +6,20 @@ forecasts generally and reconsider the exact bias comparison with persistence. T
 authorization is to complete P1–P4 following the user's request to complete the plan.
 Deployment remains a separate implementation item.
 
+> **Current interpretation, Plan 0029:** The comparison below remains the fixed research
+> actually performed. Its numerical tolerances are provisional project judgments and do
+> not establish usefulness or automatic deployment permission. The original exact-bias
+> rule is retired as a design mistake. [Decision 0016](../decisions/0016-retire-bias-gate-and-correct-readiness.md)
+> governs future choices and requires source-definition review before a release decision.
+> No comparison setting, saved prediction or original result is changed by this correction.
+
 ## Question and preserved evidence
 
 How large are the errors when predicting a kidney program's next published offer-acceptance
 ratio, where are those errors concentrated, and can a small change improve the complete
-forecasting procedure? A later product decision may select the existing Ridge method or a
-revised method under the promotion policy below. Improvement is not restricted to removing
-average signed error.
+forecasting procedure? The completed comparison below applies its fixed research policy.
+A later product decision follows Decision 0016 and considers intended use separately.
+Improvement is not restricted to removing average signed error.
 
 One record is a composite `(CTR_CD, CTR_TY)` program and a non-overlapping calendar-year
 outcome cohort. The target remains the next same-cadence published offer-acceptance ratio

@@ -17,6 +17,13 @@ from kasm.data.build import (
     write_data_artifacts,
 )
 
+PROJECT_ROOT = Path(__file__).parents[2]
+
+
+def _release_root(tmp_path: Path) -> Path:
+    # Full replay fingerprints need a short test root on Windows.
+    return tmp_path.parent / hashlib.sha256(str(tmp_path).encode()).hexdigest()[:6]
+
 
 def _source(year: int) -> SourceRecord:
     return SourceRecord(
@@ -90,6 +97,13 @@ def _sha256(path: Path) -> str:
 
 def _write_modeling_fixture(modeling_dir: Path, *, panel_sha256: str) -> None:
     modeling_dir.mkdir(parents=True)
+    for name in (
+        "baseline_predictions.parquet",
+        "ridge_predictions.parquet",
+        "ridge_selection.json",
+        "temporal_folds.json",
+    ):
+        (modeling_dir / name).write_bytes(b"unused synthetic UI payload")
     baseline_rows = [
         {
             "target_year": year,
@@ -129,8 +143,8 @@ def _write_modeling_fixture(modeling_dir: Path, *, panel_sha256: str) -> None:
             "input_panel_sha256": panel_sha256,
         },
     )
-    config_hash = "1" * 16
-    source_hash = "2" * 16
+    config_hash = "1" * 64
+    source_hash = "2" * 64
     bundle = modeling_dir / "frozen-replay" / f"{config_hash}_{source_hash}"
     bundle.mkdir(parents=True)
     predictions = bundle / "replay_predictions.parquet"
@@ -195,15 +209,62 @@ def _write_modeling_fixture(modeling_dir: Path, *, panel_sha256: str) -> None:
     )
 
 
+def _write_release_manifest(release_root: Path) -> None:
+    """Give the synthetic UI fixture the complete release's integrity envelope."""
+    manifest = json.loads(
+        (PROJECT_ROOT / "artifacts/release/release_manifest.json").read_text(encoding="utf-8")
+    )
+    manifest["provenance"].update(
+        frozen_experiment_sha256="1" * 64,
+        source_manifest_sha256="2" * 64,
+        input_panel_sha256=_sha256(release_root / "processed/model_panel.parquet"),
+    )
+    files = sorted(
+        path
+        for path in release_root.rglob("*")
+        if path.is_file() and path.name != "release_manifest.json"
+    )
+    entries = []
+    for path in files:
+        relative = path.relative_to(release_root)
+        entries.append(
+            {
+                "bytes": path.stat().st_size,
+                "canonical_path": Path(*relative.parts[1:]).as_posix(),
+                "canonical_root": relative.parts[0],
+                "path": relative.as_posix(),
+                "sha256": _sha256(path),
+            }
+        )
+    identity = [{key: entry[key] for key in ("bytes", "path", "sha256")} for entry in entries]
+    manifest["files"] = entries
+    manifest["file_count"] = len(entries)
+    manifest["bundle_content_sha256"] = hashlib.sha256(
+        json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    payload_size = sum(path.stat().st_size for path in files)
+    manifest["total_bytes"] = 0
+    for _ in range(10):
+        rendered = json.dumps(manifest).encode()
+        total = payload_size + len(rendered)
+        if manifest["total_bytes"] == total:
+            (release_root / "release_manifest.json").write_bytes(rendered)
+            return
+        manifest["total_bytes"] = total
+    raise AssertionError("Synthetic release size did not stabilize.")
+
+
 def test_complete_offline_app_flow_retains_persistence_and_suppresses_band(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    artifact_dir = tmp_path / "processed"
-    modeling_dir = tmp_path / "modeling"
+    release_root = _release_root(tmp_path)
+    artifact_dir = release_root / "processed"
+    modeling_dir = release_root / "modeling"
     _write_fixture(artifact_dir, public_eligible=True)
     _write_modeling_fixture(
         modeling_dir, panel_sha256=_sha256(artifact_dir / "model_panel.parquet")
     )
+    _write_release_manifest(release_root)
 
     def reject_network(*_args: object, **_kwargs: object) -> None:
         raise AssertionError("The historical app attempted network access.")
@@ -230,22 +291,26 @@ def test_complete_offline_app_flow_retains_persistence_and_suppresses_band(
         item.value == "0.90" for item in app.metric if item.label == "Persistence projection"
     )
     assert any("Persistence retained" in item.value for item in app.info)
-    assert any("bias exceeded persistence" in item.value for item in app.info)
+    assert any("design mistake" in item.value for item in app.info)
+    assert any("rule is retired" in item.value for item in app.info)
     assert any(
         "No nominal 80% empirical forecast band is displayed" in item.value for item in app.info
     )
+    assert any("do not establish future coverage" in item.value for item in app.info)
     assert any("descriptive retrospective" in item.value.casefold() for item in app.caption)
 
 
 def test_app_ineligible_state_never_exposes_projection(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    artifact_dir = tmp_path / "processed"
-    modeling_dir = tmp_path / "modeling"
+    release_root = _release_root(tmp_path)
+    artifact_dir = release_root / "processed"
+    modeling_dir = release_root / "modeling"
     _write_fixture(artifact_dir, public_eligible=False)
     _write_modeling_fixture(
         modeling_dir, panel_sha256=_sha256(artifact_dir / "model_panel.parquet")
     )
+    _write_release_manifest(release_root)
     monkeypatch.setenv("KASM_ARTIFACT_DIR", str(artifact_dir))
     monkeypatch.setenv("KASM_MODELING_DIR", str(modeling_dir))
 
@@ -261,8 +326,9 @@ def test_offline_app_handles_activation_not_attempted(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    artifact_dir = tmp_path / "processed"
-    modeling_dir = tmp_path / "modeling"
+    release_root = _release_root(tmp_path)
+    artifact_dir = release_root / "processed"
+    modeling_dir = release_root / "modeling"
     _write_fixture(artifact_dir, public_eligible=True)
     _write_modeling_fixture(
         modeling_dir, panel_sha256=_sha256(artifact_dir / "model_panel.parquet")
@@ -277,6 +343,7 @@ def test_offline_app_handles_activation_not_attempted(
     completion = json.loads(completion_path.read_text(encoding="utf-8"))
     completion["artifact_sha256"]["metrics"] = _sha256(metrics_path)
     _write_json(completion_path, completion)
+    _write_release_manifest(release_root)
     monkeypatch.setenv("KASM_ARTIFACT_DIR", str(artifact_dir))
     monkeypatch.setenv("KASM_MODELING_DIR", str(modeling_dir))
 

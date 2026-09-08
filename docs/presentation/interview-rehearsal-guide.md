@@ -1,8 +1,8 @@
 # Interview rehearsal guide
 
-Use the companion eight-slide deck for a 3:55–4:00 presentation. The live application is the
-preferred product demonstration; the screenshots under `docs/demo/` are the independent backup.
-Keep the language descriptive, program-level, nonclinical, and nonregulatory throughout.
+**Historical and superseded.** Use the [current walkthrough](data-walkthrough/README.md).
+The companion eight-slide binary and screenshots preserve an earlier release. Its obsolete
+bias-rule narrative is not current guidance. The corrections below explain the retained record.
 
 **Retained V1 presentation, explained 2026-09-05:** The eight-slide deck and its screenshots remain
 the original four-minute release package. These notes explain that existing story; they are not
@@ -11,9 +11,10 @@ the new 20-minute V2 follow-up presentation. The latter belongs to
 after the separate investigations. Reading these notes does not establish that the author has
 completed a spoken walkthrough or timed rehearsal.
 
-The V1 story is: show a program its earlier published acceptance signal, test whether a fitted
-model predicts the next published signal better, and follow the prewritten display rules when
-the answer differs across error measures. One observation is a kidney program and calendar year.
+The V1 question is whether earlier published acceptance signals help predict a later report.
+The original exact-bias comparison was a design mistake. Current assessment considers actual
+prediction errors and the intended use, while preserving old numerical results. One observation
+is a kidney program and calendar year.
 The offer-acceptance ratio (OAR) compares completed-transplant acceptances with SRTR's expected
 number for similar offers; 1 is in line with expectation. It is a ratio, not a percentage of
 patients transplanted. PSR means Program-Specific Report, and SRTR is the Scientific Registry of
@@ -29,9 +30,9 @@ and compares both models on the same draw; it does not create another independen
 **Timing and decision clarification, 2026-09-05:** The deck's later "2026 PSR" assessment means
 the report about calendar year 2026, expected around mid-2027 under
 [the V1 reporting-lag specification](../../SPEC.md#reporting-lag). The July 2026 release describes
-calendar year 2025. Also, retaining persistence means the specified display rule was followed;
-it does not establish that persistence is clinically safer. Ridge had lower average error but
-missed the relative-bias rule. The prepared positive/negative narratives must preserve both facts.
+calendar year 2025. The unchanged historical app displays persistence. This does not endorse
+the withdrawn bias rule or establish persistence's clinical safety. See
+[Decision 0016](../decisions/0016-retire-bias-gate-and-correct-readiness.md).
 
 ## Four-minute talk track
 
@@ -42,9 +43,9 @@ missed the relative-bias rule. The prepared positive/negative narratives must pr
 | 3. Nine pinned releases become one defensible annual panel | 0:30 | “The data checks exact file fingerprints for nine releases and reads named source fields. A program is identified by its code and type together. That produces 10,515 signals across 2,103 program-years. The 1.23 MB bundle runs the demo offline.” |
 | 4. Time stays in order from features to truth | 0:35 | “Earlier reports predict the next calendar year's published log OAR. Entire years stay together. Missing-input replacement, scaling, and fitting learn only from training data. The frozen replay fit stops at target year 2023; 2024 is reserved for setting the separate forecast-band width.” |
 | 5. The product is longitudinal context—not a leaderboard | 0:35 | “The monitor shows one program’s annual OAR, SRTR 95% credible intervals, publication date, volume, and donor groups. Missing values are labeled. Every view identifies the relevant dates, source history, and nonclinical limits.” |
-| 6. Ridge lowered error—but still missed the gate | 0:50 | “In the fixed 2025 replay, ridge lowered average absolute log-OAR error from 0.267 to 0.240, a 10.1% improvement. Resampling programs gave an error-difference interval of minus 0.041 to minus 0.013. But its absolute average signed error was 0.011 versus 0.009 for persistence. All prewritten display rules had to pass, including that bias comparison. Ridge was not promoted.” |
-| 7. The app makes the conservative decision visible | 0:30 | “The app therefore carries the latest published OAR forward—0.56 in this example—as the 2026 next-calendar-year PSR projection. It labels the output a delayed-report nowcast, shows that 51.5% of the target cohort had elapsed at the prediction origin, and suppresses the ridge band because the point model was not promoted.” |
-| 8. The strongest product decision was refusing complexity that missed its gate | 0:20 | “The deliverable is a reproducible historical monitor plus an honest negative model-selection result. The 2025 replay is descriptive retrospective evidence, not prospective validation. A later 2026 PSR release is needed for prospective assessment.” |
+| 6. Accuracy in the original replay | 0:50 | “In the fixed 2025 replay, Ridge lowered average absolute log error from 0.267 to 0.240, a 10.1% improvement. The original exact-bias comparison rejected that gain for a tiny signed-error difference. That rule was a design mistake and is now withdrawn.” |
+| 7. The historical app | 0:30 | “This earlier release carries the latest published OAR forward, 0.56 in its example, as a calendar-2026 projection. At the July 7, 2026 origin, 51.5% of the year had elapsed. The app labels this delayed-report nowcast and withholds empirical forecast bands.” |
+| 8. Current evidence | 0:20 | “The historical monitor works offline. Later research identifies a simple fitted adjustment as a provisional candidate. Deployment still needs source-method review and an explicit analyst task. Unseen calendar-2026 outcomes are expected around mid-2027.” |
 
 Total: approximately 3:55, leaving a few seconds to transition into questions.
 
@@ -93,22 +94,21 @@ If the live app is unavailable, show these files in order:
 
 ### Actual result: persistence retained
 
-Ridge improved replay MAE, and the program-resampled paired bootstrap interval favored ridge on
-that metric. It still failed the prespecified relative-bias criterion. Because every point-model
-criterion had to pass, the product retains persistence and suppresses the ridge empirical band.
-This is a successful governance outcome: complexity did not earn deployment.
+Ridge improved replay MAE, and the program-resampled paired interval favored Ridge on that metric.
+The historical app retained persistence under an exact-bias rule that is now withdrawn as a
+design mistake. Preserving this result does not establish that the decision was well justified.
 
 The historical SRTR interval describes uncertainty about its published ratio. The empirical
 forecast band uses earlier prediction errors to form a range for a later published ratio.
 "Marginal" coverage means coverage averaged across programs; it does not promise that a given
 program has an 80% chance of falling in its band. The two intervals answer different questions.
 
-### Counterfactual result: ridge promoted
+### Current interpretation
 
-Had ridge passed every frozen point-model criterion, the app would have displayed the ridge point
-projection. Its empirical band would still require a separate band gate; point promotion would
-not automatically activate the band. Even then, the 2025 replay would remain descriptive
-retrospective product-selection evidence, not prospective or independent validation.
+Plan 0027's fitted ratio adjustment is a provisional research choice. Its small advantage over
+full Ridge does not establish substantive superiority, and its thresholds do not demonstrate
+usefulness. A future release requires source compatibility and a defined user task. Bands remain
+withheld. The preserved retrospective results provide no new independent validation.
 
 ## Likely questions
 
@@ -125,10 +125,9 @@ The product is for established-program monitoring, so repeated program-years are
 Uncertainty comparisons resample by program, and first-observed programs are labeled and withheld
 from public projection unless an artifact explicitly permits them.
 
-**Why did ridge lose after improving MAE?**  
-Every promotion rule had to pass. Ridge passed the required reduction in average error but missed
-the frozen relative-bias rule, so persistence remained the specified displayed reference. That
-decision does not show that persistence is clinically safer or more accurate on every metric.
+**Why did the historical app retain persistence after Ridge improved MAE?**
+An exact-bias rule rejected the gain for a tiny signed-error difference. That was a design
+mistake. The rule remains only in historical evidence, and current model selection does not use it.
 
 **Why was 2024 excluded from replay fitting?**  
 The frozen design assigns different roles to those years: fit only through target year 2023,
@@ -140,8 +139,8 @@ It is an empirical marginal band across programs, not a center-specific probabil
 not the SRTR 95% credible interval. Those two uncertainty quantities never share a label.
 
 **How do you handle policy or data-definition drift?**  
-Every release has a methodology-ledger entry and a pinned source hash. Unreconciled definition
-changes restrict the modeling era rather than being silently pooled.
+A saved hash establishes byte identity, not stable scientific meaning. The source-method audit
+examines the changed SRTR included-offer population and implications for comparisons over time.
 
 **Why exclude center identity and geography?**  
 Center code, name, type, location, OPO/DSA identity, and future report availability are prohibited
@@ -153,8 +152,9 @@ No. It is a public-aggregate screening signal for quality-improvement review. It
 patient- or organ-level decisions, causal conclusions, regulatory claims, or national rankings.
 
 **What would you do next?**  
-Preserve the frozen result, wait for the later 2026 PSR publication, and assess the already chosen
-display prospectively. Do not retune against the 2025 replay.
+Resolve source-method comparability and evaluate a defined analyst task before a new release.
+Calendar-2026 outcomes are expected around mid-2027. Preserve historical results and fix any
+future analysis design before scoring, without calling already-inspected data new validation.
 
 ## Rehearsal checklist
 
@@ -163,8 +163,8 @@ display prospectively. Do not retune against the 2025 replay.
 - [ ] Start the application with networking disabled and follow the four-click demo path above.
 - [ ] Keep the live demo under two minutes so the scientific result remains the center of the
   conversation.
-- [ ] Practice the actual negative narrative and the ridge-promotion counterfactual.
+- [ ] Explain the original rule's mistake, the measured errors and the current research limits.
 - [ ] Say “published offer-acceptance ratio,” “next-calendar-year PSR projection,” and
   “delayed-report nowcast”; avoid real-time, clinical, causal, ranking, and regulatory language.
 - [ ] Keep the three wide screenshots open locally as the first fallback.
-- [ ] End on the prospective limitation and the decision not to promote ridge.
+- [ ] Distinguish research model choice, current app behavior and a future deployment decision.
