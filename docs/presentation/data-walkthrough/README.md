@@ -1,5 +1,13 @@
 # Project walkthrough
 
+> **Correction for the next presentation revision, 2026-09-07:** The cohort appendix and its
+> notes incorrectly say that the July 2026 report uses calendar 2023 and overlaps the prior
+> group. It uses **July 2023–June 2024** listings. Say: “The original design evaluated one fitted
+> period; a source audit identified an additional historical period to investigate.” The
+> [source audit](../../audits/source-feasibility-0022.md) records the evidence. The slide source,
+> PowerPoints and build metadata are preserved in this audit session; correct and rebuild the
+> presentation package before using the affected material.
+
 [Open the complete PowerPoint](data-walkthrough-with-introduction.pptx): **19 main slides and six optional reference
 slides**, with editable charts/tables and speaking notes. This pass has no time limit. Slides 2-7 preserve the author's approved data, QA and V1 sequence.
 The updated deck has a separate filename because the previous PowerPoint is open and locked.

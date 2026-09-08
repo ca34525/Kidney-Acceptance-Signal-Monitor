@@ -1,5 +1,13 @@
 # V2 follow-up interview package
 
+> **Correction for the next presentation revision, 2026-09-07:** The timing slide's notes
+> incorrectly describe the July 2026 report as calendar 2023 with overlapping listings.
+> Its cohort is **July 2023–June 2024**. “One period” describes the original fitted study,
+> not the maximum possible public-source history. See the
+> [source audit](../../audits/source-feasibility-0022.md). The slide source, PowerPoint, HTML
+> backup and build metadata are preserved in this audit session; correct and rebuild the
+> presentation package before using the affected material.
+
 Start with the [editable presentation](interview.pptx), then use the
 [rehearsal guide](rehearsal-guide.md). The 15 main slides allocate 18 minutes, leaving two
 minutes for questions or delay. Two appendix slides retain the complete model comparison

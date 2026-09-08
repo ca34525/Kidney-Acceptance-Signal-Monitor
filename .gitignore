@@ -11,6 +11,10 @@ htmlcov/
 __pycache__/
 *.py[cod]
 
+# Office applications create temporary locks beside open documents.
+.~lock.*#
+~$*
+
 # Immutable source cache and generated data stay local. Anchor this rule so the
 # importable package at src/kasm/data remains trackable.
 /data/

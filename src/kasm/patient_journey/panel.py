@@ -560,19 +560,6 @@ def strict_vintage_folds(
     return tuple(folds)
 
 
-def _unique_by_program(
-    rows: tuple[ProgramIdentity | PatientJourneyOutcome | TransplantRate | WaitTime, ...],
-    *,
-    context: str,
-) -> dict[str, ProgramIdentity | PatientJourneyOutcome | TransplantRate | WaitTime]:
-    result: dict[str, ProgramIdentity | PatientJourneyOutcome | TransplantRate | WaitTime] = {}
-    for row in rows:
-        if row.program_key in result:
-            raise PatientJourneyPanelError(f"{context} duplicates program {row.program_key!r}.")
-        result[row.program_key] = row
-    return result
-
-
 def _canonical_json_value(value: object) -> str:
     if isinstance(value, date):
         return value.isoformat()

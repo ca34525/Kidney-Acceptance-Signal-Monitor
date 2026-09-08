@@ -1,5 +1,11 @@
 # Patient-journey V2 data card
 
+> **Source correction, 2026-09-07:** The recorded reason for excluding `2605` is wrong.
+> Its July 2026 report uses July 2023–June 2024 listings, which do not overlap the preceding
+> selected listing cohort. See the [source audit](audits/source-feasibility-0022.md).
+> This card otherwise describes the unchanged original dataset; the frozen ledger and released
+> panel have not been rewritten, and no additional cohort has been evaluated.
+
 ## Intended use
 
 This V2 dataset supports a retrospective, program-level exploration of a published patient-journey
