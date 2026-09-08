@@ -17,6 +17,17 @@
 > its own specification and configuration before implementation. It may not overwrite either
 > original study or present already-inspected outcomes as fresh validation.
 
+> **Future V1 development and promotion, 2026-09-08:** The freeze, promotion gates and original
+> release requirements below retain their authority for the completed V1 experiment.
+> [Plan 0027](docs/plans/0027-v1-forecast-improvement.md) and its
+> [separate specification](docs/specs/acceptance-forecast-0027.md) govern further forecast
+> improvement and a revised promotion policy. A later release may select the existing or a
+> revised Ridge model even if its absolute mean signed error exceeds persistence's. It must
+> justify that tradeoff under the new policy and retain the original failed-gate record.
+> This permits a disclosed retrospective decision; it neither promotes a model now nor
+> turns already-inspected outcomes into fresh validation. See
+> [Decision 0013](docs/decisions/0013-revise-future-forecast-promotion.md).
+
 **Reading update, 2026-09-05:** Plan 0020 P0a adds ordinary-language explanations to this
 retained V1 specification. Its source fields, formulas, experiment choices, promotion rules,
 and original release requirements remain unchanged.
@@ -324,7 +335,7 @@ Annual target transitions are 2017→2018 through 2024→2025.
 
 All programs for an outcome year remain in the same fold. There is no random row split. Repeated programs across years are intentional because the product projects established programs. First-observed programs are labeled and reported separately; the P0 product does not claim performance for or display forecasts to newly opened programs.
 
-The 2025 outcome and model feasibility were inspected during planning. Therefore this stage is a **frozen implementation replay**, not an independent holdout, confirmatory test, or prospective validation. Its bootstrap interval and promotion gate are descriptive product-selection evidence only. The replay uses the model trained through target year 2023; the 2024 outcome remains excluded from fitting because it calibrates the residual band. No predictor, alpha, threshold, interval rule, or claim may change after the frozen configuration is committed. A genuine prospective assessment is possible only when the calendar-year 2026 PSR signal is later published, expected around mid-2027.
+The 2025 outcome and model feasibility were inspected during planning. Therefore this stage is a **frozen implementation replay**, not an independent holdout, confirmatory test, or prospective validation. Its bootstrap interval and promotion gate are descriptive product-selection evidence only. The replay uses the model trained through target year 2023; the 2024 outcome remains excluded from fitting because it calibrates the residual band. No predictor, alpha, threshold, interval rule, or claim in that original experiment may change after the frozen configuration is committed. Separate development and revised product decisions follow the Plan 0027 contract above. A genuine prospective assessment is possible only when the calendar-year 2026 PSR signal is later published, expected around mid-2027.
 
 ### Forecast uncertainty
 
@@ -369,6 +380,9 @@ Treat both exclusions as drift checks, not causal analyses. Maintain a methodolo
 
 ### Promotion gate
 
+These gates govern the original frozen experiment and release. They remain recorded even
+when a later Plan 0027 decision uses different justified criteria. In particular, the exact
+comparison against persistence's absolute bias is not a universal future requirement.
 The historical monitor ships regardless of model performance.
 
 Before running the frozen 2025 replay, the ridge challenger becomes the candidate only if it:
@@ -378,7 +392,7 @@ Before running the frozen 2025 replay, the ridge challenger becomes the candidat
 - is not more than 10% worse than persistence in any pre-replay year; and
 - has lowest expected-acceptance-quartile MAE no greater than `1.10 × persistence MAE`, with at least 30 eligible rows in that stratum.
 
-After the frozen replay, the ridge point nowcast is displayed as the experimental default only if all point-promotion criteria hold:
+For that original release, the ridge point nowcast is displayed as the experimental default only if all point-promotion criteria hold:
 
 - 2025 replay MAE is at least 5% lower than persistence;
 - the descriptive paired-bootstrap 95% interval for `challenger MAE - persistence MAE` lies below zero;
@@ -397,7 +411,7 @@ All replay-based evidence is retrospective and descriptive; ridge remains prospe
 
 Use one Streamlit application backed by precomputed Parquet and JSON artifacts. The app must work without network access after artifacts are built.
 
-The guaranteed week-one application is the historical monitor plus a temporal model-evaluation summary and persistence reference. `configs/frozen_experiment.yaml` records `forecast_activation_attempted`. Activating a future ridge point nowcast requires the complete point-promotion path; activating an empirical band separately requires the complete band path. If activation was not attempted, either path is unfinished, or a gate fails, the UI omits that output and says why. No release is blocked by an honest non-promotion result.
+The guaranteed week-one application is the historical monitor plus a temporal model-evaluation summary and persistence reference. `configs/frozen_experiment.yaml` records `forecast_activation_attempted`. Activating a ridge point nowcast in that original release requires its complete point-promotion path; activating an empirical band separately requires its complete band path. If activation was not attempted, either path is unfinished, or a gate fails, the original UI omits that output and says why. A later Plan 0027 release requires its own recorded decision, trusted artifact identity and tested display implementation. No release is blocked by an honest non-promotion result.
 
 ### Required user flow
 
@@ -662,6 +676,9 @@ The project is complete only when all P0 conditions hold:
 - Both a positive and negative challenger result have a prepared, honest narrative.
 
 ## 16. Scope priorities
+
+These priorities and the week-one activation deadline describe the original build. They do
+not prohibit the separately specified Plan 0027 development or a later promotion decision.
 
 ### P0 — required
 

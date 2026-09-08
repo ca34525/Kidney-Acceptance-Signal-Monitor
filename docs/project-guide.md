@@ -1,6 +1,6 @@
 # Understanding the project
 
-This guide explains the questions, data, results and limits of the completed studies.
+This guide explains the completed studies and the current forecast-improvement plan.
 Precise equations, field names and methods remain in the linked specifications and code.
 
 ## What V1 and V2 do
@@ -23,6 +23,7 @@ acceptance decision.
 | Work | Current state | Detailed record |
 |---|---|---|
 | V1 acceptance monitor | Released; carries the latest ratio forward because Ridge missed a frozen promotion rule | [V1 model card](model_card.md) |
+| V1 forecast improvement | Planned; examine error distributions and assess forecasts under a revised promotion policy | [Plan 0027](plans/0027-v1-forecast-improvement.md), [specification](specs/acceptance-forecast-0027.md) |
 | Original V2 patient-journey study | Completed exploratory study; no model promoted and no future forecast displayed | [V2 model card](patient_journey_v2_model_card.md) |
 | V2 follow-up | Report-count comparison and matched outcome-component analysis complete | [Report-count results](patient_journey_v2_followup_results.md), [component results](patient_journey_v2_component_results.md) |
 | Deceased-donor receipt study | Complete; acceptance added too little improvement to continue under the fixed rule | [Receipt results](deceased_donor_receipt_results.md) |
@@ -65,6 +66,27 @@ its fixed rule. Both periods use the same earlier training cohort; two periods d
 this fresh validation. The target adds five published deceased-donor statuses among everyone
 originally listed, including recipients with unknown later health status. It measures recorded
 receipt, not survival, graft function or a patient's chance of receiving a transplant.
+
+## Improving V1 forecasts
+
+The original Ridge model predicted the next published annual acceptance ratio with 10.13% lower
+average absolute log error than persistence in the 2025 replay. It was not promoted because its
+absolute average signed log error was 0.01145 versus persistence's 0.00885. That exact comparison
+was the only failed point-promotion criterion. The original configuration, results and product
+decision remain preserved; the current application still displays persistence.
+
+[Plan 0027](plans/0027-v1-forecast-improvement.md) considers forecast improvement more broadly
+than reducing that one average. It starts by examining how large the errors are, how often
+predictions are high or low, and how these patterns differ across years and program groups.
+The [new specification](specs/acceptance-forecast-0027.md) allows the original or a revised Ridge
+model to be promoted under a revised policy even if its absolute signed bias exceeds
+persistence's. That decision must support useful accuracy and a justified tolerance for bias,
+consider uncertainty and performance across years and groups, and evaluate forecast bands
+separately. A small mean error alone cannot show whether individual predictions are useful.
+
+Already-inspected historical evidence may support an explicitly retrospective product decision
+under that policy. It remains exploratory evidence, not fresh or prospective validation. Planning
+does not itself promote a model. The original V2 study's prohibition on promotion remains intact.
 
 ## First investigation: is the comparison model being misled by report count?
 

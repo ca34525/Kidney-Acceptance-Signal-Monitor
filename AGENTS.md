@@ -28,6 +28,7 @@ Choose the study contract before selecting implementation rules:
 | Work | Specification and configuration |
 |---|---|
 | V1 acceptance monitor | `SPEC.md`; `configs/experiment.yaml` and `configs/frozen_experiment.yaml` |
+| Plan 0027 V1 forecast improvement | `docs/specs/acceptance-forecast-0027.md`; separate typed diagnostic/comparison settings under `configs/acceptance_forecast/` must exist before the corresponding execution; original frozen evidence stays intact |
 | Original V2 patient-journey study | `docs/specs/patient-journey-v2.md`; `configs/patient_journey_v2/experiment.yaml` and its methodology ledger |
 | Plan 0020 analytical follow-up | Its own specification and typed configuration must exist before analysis starts; original V1/V2 contracts and results remain preserved |
 | Plan 0023 deceased-donor receipt study | `docs/specs/deceased-donor-receipt-0023.md`; `configs/receipt_study/experiment.yaml` and `configs/receipt_study/sources.json`; separate ignored research output |
@@ -78,8 +79,10 @@ These shared rules are non-negotiable for every study:
 - Statistical uncertainty for model comparisons is resampled by program, not by treating repeated program-cohort rows as independent.
 - Preserve each completed study's fixed inputs and evidence; later investigations require separate identities and cannot become fresh validation.
 
-The following additional rules govern V1. Original V2 and the follow-up use their own exact
-scientific contracts, without weakening the shared safeguards above:
+The following additional rules govern the original V1 experiment and release. Plan 0027
+uses its separate contract for further development and future promotion; the original freeze
+is not a ban on that work. Original V2 and other follow-ups use their own exact scientific
+contracts, without weakening the shared safeguards above:
 
 - The modeling unit is a kidney transplant program-year.
 - The primary target is the next same-cadence calendar-year published `log(OAR)`.
@@ -88,8 +91,8 @@ scientific contracts, without weakening the shared safeguards above:
 - Every predictor must be available in the feature cohort or earlier.
 - KDPI ≥60 is not a core model feature because it lacks adequate history.
 - Baselines are implemented and evaluated before the ridge challenger.
-- No second model family is added unless the specification is deliberately changed before the frozen replay.
-- Do not tune, select features, alter the residual-band rule, or change claims after the frozen 2025 replay.
+- Do not add a model family to the original frozen experiment. Further development needs a separate specification and fixed comparison settings.
+- Do not retune or rewrite the original frozen 2025 replay, its features, residual-band rule or claims. Separately identified historical development is permitted under Plan 0027 and remains exploratory.
 - The replay model is trained only through target year 2023; held-out 2024 outcomes cannot enter that fit and calibrate the band only when activation is attempted.
 - Repeated programs across years are allowed because the task concerns established programs. Label first-observed programs separately and do not expose their forecast unless a tested artifact flag explicitly permits it.
 - Published SRTR ratios and intervals are authoritative. Formula recreation is a nonblocking, rounding-range QA diagnostic only.
@@ -146,7 +149,13 @@ Do not use these claims:
 
 Do not build a national center leaderboard, composite score, or patient/organ input form. Do not display MPSC thresholds.
 
-For V1, the historical monitor is the product. Show the ridge challenger as the default only if the frozen promotion gate passes. Otherwise display persistence and document the negative result plainly. Original V2 remains a separate exploratory study with promotion prohibited.
+For the original V1 release, the historical monitor is the product and the frozen gate controls
+its displayed forecast; the recorded failure retains persistence. For a later release under
+Plan 0027, the existing or a revised Ridge model may be promoted despite failing the original
+exact bias comparison with persistence. Apply the separate specification's justified accuracy,
+bias, uncertainty, year/group and point-versus-band policy; record a new decision and artifact
+identity rather than changing the original result. This is permission for a revised policy,
+not automatic promotion. Original V2 remains exploratory with promotion prohibited.
 
 ## 6. Application boundary
 
@@ -299,4 +308,7 @@ response. Base it on the actual completed diff and use Conventional Commits form
 - Provide the message even when the changes remain uncommitted; do not create a commit unless the
   user explicitly asks for one.
 
-Stop rather than improvise if a change would require nonpublic data, weaken temporal separation, use the frozen replay for iteration, or turn the product into clinical/regulatory advice.
+Stop rather than improvise if a change would require nonpublic data, weaken temporal separation,
+retune or overwrite the canonical frozen replay, or turn the product into clinical/regulatory
+advice. Reading saved predictions and separately specified exploratory development under
+Plan 0027 are permitted; do not describe inspected outcomes as fresh validation.

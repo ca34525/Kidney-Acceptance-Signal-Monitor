@@ -1,12 +1,21 @@
 # Kidney Acceptance Signal Monitor — Project roadmap
 
+**Current plan:** [Plan 0027 — V1 forecast improvement](docs/plans/0027-v1-forecast-improvement.md).
+Planning and documentation are complete; execution has not started. First describe errors
+in ratio units and percentages, including typical and large misses, then fix a small
+comparison of forecasting procedures. The [new specification](docs/specs/acceptance-forecast-0027.md)
+permits the existing or a revised Ridge model to be promoted under a justified policy even
+when its absolute mean signed error exceeds persistence's. The original frozen decision is
+preserved; the current app remains unchanged. See
+[Decision 0013](docs/decisions/0013-revise-future-forecast-promotion.md).
+
 **Latest completed work:** [Plan 0026 — waiting-list case study](docs/plans/0026-waiting-list-case-study.md).
 The original frequency finding is reproduced. Median signed transplant-removal changes among
 all growing-list programs were +2, 0 and −2 events in 2023–2025; among programs with increases,
 they were +15, +12 and +8. Three fixed examples reconcile annual growth and its change from the
 preceding year. The [case study](docs/waiting_list_case_study.md) includes offline HTML briefs,
-three figures, supporting tables and reproduction commands. C0–C3 are complete; no new execution
-plan is active. Application integration would require a separate decision.
+three figures, supporting tables and reproduction commands. C0–C3 are complete; no further
+waiting-list work is active. Application integration would require a separate decision.
 
 **Previously completed work:** [Plan 0025 — waiting-list viability](docs/plans/0025-waiting-list-viability.md).
 The fixed descriptive screen supports continuing this direction: 52.8%, 47.4% and 42.3% of
@@ -29,6 +38,7 @@ V1 contract, and the applicable study specification/configuration for later work
 
 | Work | Status | Record |
 |---|---|---|
+| V1 forecast improvement | Planned; error distributions first, then small comparisons and a revised promotion decision | [Plan 0027](docs/plans/0027-v1-forecast-improvement.md), [specification](docs/specs/acceptance-forecast-0027.md) |
 | Waiting-list analytical case study | Complete; distributions, worked examples and reusable offline program briefs | [Plan 0026](docs/plans/0026-waiting-list-case-study.md), [case study](docs/waiting_list_case_study.md) |
 | Waiting-list changes and operational interpretation | Complete; fixed descriptive continuation rule passed | [Plan 0025](docs/plans/0025-waiting-list-viability.md), [recommendation](docs/waiting_list_viability_results.md) |
 | Source coverage, repository cleanup and consequential review | Complete; original source-date error documented | [Plan 0022](docs/plans/0022-source-and-cleanup-audit.md) |
@@ -36,8 +46,10 @@ V1 contract, and the applicable study specification/configuration for later work
 | Earlier candidate characteristics study | Deferred; unimplemented and outside the viability screen | [Plan 0024](docs/plans/0024-candidate-mix-study.md) |
 | Project presentation | Packages prepared; source-date correction and author rehearsal remain | [Current walkthrough](docs/presentation/data-walkthrough/README.md), [Plan 0020 P4](docs/plans/0020-v2-follow-up-and-interview-story.md#p4-build-the-explanation-and-interview-package) |
 
-Each proposed analysis needs its own approved specification and fixed configuration before
-fitting begins. Previously inspected outcomes cannot become fresh validation. The original
+Each proposed analysis needs its own specification and fixed settings before its corresponding
+execution. Plan 0027 fixes diagnostic settings before new summaries and comparison settings
+after diagnosis but before fitting/scoring alternatives. Previously inspected outcomes cannot
+become fresh validation, but can inform an explicitly retrospective product decision. The original
 studies retain their input, output and claim boundaries; original V2 permits no model promotion.
 
 ## Completed work and evidence
@@ -72,9 +84,11 @@ action; a new hash or schema requires review. The V1 frozen replay is write-once
 ordinary verification command. Follow [the reproduction log](docs/reproduction_log.md) and the
 applicable study's instructions rather than rerunning it during cleanup.
 
-A model's failure to pass a display rule is evidence about that prediction rule, not clinical
-safety. The historical monitor remains the released product. Preserve the exact dates,
-denominators, missing-value meanings and original evidence when explaining or extending it.
+A model's failure to pass the original display rule is a recorded product decision, not a
+universal prohibition on future promotion or evidence about clinical safety. Plan 0027 allows
+a revised policy without rewriting that result. The historical monitor remains the released
+product. Preserve the exact dates, denominators, missing-value meanings and original evidence
+when explaining or extending it.
 
 The original seven-day execution schedule has been retired from this current roadmap. Its
 implementation choices and completion evidence remain in Plans 0001–0013 and Git history.

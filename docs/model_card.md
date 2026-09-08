@@ -5,6 +5,15 @@
 **Activation status:** `attempted_not_promoted`
 **Displayed projection:** persistence
 
+**Follow-up boundary, 2026-09-08:** This card preserves the original V1 experiment and decision.
+[Plan 0027](plans/0027-v1-forecast-improvement.md) starts a separate forecast-improvement study
+with error-distribution review and a [revised promotion policy](specs/acceptance-forecast-0027.md).
+The original or a revised Ridge model may qualify for promotion even when its absolute signed
+bias exceeds persistence's, subject to useful accuracy gains, a justified bias tolerance,
+uncertainty, year and subgroup evidence, and a separate band decision. Already-inspected evidence
+may inform an explicitly retrospective decision; it does not become fresh validation. No new
+model is promoted by this documentation, and the current application remains unchanged.
+
 ## Intended use
 
 This model is a public-data screening signal for transplant-program quality-improvement review.
