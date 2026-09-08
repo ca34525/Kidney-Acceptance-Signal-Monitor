@@ -1,6 +1,11 @@
 # Kidney Acceptance Signal Monitor — Project roadmap
 
-**Current plan:** [Plan 0029 — Interview-readiness corrections](docs/plans/0029-interview-readiness-corrections.md).
+**Current plan:** [Plan 0030 — V1 data dictionary](docs/plans/0030-v1-data-dictionary.md).
+Completed the [V1 data dictionary](docs/v1-data-dictionary.md): source records, historical
+signals and prediction inputs, with exact field mappings and a verified program example.
+Documentation only; study definitions and results remain unchanged.
+
+**Previously completed work:** [Plan 0029 — Interview-readiness corrections](docs/plans/0029-interview-readiness-corrections.md).
 Completed the offer-cohort definition audit, complete release validation before display,
 and presentation corrections. The original exact-bias gate is a recorded design mistake,
 retained only as historical evidence. Future model choice and deployment usefulness are separate
@@ -44,6 +49,7 @@ V1 contract, and the applicable study specification/configuration for later work
 
 | Work | Status | Record |
 |---|---|---|
+| V1 data dictionary | Complete; source fields, record meanings and a worked program example | [Plan 0030](docs/plans/0030-v1-data-dictionary.md) |
 | Interview-readiness corrections | Complete; source definitions, trusted display and current explanations corrected | [Plan 0029](docs/plans/0029-interview-readiness-corrections.md) |
 | V1 forecast improvement | Complete; fitted latest-ratio adjustment selected for a future point release, band withheld | [Plan 0027](docs/plans/0027-v1-forecast-improvement.md), [results](docs/acceptance_forecast_results.md) |
 | V1 point-projection release | Handoff defined; not started, current app retains persistence | [Plan 0028](docs/plans/0028-v1-point-projection-release.md) |

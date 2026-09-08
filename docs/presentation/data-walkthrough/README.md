@@ -6,6 +6,11 @@ It preserves the author's approved sequence and visual design. Selecting and tim
 20-minute interview edition, the author's spoken rehearsal and presentation-machine checks
 remain separate work.
 
+For personal study alongside slides 2–8 and 21–22, read the
+[V1 data dictionary](../../v1-data-dictionary.md). Start with its actual ALUA source record
+and input–outcome pair, then use the field tables as a reference. Its acceptance records
+are separate from the V2 Table B7 example shown at the start of this deck.
+
 The September 8 correction fixes July 2026 Table B7 to **July 2023–June 2024** listings, recognizes
 the completed additional-period receipt study, and replaces the obsolete bias-rule appendix
 with actual forecast errors. The original exact-bias rule was a design mistake. Current slides

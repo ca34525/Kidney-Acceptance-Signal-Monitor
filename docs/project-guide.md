@@ -3,6 +3,10 @@
 This guide explains the completed studies and the current forecast-improvement plan.
 Precise equations, field names and methods remain in the linked specifications and code.
 
+For a first V1 walkthrough, start with the [V1 data dictionary](v1-data-dictionary.md).
+It follows an actual program's source row into the historical table and next-year prediction
+inputs, with field meanings, dates, units and missing-value rules.
+
 ## What V1 and V2 do
 
 V1 helps a kidney transplant program review its published offer-acceptance history. The published
