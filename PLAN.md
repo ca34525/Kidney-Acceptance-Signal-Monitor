@@ -1,11 +1,13 @@
 # Kidney Acceptance Signal Monitor — Project roadmap
 
-**Next planned work:** [Plan 0025 — waiting-list viability](docs/plans/0025-waiting-list-viability.md).
-Determine, in one bounded session, whether annual registrations and removals support a useful
-insight about growing or shrinking waiting lists. The plan is prepared; the investigation has
-not started. It authorizes no new model or change to the completed studies.
+**Latest completed work:** [Plan 0025 — waiting-list viability](docs/plans/0025-waiting-list-viability.md).
+The fixed descriptive screen supports continuing this direction: 52.8%, 47.4% and 42.3% of
+eligible growing-list programs also recorded increased transplant removals in 2023–2025.
+The count, relative-size, common-program and size-group rules passed. See the
+[recommendation](docs/waiting_list_viability_results.md). Any next study needs a separate
+decision; no new model or application change is authorized by this finding.
 
-**Latest completed work:** [Plan 0023 — deceased-donor receipt study](docs/plans/0023-deceased-donor-receipt-study.md).
+**Previously completed work:** [Plan 0023 — deceased-donor receipt study](docs/plans/0023-deceased-donor-receipt-study.md).
 Adding acceptance to receipt history and access reduced average error by 0.113 percentage
 points (1.27%), missing the fixed continuation rule. Development of this acceptance extension
 stops; no model is promoted. The released V1 monitor, original V2 study and both completed
@@ -19,7 +21,7 @@ V1 contract, and the applicable study specification/configuration for later work
 
 | Work | Status | Record |
 |---|---|---|
-| Waiting-list changes and operational interpretation | Viability plan prepared; investigation not started | [Plan 0025](docs/plans/0025-waiting-list-viability.md) |
+| Waiting-list changes and operational interpretation | Complete; fixed descriptive continuation rule passed | [Plan 0025](docs/plans/0025-waiting-list-viability.md), [recommendation](docs/waiting_list_viability_results.md) |
 | Source coverage, repository cleanup and consequential review | Complete; original source-date error documented | [Plan 0022](docs/plans/0022-source-and-cleanup-audit.md) |
 | Deceased-donor transplant receipt study | Complete; fixed acceptance continuation rule failed | [Plan 0023](docs/plans/0023-deceased-donor-receipt-study.md), [results](docs/deceased_donor_receipt_results.md) |
 | Earlier candidate characteristics study | Deferred; unimplemented and outside the viability screen | [Plan 0024](docs/plans/0024-candidate-mix-study.md) |

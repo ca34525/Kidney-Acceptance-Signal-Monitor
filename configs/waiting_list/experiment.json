@@ -1,0 +1,36 @@
+{
+  "analysis_id": "waiting_list_0025_v1",
+  "schema_version": 1,
+  "source_years": [
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "transplant_categories": [
+    "REMTXC",
+    "REMTXL"
+  ],
+  "minimum_years": 3,
+  "minimum_pairs": 100,
+  "minimum_pair_coverage": 0.8,
+  "minimum_growing": 30,
+  "minimum_prevalence": 0.25,
+  "minimum_growth_count": 10,
+  "minimum_growth_per100": 5.0,
+  "minimum_common_programs": 80,
+  "minimum_common_growing": 20,
+  "size_boundaries": [
+    100,
+    500
+  ],
+  "minimum_size_growing_programs": 10,
+  "minimum_size_prevalence": 0.15,
+  "output_root": "data/research/waiting-list-0025",
+  "promotion_allowed": false
+}

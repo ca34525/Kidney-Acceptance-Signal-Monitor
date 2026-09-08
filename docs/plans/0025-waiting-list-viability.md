@@ -1,6 +1,6 @@
 # Plan 0025 — Determine whether waiting-list changes support a useful insight
 
-**Status:** plan prepared; investigation not started.
+**Status:** complete, 2026-09-08; **continue** under the fixed descriptive rule.
 **Branch:** `codex/waiting-list-viability`. **Date:** 2026-09-08.
 **Scope:** one bounded descriptive feasibility investigation using the nine existing workbooks.
 
@@ -44,10 +44,10 @@ Do not extend the search automatically when the evidence is weak.
 | Step | Required evidence | State |
 |---|---|---|
 | V0 Planning | This bounded plan, roadmap pointer and separate branch; documentation checks | Complete |
-| V1 Source gate | Release-specific field/period map, vintage rule, program coverage and verified category definitions | Not started |
-| V2 Accounting | Tested annual reconciliation and comparable consecutive program-year records, with exclusions and revisions reported | Not started |
-| V3 Substantive screen | One fixed descriptive comparison, sizes in ordinary units, recurrence across years and program-size sensitivity | Not started |
-| V4 Verdict | One-page recommendation, up to three useful figures/tables, reproducible evidence and principal limitations | Not started |
+| V1 Source gate | Release-specific field/period map, vintage rule, program coverage and verified category definitions | Complete; seven verified releases cover 2017–2025 |
+| V2 Accounting | Tested annual reconciliation and comparable consecutive program-year records, with exclusions and revisions reported | Complete; 2,144 exact annual reconciliations, 1,637 eligible comparisons |
+| V3 Substantive screen | One fixed descriptive comparison, sizes in ordinary units, recurrence across years and program-size sensitivity | Complete; all fixed 2023–2025 conditions and both sensitivity checks pass |
+| V4 Verdict | One-page recommendation, up to three useful figures/tables, reproducible evidence and principal limitations | Complete; recommendation and three evidence tables linked below |
 
 ### V1 — Establish what can be counted
 
@@ -137,25 +137,91 @@ composite quality score or patient/organ input form is permitted.
 
 ## Implementation, verification and handoff
 
-No analysis runs in the plan-writing session. Future execution should reuse the acquisition
-and validation infrastructure, adding only the smallest importable parser/calculations needed.
-Use small failing tests for field/date drift, duplicate year vintages, revisions, composite keys,
-null/zero distinctions, nonexclusive categories, reconciliation and the two growth definitions.
-A fixture should distinguish a growing list with increasing transplant removals from one with
-falling transplant removals. Keep tests about meanings, not exact live-data findings.
+### Execution record — 2026-09-08
 
-The future specification must define a separate ignored output root and provenance before any
-analysis output is written; no new analytical release or output root is approved here. Record
-source/configuration/specification and implementation hashes, Git/lock identity, UTC build time,
-periods, fields and exclusions; model parameters are not applicable. Use the applicable checks
-in [AGENTS.md](../../AGENTS.md), including full code checks and an isolated parser build if code
-is added. The verdict may be inconclusive within the session budget; incomplete checks cannot
-be labeled passed. Never overwrite or refit a completed study for this screen.
+Started from clean commit `1090a9ac11c85852fb4fe5f682ac65126c5db8bb` on the planned
+branch. The execution request authorizes completing the separate specification, fixed
+settings and isolated ignored research output described below. No comparative summaries
+have been viewed before fixing the contract. Source evidence and implementation proceed
+independently; unresolved report dates exclude a release rather than inherit V1/V2 dates.
 
-This planning change is documentation-only: content/link review and `git diff --check` replace
-a failing test and Python-suite rerun. The starting checkout was clean at `d2f9c56`.
-`codex/combined-model-investigation` contained no unique commits and was deleted after creating
-this branch at the same commit. No commit or analytical execution was performed.
+Expected evidence: synthetic tests first for source drift, vintage selection, null counts,
+exact accounting, boundary continuity, growth versus acceleration, and comparison/verdict
+rules; then an isolated verified-cache build and the required full checks. Documentation
+and the decision record use the documentation-only test exception. No dependency is added.
+The local commands set `UV_CACHE_DIR` to the repository's ignored `.uv-cache` because the
+system cache is outside the writable workspace.
 
-Verification: content and independent scope review passed; local file links resolve in this
-plan and `PLAN.md`. Whitespace checks passed for the tracked diff and this new plan.
+The [separate specification](../specs/waiting-list-0025.md),
+[fixed typed settings](../../configs/waiting_list/experiment.json),
+[source ledger](../../configs/waiting_list/sources.json) and
+[Decision 0011](../decisions/0011-isolate-waiting-list-screen.md) were written before the first
+comparative build. The authorized ignored output root is `data/research/waiting-list-0025/`.
+There is no new dependency, model, application feature, release bundle or original-study rerun.
+
+Source evidence: all nine verified workbooks have the same Table B1 fields. Seven independently
+matched reports establish calendar years 2017–2025; `1808` and `2006` remain excluded because
+their historical periods could not be verified. The 154 report/workbook binding counts agree.
+Six retained historical evidence files are cached text, not original PDF bytes; that distinction
+and their hashes are explicit. See the [source audit](../audits/waiting-list-source-0025.md).
+
+Failure-first evidence: parser, comparison/settings and output-boundary tests initially failed
+on absent imports, then passed with implementation. Independent synthetic verdict tests found
+that an unknown matched-program denominator could pass coverage; that regression failed before
+the denominator check was corrected. Added tests also require fixed source-ledger/evidence
+fingerprints and retained death counts for shrinking lists. Final focused result: **61 passed,
+1 skipped**. The skip is creation of an actual directory symlink, unavailable on this Windows
+host; the normal path/escape, overwrite and missing/changed evidence checks passed.
+
+The isolated command `uv run python -m kasm.waiting_list.build` completed offline at
+`2026-09-08T13:04:19.247066+00:00`. Run identity:
+`ad9a92cc0d20d407ab118f6b171e24bd9182a35557f149285a36035c45106cc4`.
+Its completion marker fingerprints annual records, revisions, comparisons, summaries, QA and
+provenance. The latter records implementation/configuration/specification/source hashes,
+Git commit and dirty status, lock identity, years and calculation schema. Inputs and this run
+are preserved; unchanged reruns refuse overwrite. Restoring the exact ignored input cache in a
+fresh checkout is required for reproduction, as documented in the evidence instructions.
+
+All 2,144 annual records reconcile exactly, with no missing counts. Of 1,889 consecutive matched
+pairs, 241 fail boundary continuity and 11 have zero current starting counts, leaving 1,637.
+Among 1,195 later-vintage comparisons, 268 have count disagreements and 22 have program-presence
+disagreements. These values and source identities remain visible; no balancing category or
+later-vintage backfill was introduced. The first-appearance and apparent-exit lists are QA,
+not claims that programs opened or closed.
+
+The latest sufficiently covered comparison years are 2023–2025. Among growing lists, increased
+transplant removals occur in 56/106, 54/114 and 58/137 programs (52.8%, 47.4%, 42.3%). Median
+growth in that group is 26.5, 22.5 and 35 registrations, or 9.3, 9.9 and 11.5 per 100 current
+starting registrations. Every fixed rule passes, including the same 169 programs and all three
+size groups. Independent recomputation checked 23,584 source count cells, all annual identities,
+vintages, comparison arithmetic, group summaries, common/size checks and revision records with
+no discrepancy. The verdict is **continue the descriptive direction**; any further study needs
+its own decision and specification.
+
+Required command evidence (workspace `UV_CACHE_DIR` throughout):
+
+- `uv sync --frozen`: passed, 74 packages checked.
+- `uv run ruff format --check .`: passed, 102 files.
+- `uv run ruff check .`: passed, including enabled security rules.
+- `uv run python -m mypy src/kasm`: passed, 50 source files. The module invocation uses the
+  same checker; the standalone launcher was blocked by Windows execution policy.
+- Full prescribed pytest/branch-coverage command: **783 passed, 1 skipped**, 104.79 seconds;
+  required data/modeling/reporting/patient-journey coverage **85.20%**.
+- `uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2`:
+  passed, **85.29%**.
+- `uv run kasm data verify-cache`: passed, all nine sources, no issues.
+- Isolated parser/research build: passed; no frozen replay, fit, packaging or app/container
+  command is warranted by these changes.
+- Documentation content, local links, output fingerprints and `git diff --check`: passed.
+
+Handoff check: `.gitattributes` pins the new source ledger to LF, preserving its approved byte
+fingerprint on Windows checkouts with automatic line-ending conversion. `git check-attr text eol`
+confirmed this rule. This mechanical checkout setting changes no calculation and uses direct
+attribute/byte verification instead of another Python-suite run; all recorded run inputs still
+match their build fingerprints.
+
+Deliverables: [one-page recommendation](../waiting_list_viability_results.md) and
+[three evidence tables, limits and reproduction instructions](../waiting_list_viability_evidence.md).
+No implementation work remains in this plan. Limitations are retained: incomplete historical
+report retrieval, boundary revisions, selected program coverage, event rather than unique-person
+counts, and descriptive rather than causal/prospective interpretation.

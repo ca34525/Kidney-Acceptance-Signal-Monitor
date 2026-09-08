@@ -12,3 +12,6 @@ configs/patient_journey_v2/methodology.yaml text eol=lf
 configs/receipt_study/experiment.yaml text eol=lf
 configs/receipt_study/sources.json text eol=lf
 docs/specs/deceased-donor-receipt-0023.md text eol=lf
+
+# The waiting-list parser binds its reviewed source ledger to these exact bytes.
+configs/waiting_list/sources.json text eol=lf

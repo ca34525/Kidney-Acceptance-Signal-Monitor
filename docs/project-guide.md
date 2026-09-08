@@ -26,9 +26,17 @@ acceptance decision.
 | Original V2 patient-journey study | Completed exploratory study; no model promoted and no future forecast displayed | [V2 model card](patient_journey_v2_model_card.md) |
 | V2 follow-up | Report-count comparison and matched outcome-component analysis complete | [Report-count results](patient_journey_v2_followup_results.md), [component results](patient_journey_v2_component_results.md) |
 | Deceased-donor receipt study | Complete; acceptance added too little improvement to continue under the fixed rule | [Receipt results](deceased_donor_receipt_results.md) |
+| Waiting-list viability screen | Complete; growing lists commonly coexist with more transplant removals, passing the fixed descriptive rules | [Waiting-list recommendation](waiting_list_viability_results.md) |
 
 The original V2 results remain available. The follow-up has its own specification, configuration,
 results and provenance; it does not overwrite the earlier study.
+
+The separate waiting-list screen found increased transplant removals in 52.8%, 47.4% and
+42.3% of eligible programs with growing lists in 2023–2025. Analysts should examine registration
+demand and other removal categories alongside transplant activity before interpreting growth.
+The finding survives the fixed size and common-program checks; it supports a further descriptive
+direction, with no model or application change. These counts describe events at programs, not
+unique people nationally or clinical causes. The linked recommendation reports exclusions and limits.
 
 The [source audit](audits/source-feasibility-0022.md) found that the July 2026 report uses
 July 2023–June 2024 listings. The original ledger incorrectly recorded calendar 2023 and
