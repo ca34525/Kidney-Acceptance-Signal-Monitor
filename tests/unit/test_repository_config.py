@@ -181,3 +181,43 @@ def test_frozen_input_hashes_survive_windows_checkout_filters() -> None:
             capture_output=True,
         ).stdout
         assert sha256(checkout).hexdigest() == digest, path
+
+
+def test_receipt_contract_survives_windows_checkout_filters(tmp_path: Path) -> None:
+    paths = (
+        "configs/receipt_study/experiment.yaml",
+        "configs/receipt_study/sources.json",
+        "docs/specs/deceased-donor-receipt-0023.md",
+    )
+    subprocess.run(  # noqa: S603 - fixed Git fixture command in pytest's temporary directory
+        ["git", "init", "--quiet"], cwd=tmp_path, check=True, capture_output=True
+    )
+    (tmp_path / ".gitattributes").write_bytes((PROJECT_ROOT / ".gitattributes").read_bytes())
+    for relative in paths:
+        content = (PROJECT_ROOT / relative).read_bytes()
+        blob = (
+            subprocess.run(  # noqa: S603 - creates only a Git test blob from a fixed source file
+                ["git", "hash-object", "-w", "--stdin"],
+                cwd=tmp_path,
+                input=content,
+                check=True,
+                capture_output=True,
+            )
+            .stdout.decode()
+            .strip()
+        )
+        checkout = subprocess.run(  # noqa: S603 - reads that test blob through fixed checkout filters
+            [
+                "git",
+                "-c",
+                "core.autocrlf=true",
+                "cat-file",
+                "--filters",
+                f"--path={relative}",
+                blob,
+            ],
+            cwd=tmp_path,
+            check=True,
+            capture_output=True,
+        ).stdout
+        assert sha256(checkout).hexdigest() == sha256(content).hexdigest(), relative

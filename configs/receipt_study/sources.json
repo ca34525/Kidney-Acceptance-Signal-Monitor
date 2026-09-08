@@ -1,0 +1,1272 @@
+{
+  "analysis_id": "kidney_deceased_donor_receipt_0023_v1",
+  "excluded_releases": {
+    "1808": "independent_release_bound_listing_and_wait_time_evidence_unavailable",
+    "2006": "independent_release_bound_listing_and_wait_time_evidence_unavailable"
+  },
+  "folds": [
+    {
+      "evaluation_pair": [
+        "2205",
+        "2505"
+      ],
+      "training_pairs": [
+        [
+          "1905",
+          "2205"
+        ]
+      ]
+    },
+    {
+      "evaluation_pair": [
+        "2305",
+        "2605"
+      ],
+      "training_pairs": [
+        [
+          "1905",
+          "2205"
+        ]
+      ]
+    }
+  ],
+  "follow_up_convention": "conservative_december31_bound_not_source_censor_date",
+  "pairs": [
+    [
+      "1905",
+      "2205"
+    ],
+    [
+      "2105",
+      "2405"
+    ],
+    [
+      "2205",
+      "2505"
+    ],
+    [
+      "2305",
+      "2605"
+    ]
+  ],
+  "releases": [
+    {
+      "checks": {
+        "SAL_CTXDIED_C18": {
+          "matches": true,
+          "source": 2.1,
+          "workbook": 2.0689655172
+        },
+        "SAL_CTXFAIL_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXFNC_C18": {
+          "matches": true,
+          "source": 14.5,
+          "workbook": 14.482758621
+        },
+        "SAL_CTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXUNK_C18": {
+          "matches": true,
+          "source": 17.9,
+          "workbook": 17.931034483
+        },
+        "SAL_LTXDIED_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXFAIL_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXFNC_C18": {
+          "matches": true,
+          "source": 9.0,
+          "workbook": "8.9655172414"
+        },
+        "SAL_LTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXUNK_C18": {
+          "matches": true,
+          "source": 4.8,
+          "workbook": "4.8275862069"
+        },
+        "SAL_N_C": {
+          "matches": true,
+          "source": 145,
+          "workbook": 145.0
+        },
+        "SAL_TOTFTX_C18": {
+          "matches": true,
+          "source": 23.4,
+          "workbook": 23.448275862
+        },
+        "SAL_TOTTX_C18": {
+          "matches": true,
+          "source": 48.3,
+          "workbook": 48.275862069
+        }
+      },
+      "evidence_kind": "cached_web_reader_pdf_text",
+      "horizon_months": 18,
+      "listing_end_source": "06/30/2017",
+      "listing_start_source": "07/01/2016",
+      "organ": "Kidney",
+      "outcome_source": {
+        "bytes": 18444,
+        "path": "data/receipt-study/source-research/1905-web-source.txt",
+        "sha256": "8b9ffa2715777bb29b72f08d7d950580beb7745e8f91c4d73aa0a649278cb078"
+      },
+      "program_key": "NYUC:TX1",
+      "rate_dates": [
+        "2017-01-01",
+        "2018-12-31"
+      ],
+      "release_code": "1905",
+      "report_release_date": "July 8, 2019",
+      "shapes": {
+        "identity": {
+          "expected_columns": 17,
+          "expected_rows": 246,
+          "name": "Tiers",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "PRIMARY_CITY",
+            "PRIMARY_STATE",
+            "PRIMARY_ZIP",
+            "CTR_CD",
+            "CTR_TY",
+            "ORGAN"
+          ]
+        },
+        "outcome": {
+          "expected_columns": 139,
+          "expected_rows": 239,
+          "name": "Table B6",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "SAL_N_C",
+            "SAL_TOTFTX_C18",
+            "SAL_CTXFNC_C18",
+            "SAL_CTXRE_C18",
+            "SAL_CTXFAIL_C18",
+            "SAL_CTXDIED_C18",
+            "SAL_CTXUNK_C18",
+            "SAL_LTXFNC_C18",
+            "SAL_LTXRE_C18",
+            "SAL_LTXFAIL_C18",
+            "SAL_LTXDIED_C18",
+            "SAL_LTXUNK_C18",
+            "SAL_LOST_C18",
+            "SAL_REFTX_C18",
+            "SAL_REMDET_C18",
+            "SAL_REMOTH_C18",
+            "SAL_REMREC_C18",
+            "SAL_WLDIED_C18",
+            "SAL_WLLIVE_C18",
+            "SAL_TOTTX_C18",
+            "SAL_TOTAL_C18"
+          ]
+        },
+        "rate": {
+          "expected_columns": 78,
+          "expected_rows": 242,
+          "name": "Tbls B4-B5 & Fig B1-B6 - All",
+          "required_fields": [
+            "center",
+            "RELEASE_DATE",
+            "wl_org",
+            "begdate",
+            "enddate",
+            "TMR_TxPy_c",
+            "TX_RR"
+          ]
+        },
+        "wait": {
+          "expected_columns": 25,
+          "expected_rows": 244,
+          "name": "Table B9",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "TTT_25_C"
+          ]
+        }
+      },
+      "source_url": "https://www.srtr.org/PDFs/072019_release/pdfPSR/NYUCTX1KI201905PNEW.pdf",
+      "wait_follow_up_end_source": "12/31/2018",
+      "wait_listing_end_source": "06/30/2018",
+      "wait_listing_start_source": "01/01/2013",
+      "wait_source": {
+        "bytes": 18444,
+        "path": "data/receipt-study/source-research/1905-web-source.txt",
+        "sha256": "8b9ffa2715777bb29b72f08d7d950580beb7745e8f91c4d73aa0a649278cb078"
+      },
+      "workbook_sha256": "34efbb289c353f2e95dd836479a18e5fd89d64fb7becf8405c89406d8e07ad52",
+      "workbook_sheet": "Table B6"
+    },
+    {
+      "checks": {
+        "SAL_CTXDIED_C18": {
+          "matches": true,
+          "source": 0.2,
+          "workbook": 0.206185567
+        },
+        "SAL_CTXFAIL_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXFNC_C18": {
+          "matches": true,
+          "source": 6.6,
+          "workbook": 6.5979381443
+        },
+        "SAL_CTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXUNK_C18": {
+          "matches": true,
+          "source": 5.2,
+          "workbook": 5.1546391753
+        },
+        "SAL_LTXDIED_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXFAIL_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXFNC_C18": {
+          "matches": true,
+          "source": 10.9,
+          "workbook": "10.927835052"
+        },
+        "SAL_LTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXUNK_C18": {
+          "matches": true,
+          "source": 5.4,
+          "workbook": "5.3608247423"
+        },
+        "SAL_N_C": {
+          "matches": true,
+          "source": 485,
+          "workbook": 485.0
+        },
+        "SAL_TOTFTX_C18": {
+          "matches": true,
+          "source": 17.5,
+          "workbook": 17.525773196
+        },
+        "SAL_TOTTX_C18": {
+          "matches": true,
+          "source": 28.2,
+          "workbook": 28.24742268
+        }
+      },
+      "evidence_kind": "cached_web_reader_pdf_text",
+      "horizon_months": 18,
+      "listing_end_source": "06/30/2019",
+      "listing_start_source": "07/01/2018",
+      "organ": "Kidney",
+      "outcome_source": {
+        "bytes": 19095,
+        "path": "data/receipt-study/source-research/2105-outcome-source.txt",
+        "sha256": "76df61d2b0895d08a1abb424105ddc134e891273276758bf7fc6668206956b3f"
+      },
+      "program_key": "TXMH:TX1",
+      "rate_dates": [
+        "2019-01-01",
+        "2020-12-31"
+      ],
+      "release_code": "2105",
+      "report_release_date": "July 6, 2021",
+      "shapes": {
+        "identity": {
+          "expected_columns": 17,
+          "expected_rows": 241,
+          "name": "Tiers",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "PRIMARY_CITY",
+            "PRIMARY_STATE",
+            "PRIMARY_ZIP",
+            "CTR_CD",
+            "CTR_TY",
+            "ORGAN"
+          ]
+        },
+        "outcome": {
+          "expected_columns": 139,
+          "expected_rows": 235,
+          "name": "Table B6",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "SAL_N_C",
+            "SAL_TOTFTX_C18",
+            "SAL_CTXFNC_C18",
+            "SAL_CTXRE_C18",
+            "SAL_CTXFAIL_C18",
+            "SAL_CTXDIED_C18",
+            "SAL_CTXUNK_C18",
+            "SAL_LTXFNC_C18",
+            "SAL_LTXRE_C18",
+            "SAL_LTXFAIL_C18",
+            "SAL_LTXDIED_C18",
+            "SAL_LTXUNK_C18",
+            "SAL_LOST_C18",
+            "SAL_REFTX_C18",
+            "SAL_REMDET_C18",
+            "SAL_REMOTH_C18",
+            "SAL_REMREC_C18",
+            "SAL_WLDIED_C18",
+            "SAL_WLLIVE_C18",
+            "SAL_TOTTX_C18",
+            "SAL_TOTAL_C18"
+          ]
+        },
+        "rate": {
+          "expected_columns": 78,
+          "expected_rows": 239,
+          "name": "Tbls B4-B5 & Fig B1-B6 - All",
+          "required_fields": [
+            "center",
+            "RELEASE_DATE",
+            "wl_org",
+            "begdate",
+            "enddate",
+            "TMR_TxPy_c",
+            "TX_RR"
+          ]
+        },
+        "wait": {
+          "expected_columns": 25,
+          "expected_rows": 238,
+          "name": "Table B9",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "TTT_25_C"
+          ]
+        }
+      },
+      "source_url": "https://www.srtr.org/PDFs/062021_release/pdfPSR/TXMHTX1KI202105PNEW.pdf",
+      "wait_follow_up_end_source": "12/31/2020",
+      "wait_listing_end_source": "06/30/2020",
+      "wait_listing_start_source": "01/01/2015",
+      "wait_source": {
+        "bytes": 18711,
+        "path": "data/receipt-study/source-research/2105-web-source.txt",
+        "sha256": "7c57cec62c2a0110a95fc78eefb1c0e8c62f959fd475c86d20009b618c5ee9a5"
+      },
+      "workbook_sha256": "78115c191cb33c3a9ae2ffbcf97b183ae8d95813ffcd03906c49cc9b74ac923f",
+      "workbook_sheet": "Table B6"
+    },
+    {
+      "checks": {
+        "SAL_CTXDIED_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXFAIL_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXFNC_C18": {
+          "matches": true,
+          "source": 50.0,
+          "workbook": 50.0
+        },
+        "SAL_CTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXUNK_C18": {
+          "matches": true,
+          "source": 16.7,
+          "workbook": 16.666666667
+        },
+        "SAL_LTXDIED_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXFAIL_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXFNC_C18": {
+          "matches": true,
+          "source": 11.1,
+          "workbook": "11.111111111"
+        },
+        "SAL_LTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXUNK_C18": {
+          "matches": true,
+          "source": 5.6,
+          "workbook": "5.5555555556"
+        },
+        "SAL_N_C": {
+          "matches": true,
+          "source": 36,
+          "workbook": 36.0
+        },
+        "SAL_TOTFTX_C18": {
+          "matches": true,
+          "source": 61.1,
+          "workbook": 61.111111111
+        },
+        "SAL_TOTTX_C18": {
+          "matches": true,
+          "source": 83.3,
+          "workbook": 83.333333333
+        }
+      },
+      "evidence_kind": "cached_web_reader_pdf_text",
+      "horizon_months": 18,
+      "listing_end_source": "06/30/2020",
+      "listing_start_source": "07/01/2019",
+      "organ": "Kidney",
+      "outcome_source": {
+        "bytes": 18961,
+        "path": "data/receipt-study/source-research/2205-outcome-source.txt",
+        "sha256": "52ce900518e69132eb3959a8f69b5a461bdc0ac095fff981cb8eac3305bfa82a"
+      },
+      "program_key": "CACL:TX1",
+      "rate_dates": [
+        "2020-01-01",
+        "2021-12-31"
+      ],
+      "release_code": "2205",
+      "report_release_date": "July 6, 2022",
+      "shapes": {
+        "identity": {
+          "expected_columns": 17,
+          "expected_rows": 236,
+          "name": "Tiers",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "PRIMARY_CITY",
+            "PRIMARY_STATE",
+            "PRIMARY_ZIP",
+            "CTR_CD",
+            "CTR_TY",
+            "ORGAN"
+          ]
+        },
+        "outcome": {
+          "expected_columns": 139,
+          "expected_rows": 232,
+          "name": "Table B7",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "SAL_N_C",
+            "SAL_TOTFTX_C18",
+            "SAL_CTXFNC_C18",
+            "SAL_CTXRE_C18",
+            "SAL_CTXFAIL_C18",
+            "SAL_CTXDIED_C18",
+            "SAL_CTXUNK_C18",
+            "SAL_LTXFNC_C18",
+            "SAL_LTXRE_C18",
+            "SAL_LTXFAIL_C18",
+            "SAL_LTXDIED_C18",
+            "SAL_LTXUNK_C18",
+            "SAL_LOST_C18",
+            "SAL_REFTX_C18",
+            "SAL_REMDET_C18",
+            "SAL_REMOTH_C18",
+            "SAL_REMREC_C18",
+            "SAL_WLDIED_C18",
+            "SAL_WLLIVE_C18",
+            "SAL_TOTTX_C18",
+            "SAL_TOTAL_C18"
+          ]
+        },
+        "rate": {
+          "expected_columns": 78,
+          "expected_rows": 236,
+          "name": "Tbls B4-B5 & Fig B1-B6 - All",
+          "required_fields": [
+            "center",
+            "RELEASE_DATE",
+            "wl_org",
+            "begdate",
+            "enddate",
+            "TMR_TxPy_c",
+            "TX_RR"
+          ]
+        },
+        "wait": {
+          "expected_columns": 25,
+          "expected_rows": 234,
+          "name": "Table B10",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "TTT_25_C"
+          ]
+        }
+      },
+      "source_url": "https://srtr.org/PDFs/062022_release/pdfPSR/CACLTX1KI202205PNEW.pdf",
+      "wait_follow_up_end_source": "12/31/2021",
+      "wait_listing_end_source": "06/30/2021",
+      "wait_listing_start_source": "01/01/2016",
+      "wait_source": {
+        "bytes": 18693,
+        "path": "data/receipt-study/source-research/2205-web-source.txt",
+        "sha256": "3011e5a1aa96926532ff9688930422e8974185dcf6a9fb5bae8cafc82b8139ec"
+      },
+      "workbook_sha256": "73fa1729ee2d34f8d4d5873767fd5aca080acb0ad10436c10ab2ca5fdabd26e6",
+      "workbook_sheet": "Table B7"
+    },
+    {
+      "checks": {
+        "SAL_CTXDIED_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXFAIL_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXFNC_C18": {
+          "matches": true,
+          "source": 11.8,
+          "workbook": 11.790393013
+        },
+        "SAL_CTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXUNK_C18": {
+          "matches": true,
+          "source": 6.6,
+          "workbook": 6.5502183406
+        },
+        "SAL_LTXDIED_C18": {
+          "matches": true,
+          "source": 1.3,
+          "workbook": "1.3100436681"
+        },
+        "SAL_LTXFAIL_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXFNC_C18": {
+          "matches": true,
+          "source": 15.3,
+          "workbook": "15.283842795"
+        },
+        "SAL_LTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXUNK_C18": {
+          "matches": true,
+          "source": 10.5,
+          "workbook": "10.480349345"
+        },
+        "SAL_N_C": {
+          "matches": true,
+          "source": 229,
+          "workbook": 229.0
+        },
+        "SAL_TOTFTX_C18": {
+          "matches": true,
+          "source": 27.1,
+          "workbook": 27.074235808
+        },
+        "SAL_TOTTX_C18": {
+          "matches": true,
+          "source": 45.4,
+          "workbook": 45.414847162
+        }
+      },
+      "evidence_kind": "cached_web_reader_pdf_text",
+      "horizon_months": 18,
+      "listing_end_source": "06/30/2021",
+      "listing_start_source": "07/01/2020",
+      "organ": "Kidney",
+      "outcome_source": {
+        "bytes": 19127,
+        "path": "data/receipt-study/source-research/2305-outcome-source.txt",
+        "sha256": "aab4649a328d8ad3b960daa36fcb2caf8d40dcde2dc77fd4ecae5fe7f1d8c5c7"
+      },
+      "program_key": "MNUM:TX1",
+      "rate_dates": [
+        "2021-01-01",
+        "2022-12-31"
+      ],
+      "release_code": "2305",
+      "report_release_date": "July 6, 2023",
+      "shapes": {
+        "identity": {
+          "expected_columns": 17,
+          "expected_rows": 238,
+          "name": "Tiers",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "PRIMARY_CITY",
+            "PRIMARY_STATE",
+            "PRIMARY_ZIP",
+            "CTR_CD",
+            "CTR_TY",
+            "ORGAN"
+          ]
+        },
+        "outcome": {
+          "expected_columns": 139,
+          "expected_rows": 233,
+          "name": "Table B7",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "SAL_N_C",
+            "SAL_TOTFTX_C18",
+            "SAL_CTXFNC_C18",
+            "SAL_CTXRE_C18",
+            "SAL_CTXFAIL_C18",
+            "SAL_CTXDIED_C18",
+            "SAL_CTXUNK_C18",
+            "SAL_LTXFNC_C18",
+            "SAL_LTXRE_C18",
+            "SAL_LTXFAIL_C18",
+            "SAL_LTXDIED_C18",
+            "SAL_LTXUNK_C18",
+            "SAL_LOST_C18",
+            "SAL_REFTX_C18",
+            "SAL_REMDET_C18",
+            "SAL_REMOTH_C18",
+            "SAL_REMREC_C18",
+            "SAL_WLDIED_C18",
+            "SAL_WLLIVE_C18",
+            "SAL_TOTTX_C18",
+            "SAL_TOTAL_C18"
+          ]
+        },
+        "rate": {
+          "expected_columns": 78,
+          "expected_rows": 238,
+          "name": "Tbls B4-B5 & Fig B1-B6 - All",
+          "required_fields": [
+            "center",
+            "RELEASE_DATE",
+            "wl_org",
+            "begdate",
+            "enddate",
+            "TMR_TxPy_c",
+            "TX_RR"
+          ]
+        },
+        "wait": {
+          "expected_columns": 25,
+          "expected_rows": 233,
+          "name": "Table B10",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "TTT_25_C"
+          ]
+        }
+      },
+      "source_url": "https://srtr.org/PDFs/062023_release/pdfPSR/MNUMTX1KI202305PNEW.pdf",
+      "wait_follow_up_end_source": "12/31/2022",
+      "wait_listing_end_source": "06/30/2022",
+      "wait_listing_start_source": "01/01/2017",
+      "wait_source": {
+        "bytes": 19049,
+        "path": "data/receipt-study/source-research/2305-web-source.txt",
+        "sha256": "a8f004bcbe7047e6178a3816705fe3ab1a2a40406b46170ea79813c03472b6fc"
+      },
+      "workbook_sha256": "63d5f0222fa6a92c9e58d2b11eb40082b8bf2490eb6ee67c34749bafadf74fe2",
+      "workbook_sheet": "Table B7"
+    },
+    {
+      "checks": {
+        "SAL_CTXDIED_C18": {
+          "matches": true,
+          "source": 0.4,
+          "workbook": 0.4347826087
+        },
+        "SAL_CTXFAIL_C18": {
+          "matches": true,
+          "source": 0.4,
+          "workbook": 0.4347826087
+        },
+        "SAL_CTXFNC_C18": {
+          "matches": true,
+          "source": 13.9,
+          "workbook": 13.913043478
+        },
+        "SAL_CTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXUNK_C18": {
+          "matches": true,
+          "source": 8.7,
+          "workbook": 8.6956521739
+        },
+        "SAL_LTXDIED_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXFAIL_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXFNC_C18": {
+          "matches": true,
+          "source": 6.5,
+          "workbook": "6.5217391304"
+        },
+        "SAL_LTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXUNK_C18": {
+          "matches": true,
+          "source": 4.8,
+          "workbook": "4.7826086957"
+        },
+        "SAL_N_C": {
+          "matches": true,
+          "source": 230,
+          "workbook": 230.0
+        },
+        "SAL_TOTFTX_C18": {
+          "matches": true,
+          "source": 20.4,
+          "workbook": 20.434782609
+        },
+        "SAL_TOTTX_C18": {
+          "matches": true,
+          "source": 34.8,
+          "workbook": 34.782608696
+        }
+      },
+      "evidence_kind": "cached_web_reader_pdf_text",
+      "horizon_months": 18,
+      "listing_end_source": "06/30/2022",
+      "listing_start_source": "07/01/2021",
+      "organ": "Kidney",
+      "outcome_source": {
+        "bytes": 19478,
+        "path": "data/receipt-study/source-research/2405-outcome-source.txt",
+        "sha256": "ff473bb7e4fea0ad2e0ec6a848325aa0daef2a50f764f631d22c6cfe099f6b78"
+      },
+      "program_key": "NYNS:TX1",
+      "rate_dates": [
+        "2022-01-01",
+        "2023-12-31"
+      ],
+      "release_code": "2405",
+      "report_release_date": "July 9, 2024",
+      "shapes": {
+        "identity": {
+          "expected_columns": 17,
+          "expected_rows": 236,
+          "name": "Tiers",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "PRIMARY_CITY",
+            "PRIMARY_STATE",
+            "PRIMARY_ZIP",
+            "CTR_CD",
+            "CTR_TY",
+            "ORGAN"
+          ]
+        },
+        "outcome": {
+          "expected_columns": 139,
+          "expected_rows": 236,
+          "name": "Table B7",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "SAL_N_C",
+            "SAL_TOTFTX_C18",
+            "SAL_CTXFNC_C18",
+            "SAL_CTXRE_C18",
+            "SAL_CTXFAIL_C18",
+            "SAL_CTXDIED_C18",
+            "SAL_CTXUNK_C18",
+            "SAL_LTXFNC_C18",
+            "SAL_LTXRE_C18",
+            "SAL_LTXFAIL_C18",
+            "SAL_LTXDIED_C18",
+            "SAL_LTXUNK_C18",
+            "SAL_LOST_C18",
+            "SAL_REFTX_C18",
+            "SAL_REMDET_C18",
+            "SAL_REMOTH_C18",
+            "SAL_REMREC_C18",
+            "SAL_WLDIED_C18",
+            "SAL_WLLIVE_C18",
+            "SAL_TOTTX_C18",
+            "SAL_TOTAL_C18"
+          ]
+        },
+        "rate": {
+          "expected_columns": 78,
+          "expected_rows": 236,
+          "name": "Tbls B4-B5 & Fig B1-B6 - All",
+          "required_fields": [
+            "center",
+            "RELEASE_DATE",
+            "wl_org",
+            "begdate",
+            "enddate",
+            "TMR_TxPy_c",
+            "TX_RR"
+          ]
+        },
+        "wait": {
+          "expected_columns": 25,
+          "expected_rows": 232,
+          "name": "Table B10",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "TTT_25_C"
+          ]
+        }
+      },
+      "source_url": "https://www.srtr.org/PDFs/072024_release/pdfPSR/NYNSTX1KI202405PNEW.pdf",
+      "wait_follow_up_end_source": "12/31/2023",
+      "wait_listing_end_source": "06/30/2023",
+      "wait_listing_start_source": "01/01/2018",
+      "wait_source": {
+        "bytes": 19401,
+        "path": "data/receipt-study/source-research/2405-web-source.txt",
+        "sha256": "bfe1bba4833f04a920d9f359a19559947b8d097197769b3b9611d2c254fadaa6"
+      },
+      "workbook_sha256": "b81cce9009b339c6718a9fecfb916a6458e363973c7132aea8566d8f219f2799",
+      "workbook_sheet": "Table B7"
+    },
+    {
+      "checks": {
+        "SAL_CTXDIED_C18": {
+          "matches": true,
+          "source": 1.1,
+          "workbook": 1.0791366906
+        },
+        "SAL_CTXFAIL_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXFNC_C18": {
+          "matches": true,
+          "source": 9.0,
+          "workbook": 8.9928057554
+        },
+        "SAL_CTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXUNK_C18": {
+          "matches": true,
+          "source": 13.3,
+          "workbook": 13.309352518
+        },
+        "SAL_LTXDIED_C18": {
+          "matches": true,
+          "source": 0.4,
+          "workbook": "0.3597122302"
+        },
+        "SAL_LTXFAIL_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXFNC_C18": {
+          "matches": true,
+          "source": 9.7,
+          "workbook": "9.7122302158"
+        },
+        "SAL_LTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXUNK_C18": {
+          "matches": true,
+          "source": 8.3,
+          "workbook": "8.273381295"
+        },
+        "SAL_N_C": {
+          "matches": true,
+          "source": 278,
+          "workbook": 278.0
+        },
+        "SAL_TOTFTX_C18": {
+          "matches": true,
+          "source": 18.7,
+          "workbook": 18.705035971
+        },
+        "SAL_TOTTX_C18": {
+          "matches": true,
+          "source": 41.7,
+          "workbook": 41.726618705
+        }
+      },
+      "evidence_kind": "cached_web_reader_pdf_text",
+      "horizon_months": 18,
+      "listing_end_source": "06/30/2023",
+      "listing_start_source": "07/01/2022",
+      "organ": "Kidney",
+      "outcome_source": {
+        "bytes": 19257,
+        "path": "data/receipt-study/source-research/2505-outcome-source.txt",
+        "sha256": "39166d6f06de227eaf97a830e974bce5406a87e8664e55a7cd306983d8b66dc1"
+      },
+      "program_key": "NYNS:TX1",
+      "rate_dates": [
+        "2023-01-01",
+        "2024-12-31"
+      ],
+      "release_code": "2505",
+      "report_release_date": "July 8, 2025",
+      "shapes": {
+        "identity": {
+          "expected_columns": 17,
+          "expected_rows": 237,
+          "name": "Tiers",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "PRIMARY_CITY",
+            "PRIMARY_STATE",
+            "PRIMARY_ZIP",
+            "CTR_CD",
+            "CTR_TY",
+            "ORGAN"
+          ]
+        },
+        "outcome": {
+          "expected_columns": 139,
+          "expected_rows": 234,
+          "name": "Table B7",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "SAL_N_C",
+            "SAL_TOTFTX_C18",
+            "SAL_CTXFNC_C18",
+            "SAL_CTXRE_C18",
+            "SAL_CTXFAIL_C18",
+            "SAL_CTXDIED_C18",
+            "SAL_CTXUNK_C18",
+            "SAL_LTXFNC_C18",
+            "SAL_LTXRE_C18",
+            "SAL_LTXFAIL_C18",
+            "SAL_LTXDIED_C18",
+            "SAL_LTXUNK_C18",
+            "SAL_LOST_C18",
+            "SAL_REFTX_C18",
+            "SAL_REMDET_C18",
+            "SAL_REMOTH_C18",
+            "SAL_REMREC_C18",
+            "SAL_WLDIED_C18",
+            "SAL_WLLIVE_C18",
+            "SAL_TOTTX_C18",
+            "SAL_TOTAL_C18"
+          ]
+        },
+        "rate": {
+          "expected_columns": 78,
+          "expected_rows": 237,
+          "name": "Tbls B4-B5 & Fig B1-B6 - All",
+          "required_fields": [
+            "center",
+            "RELEASE_DATE",
+            "wl_org",
+            "begdate",
+            "enddate",
+            "TMR_TxPy_c",
+            "TX_RR"
+          ]
+        },
+        "wait": {
+          "expected_columns": 25,
+          "expected_rows": 231,
+          "name": "Table B10",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "TTT_25_C"
+          ]
+        }
+      },
+      "source_url": "https://www.srtr.org/PDFs/072025_release/pdfPSR/NYNSTX1KI202505PNEW.pdf",
+      "wait_follow_up_end_source": "12/31/2024",
+      "wait_listing_end_source": "06/30/2024",
+      "wait_listing_start_source": "01/01/2019",
+      "wait_source": {
+        "bytes": 19127,
+        "path": "data/receipt-study/source-research/2505-web-source.txt",
+        "sha256": "0abcf4fa4e4b9e09ee95a6b2aaed4ff9f14d322c2a5ecc2436eb89479161ddb9"
+      },
+      "workbook_sha256": "032584a0a1fe3df70c1f4cc9806f9a2756f8d378795534dae38a47d441422ac5",
+      "workbook_sheet": "Table B7"
+    },
+    {
+      "checks": {
+        "SAL_CTXDIED_C18": {
+          "matches": true,
+          "source": 0.7,
+          "workbook": 0.6622516556
+        },
+        "SAL_CTXFAIL_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXFNC_C18": {
+          "matches": true,
+          "source": 19.2,
+          "workbook": 19.205298013
+        },
+        "SAL_CTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": 0.0
+        },
+        "SAL_CTXUNK_C18": {
+          "matches": true,
+          "source": 11.9,
+          "workbook": 11.920529801
+        },
+        "SAL_LTXDIED_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXFAIL_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXFNC_C18": {
+          "matches": true,
+          "source": 9.9,
+          "workbook": "9.9337748344"
+        },
+        "SAL_LTXRE_C18": {
+          "matches": true,
+          "source": 0.0,
+          "workbook": "0"
+        },
+        "SAL_LTXUNK_C18": {
+          "matches": true,
+          "source": 6.6,
+          "workbook": "6.6225165563"
+        },
+        "SAL_N_C": {
+          "matches": true,
+          "source": 302,
+          "workbook": 302.0
+        },
+        "SAL_TOTFTX_C18": {
+          "matches": true,
+          "source": 29.1,
+          "workbook": 29.139072848
+        },
+        "SAL_TOTTX_C18": {
+          "matches": true,
+          "source": 48.3,
+          "workbook": 48.344370861
+        }
+      },
+      "evidence_kind": "local_pdf_text",
+      "horizon_months": 18,
+      "listing_end_source": "06/30/2024",
+      "listing_start_source": "07/01/2023",
+      "organ": "Kidney",
+      "outcome_source": {
+        "bytes": 150558,
+        "path": "data/receipt-study/source-research/2605-pdf-source.txt",
+        "sha256": "0cb17fabae6c28a1e04450563c9a12ab85ec05202dec1951d9dee193760d5904"
+      },
+      "pdf_bytes": {
+        "bytes": 2193208,
+        "path": "data/audit-0022/nynstx1_ki.pdf",
+        "sha256": "8d0d4a401de55e2ca7fd248168353bb27b0b9846d2f9496688122faaca5095a9"
+      },
+      "program_key": "NYNS:TX1",
+      "rate_dates": [
+        "2024-01-01",
+        "2025-12-31"
+      ],
+      "release_code": "2605",
+      "report_release_date": "July 7, 2026",
+      "shapes": {
+        "identity": {
+          "expected_columns": 17,
+          "expected_rows": 236,
+          "name": "Tiers",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "PRIMARY_CITY",
+            "PRIMARY_STATE",
+            "PRIMARY_ZIP",
+            "CTR_CD",
+            "CTR_TY",
+            "ORGAN"
+          ]
+        },
+        "outcome": {
+          "expected_columns": 139,
+          "expected_rows": 229,
+          "name": "Table B7",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "SAL_N_C",
+            "SAL_TOTFTX_C18",
+            "SAL_CTXFNC_C18",
+            "SAL_CTXRE_C18",
+            "SAL_CTXFAIL_C18",
+            "SAL_CTXDIED_C18",
+            "SAL_CTXUNK_C18",
+            "SAL_LTXFNC_C18",
+            "SAL_LTXRE_C18",
+            "SAL_LTXFAIL_C18",
+            "SAL_LTXDIED_C18",
+            "SAL_LTXUNK_C18",
+            "SAL_LOST_C18",
+            "SAL_REFTX_C18",
+            "SAL_REMDET_C18",
+            "SAL_REMOTH_C18",
+            "SAL_REMREC_C18",
+            "SAL_WLDIED_C18",
+            "SAL_WLLIVE_C18",
+            "SAL_TOTTX_C18",
+            "SAL_TOTAL_C18"
+          ]
+        },
+        "rate": {
+          "expected_columns": 78,
+          "expected_rows": 235,
+          "name": "Tbls B4-B5 & Fig B1-B6 - All",
+          "required_fields": [
+            "center",
+            "RELEASE_DATE",
+            "wl_org",
+            "begdate",
+            "enddate",
+            "TMR_TxPy_c",
+            "TX_RR"
+          ]
+        },
+        "wait": {
+          "expected_columns": 25,
+          "expected_rows": 231,
+          "name": "Table B10",
+          "required_fields": [
+            "ENTIRE_NAME",
+            "CTR_CD",
+            "CTR_TY",
+            "RELEASE_DATE",
+            "ORG",
+            "TTT_25_C"
+          ]
+        }
+      },
+      "source_url": "https://srtr.hrsa.gov/reportapi/documents/psr/nynstx1_ki",
+      "wait_follow_up_end_source": "12/31/2025",
+      "wait_listing_end_source": "06/30/2025",
+      "wait_listing_start_source": "01/01/2020",
+      "wait_source": {
+        "bytes": 150558,
+        "path": "data/receipt-study/source-research/2605-pdf-source.txt",
+        "sha256": "0cb17fabae6c28a1e04450563c9a12ab85ec05202dec1951d9dee193760d5904"
+      },
+      "workbook_sha256": "8f357b6ed7a060f395fd1930e34e9e4aee4fe508d67f10b4167073eded834184",
+      "workbook_sheet": "Table B7"
+    }
+  ],
+  "schema_version": 1,
+  "source_manifest_sha256": "5b30cd508a10e9cc24a6097f0eea868447c168b2744b50977aa56db43a6b86e5"
+}

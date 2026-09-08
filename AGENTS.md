@@ -30,6 +30,7 @@ Choose the study contract before selecting implementation rules:
 | V1 acceptance monitor | `SPEC.md`; `configs/experiment.yaml` and `configs/frozen_experiment.yaml` |
 | Original V2 patient-journey study | `docs/specs/patient-journey-v2.md`; `configs/patient_journey_v2/experiment.yaml` and its methodology ledger |
 | Plan 0020 analytical follow-up | Its own specification and typed configuration must exist before analysis starts; original V1/V2 contracts and results remain preserved |
+| Plan 0023 deceased-donor receipt study | `docs/specs/deceased-donor-receipt-0023.md`; `configs/receipt_study/experiment.yaml` and `configs/receipt_study/sources.json`; separate ignored research output |
 
 Read the applicable study documents in addition to the mandatory reads. Engineering, data
 safety, and nonclinical/nonregulatory claim safeguards apply across studies. V1's log(OAR)

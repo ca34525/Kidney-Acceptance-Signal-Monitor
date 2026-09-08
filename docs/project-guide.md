@@ -25,17 +25,28 @@ acceptance decision.
 | V1 acceptance monitor | Released; carries the latest ratio forward because Ridge missed a frozen promotion rule | [V1 model card](model_card.md) |
 | Original V2 patient-journey study | Completed exploratory study; no model promoted and no future forecast displayed | [V2 model card](patient_journey_v2_model_card.md) |
 | V2 follow-up | Report-count comparison and matched outcome-component analysis complete | [Report-count results](patient_journey_v2_followup_results.md), [component results](patient_journey_v2_component_results.md) |
+| Deceased-donor receipt study | Complete; acceptance added too little improvement to continue under the fixed rule | [Receipt results](deceased_donor_receipt_results.md) |
 
 The original V2 results remain available. The follow-up has its own specification, configuration,
 results and provenance; it does not overwrite the earlier study.
 
 The [source audit](audits/source-feasibility-0022.md) found that the July 2026 report uses
 July 2023–June 2024 listings. The original ledger incorrectly recorded calendar 2023 and
-excluded that report for overlap. This opens a possible additional historical comparison;
-earlier archives may add others. No added period has been modeled. The original one-period
-results remain unchanged. [Plan 0023](plans/0023-deceased-donor-receipt-study.md) proposes a
-deceased-donor receipt outcome, and [Plan 0024](plans/0024-candidate-mix-study.md) proposes earlier
-candidate characteristics. Both require verified dates and fixed comparisons before fitting.
+excluded that report for overlap. The separately specified
+[Plan 0023 study](deceased_donor_receipt_results.md) now uses that corrected period alongside
+July 2022–June 2023 listings to study recorded deceased-donor transplant receipt within 18 months.
+The original one-period results remain unchanged. [Plan 0024](plans/0024-candidate-mix-study.md)
+still proposes earlier candidate characteristics; it requires its own verified dates and fixed
+comparisons before fitting.
+
+For the new receipt question, adding acceptance information to receipt history and access
+information reduced the average size of errors from 8.888 to 8.774 percentage points, a
+0.113-point (1.27%) gain. That missed the required 0.5 points and 5%, and error improved in
+only one of the two periods. Development of this acceptance extension therefore stops under
+its fixed rule. Both periods use the same earlier training cohort; two periods do not make
+this fresh validation. The target adds five published deceased-donor statuses among everyone
+originally listed, including recipients with unknown later health status. It measures recorded
+receipt, not survival, graft function or a patient's chance of receiving a transplant.
 
 ## First investigation: is the comparison model being misled by report count?
 
