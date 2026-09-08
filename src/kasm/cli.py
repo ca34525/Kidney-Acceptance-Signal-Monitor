@@ -48,6 +48,14 @@ def build_parser() -> argparse.ArgumentParser:
     """Build the command parser."""
     parser = argparse.ArgumentParser(prog="kasm")
     commands = parser.add_subparsers(dest="command", required=True)
+    forecast = commands.add_parser("acceptance-forecast")
+    forecast_commands = forecast.add_subparsers(dest="forecast_command", required=True)
+    for name, config_name in (("diagnose", "diagnostics"), ("compare", "comparison")):
+        command = forecast_commands.add_parser(name)
+        command.add_argument(
+            "--config", type=Path, default=Path(f"configs/acceptance_forecast/{config_name}.json")
+        )
+        command.add_argument("--run-id", required=True)
     data_parser = commands.add_parser("data")
     data_commands = data_parser.add_subparsers(dest="data_command", required=True)
     sync_parser = data_commands.add_parser("sync")
@@ -326,6 +334,10 @@ def _run_patient_journey_command(args: argparse.Namespace) -> int:
 def main(argv: Sequence[str] | None = None) -> int:
     """Run a command and return a process exit code."""
     args = build_parser().parse_args(argv)
+    if args.command == "acceptance-forecast":
+        from kasm.acceptance_forecast.commands import run_command
+
+        return run_command(args.forecast_command, args.config, args.run_id)
     if args.command == "patient-journey":
         return _run_patient_journey_command(args)
     if args.command == "artifacts":

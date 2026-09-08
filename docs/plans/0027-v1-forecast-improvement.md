@@ -1,8 +1,8 @@
 # Plan 0027 — Understand and improve V1 forecasts
 
-**Status:** planning and documentation complete; execution not started.
+**Status:** complete; P0–P4 and their verification finished September 8, 2026.
 **Date:** 2026-09-08. **Branch:** `codex/v1-forecast-improvement`.
-**Authorized now:** write this plan and clarify future model-promotion policy.
+**Authorized now:** complete P1–P4 under the user's September 8 request to complete this plan.
 **Contract:** [specification](../specs/acceptance-forecast-0027.md) and
 [Decision 0013](../decisions/0013-revise-future-forecast-promotion.md).
 
@@ -16,7 +16,8 @@ signed error remains greater than persistence's under the revised policy.
 
 The current V1 release and its frozen evidence remain intact. New work has its own identity;
 the original bias-rule failure remains reported. Original V2 and the completed receipt and
-waiting-list studies are outside scope. This plan does not run an analysis or change the app.
+waiting-list studies are outside scope. Execution runs the separate analyses below; display
+implementation remains a separately defined handoff if a method is selected.
 
 Existing evidence motivating the work:
 
@@ -38,10 +39,32 @@ these observations. Do not refit the original study to reproduce them.
 | Step | Deliverable and acceptance evidence | State |
 |---|---|---|
 | P0 Document scope and policy | Plan, specification, decision and consistent current documentation distinguish the original fail from permissible future promotion | Complete |
-| P1 Explain existing errors | Typed diagnostic settings, verified saved inputs, reproducible ratio/percentage/log distributions and small regression fixtures | Not started |
-| P2 Fix the comparison | Diagnostic-led rationale, enumerated candidates, exact temporal design and justified decision tolerances recorded before comparison scoring | Not started |
-| P3 Compare complete procedures | Failing regressions first; matched forward-in-time predictions, every configured result and required verification | Not started |
-| P4 Make the model decision | Clear accuracy/error-distribution tradeoff and versioned retain/select/insufficient-evidence recommendation; separate deployment handoff if selected | Not started |
+| P1 Explain existing errors | Typed diagnostic settings, verified saved inputs, reproducible ratio/percentage/log distributions and small regression fixtures | Complete |
+| P2 Fix the comparison | Diagnostic-led rationale, enumerated candidates, exact temporal design and justified decision tolerances recorded before comparison scoring | Complete |
+| P3 Compare complete procedures | Failing regressions first; matched forward-in-time predictions, every configured result and required verification | Complete |
+| P4 Make the model decision | Clear accuracy/error-distribution tradeoff and versioned retain/select/insufficient-evidence recommendation; separate deployment handoff if selected | Complete |
+
+Execution acceptance recorded before implementation: P1 uses the original release validator,
+exact pinned payload fingerprints and a write-once research directory. Synthetic regressions
+must first fail for invalid settings, changed inputs, path escape/overwrite, mismatched program
+populations and the error formulas above. P3 will add publication-cutoff and training-only
+procedure regressions after P1 findings fix the comparison design. No new dependency is needed;
+the locked NumPy, SciPy, scikit-learn, PyArrow and Matplotlib packages cover this work.
+
+P1 diagnosis, after the typed diagnostic configuration was written and validated: Ridge's
+median absolute percentage errors for 2021–2025 are 22.78%, 32.34%, 21.97%, 20.42% and 18.90%;
+its 90th percentiles are 70.78%, 117.31%, 57.05%, 50.27% and 52.98%. Percentages divide by the
+published target ratio. Ridge improves absolute log error on a year-balanced 60.71% of rows;
+39.29% worsen. Low earlier ratio and low expected-acceptance groups have larger misses.
+There are 1,150 analytic program-years and 11 excluded missing targets over the five years;
+2025 retains the original training-through-2023 role. No original fit was rerun.
+
+P2 fixed before new comparison scoring: [Decision 0014](../decisions/0014-fix-forecast-comparison-0027.md),
+the specification's fixed-comparison section and typed `comparison.json` enumerate two
+alternatives plus three references, exact expanding/recent-three-year histories, alpha 10,
+publication checks, prior-year complete-procedure bands, whole-program resampling and decision
+tolerances. There is no tuning or constant correction; original Ridge already fits an intercept,
+whose numerical value is absent from the saved evidence. New fits record all coefficients.
 
 ### P1 — Make the existing errors understandable
 
@@ -82,8 +105,8 @@ newer training outcomes. Keep selection/tuning inside earlier data for each eval
 Define useful primary accuracy improvement and acceptable absolute bias or bias deterioration
 with a practical rationale. Also fix worst-year, tail/subgroup and uncertainty treatment;
 do not silently substitute a favorable metric when another worsens. The ±10/25/50% diagnostic
-fractions are not automatically promotion thresholds. No exact bias tolerance or new model
-is selected in this planning pass; choosing them follows the error description.
+fractions are not automatically promotion thresholds. The original planning pass selected
+no exact bias tolerance or new model; the recorded P2 choices followed the error description.
 
 **Acceptance:** another analyst can execute the configured comparison without deciding which
 model, years, correction window, error metric or tolerance would make the result favorable.
@@ -122,7 +145,7 @@ waiting period for an honestly retrospective product decision.
 and percentage-error terms. If display is recommended, define a separate implementation
 item for a new trusted release identity, artifact provenance, explicit eligibility,
 point/band handling, offline app behavior and a reversal path. This plan's documentation
-completion is not deployment or a claim that predictive improvement has been achieved.
+completion is not deployment; any improvement claim must name the actual retrospective comparison.
 
 ## Verification and current evidence
 
@@ -156,4 +179,83 @@ P0 completed on 2026-09-08:
 - `git diff --check` passed. `git diff --exit-code -- configs artifacts src app tests uv.lock`
   confirmed no changes to executable settings, original evidence, implementation or lockfile.
 - The Python suite, model fitting, frozen replay and application startup were not run:
-  this change is documentation-only. No P1–P4 work has run.
+  that P0 milestone was documentation-only; P1–P4 had not yet run then.
+
+## Execution evidence and final decision — September 8, 2026
+
+The [results brief](../acceptance_forecast_results.md) records all five methods, annual and
+equal-year results, typical and large misses, paired losses, subgroup/calibration evidence and
+reproduction commands. [Decision 0015](../decisions/0015-select-adjusted-persistence-point.md)
+selects `adjusted_persistence` for a future point release and withholds its band. Its mean
+absolute log error is 0.29252 versus persistence's 0.31420 (6.90% lower), and ratio-unit mean
+absolute error is 0.30872 versus 0.34000 (9.20% lower). All three fitted candidates pass point
+criteria; the fixed smallest-primary-error rule selects the single-input procedure. Its
+0.66% edge over full Ridge is small and has no separately configured comparison interval.
+
+The selected method improves four of five years, worsens individual absolute log error on
+40.1% of program-years, and has a paired descriptive interval of [−0.02571, −0.01761] versus
+persistence. All 10,000 whole-program resamples retained every year. The band fails coverage
+checks, including low coverage in 2022 groups and excessive coverage in later years; width
+passes. No thresholds were revised after scoring and no further candidates were evaluated.
+[Plan 0028](0028-v1-point-projection-release.md) defines the separate trusted release,
+eligibility, point/band handling, offline behavior and reversal handoff; it is not implemented.
+
+Failing-first evidence:
+
+- Initial diagnostic, plotting, I/O, comparison, policy and procedure tests failed on their
+  absent modules. Focused passing fixtures then exercised units, asymmetric percentage errors,
+  boundary tolerances, extremes, nulls, equal-year aggregation and exact paired populations.
+- Three missing-eligibility-flag cases failed before explicit boolean validation; a swapped
+  equal-sized subgroup membership case failed before same-program group validation.
+- I/O regressions failed for nested boolean settings, duplicate JSON keys, omitted missing
+  share predictors, filesystem redirects, Windows filename aliases and saved flags overriding
+  the trusted panel. Fixed guards pass, including changed bytes/identity and early refusal
+  of an existing run before analysis, with no partially published completion marker.
+- Procedure regressions first failed on missing fixed groups and on a source claiming a cohort
+  was public before its measurements ended. Publication/completion checks now reject those
+  cases. Future-outcome perturbation leaves earlier fits and bands unchanged; same-release
+  month precision, train-only preprocessing, recent-three-year history and small calibration
+  groups are covered. Original Ridge/baseline/frozen-gate regressions remain unchanged.
+- Revised-policy cases permit higher absolute bias than persistence within the fixed tolerance
+  and fail accuracy, bias, tail, group and separate band requirements as intended.
+
+Commands and outcomes (with `UV_CACHE_DIR=.uv-cache`; plotting uses
+`MPLCONFIGDIR=.test-tmp/matplotlib`):
+
+```text
+uv sync --frozen                                      PASS (74 locked packages)
+uv run ruff format --check .                          PASS (128 files)
+uv run ruff check .                                   PASS (including security rules)
+uv run mypy src/kasm                                  PASS (66 source files)
+uv run pytest -q --cov=src/kasm/data --cov=src/kasm/modeling --cov=src/kasm/reporting --cov=src/kasm/patient_journey --cov=src/kasm/acceptance_forecast --cov-branch --cov-fail-under=80
+                                                     PASS (968 passed, 2 skipped; 85.64%)
+uv run coverage report --include="src/kasm/patient_journey/*" --fail-under=80 --precision=2
+                                                     PASS (85.29%)
+uv run coverage report --include="src/kasm/acceptance_forecast/*" --fail-under=80 --precision=2
+                                                     PASS (89.88%)
+uv run kasm acceptance-forecast diagnose --run-id diagnostics-final
+                                                     PASS (saved inputs; no fits)
+uv run kasm acceptance-forecast compare --run-id comparison-v1
+                                                     PASS (authorized isolated comparison)
+```
+
+The normal `uv` cache was initially inaccessible; the documented workspace cache resolved it.
+The two skips are existing waiting-list symlink-creation tests unsupported on this host;
+no new forecast test was skipped.
+No network refresh, canonical frozen-replay command, original artifact rebuild, app change or
+container change was made. Therefore cache rebuild, deployment packaging/startup and Docker
+build were not needed. The full suite includes the existing offline application tests.
+
+The initial saved-diagnostic run `diagnostics-v1` is retained; `diagnostics-final` records the
+reviewed missingness/input guards without replacing it. Comparison settings SHA-256
+`2ef29c45e529e64aa1c53c56c1f502eb113507545510213145daaf1c58a7751d` and specification SHA-256
+`34ed32714f4390c57b2a4d625cc0396d155074d716be5793e0838cf3fccbd8bb` were verified before scoring.
+Comparison-v1's complete report hash is recorded in the results brief. Each run preserves
+UTC/Git/dirty-state/lock/code/source provenance and output checksums under the ignored research
+root. Independent review verified the decision and every comparison payload hash. The figures
+were rendered and visually inspected at full ranges; no named-program ranking is produced.
+
+`git diff --check` passed. Staged and unstaged `git diff --exit-code` checks against original
+experiment/frozen/source configurations, `artifacts/`, `src/kasm/modeling/`, `app/` and `uv.lock`
+show no changes. A local checker validated 133 relative Markdown links across all ten changed/new
+documents, including heading anchors; content whitespace passed. No commit was created.

@@ -37,13 +37,14 @@ Its absolute average signed log error was 0.01145 versus persistence's 0.00885, 
 no-worse-bias comparison; the other fixed point-promotion criteria passed. The application uses
 persistence and withholds the Ridge forecast band. The original result remains recorded.
 
-[Plan 0027](docs/plans/0027-v1-forecast-improvement.md) starts a separate effort to improve V1
-forecasts by examining the size, direction and distribution of errors first. Its
-[revised policy](docs/specs/acceptance-forecast-0027.md) can promote the original or a revised Ridge
-model despite greater absolute signed bias than persistence, if useful accuracy gains and a
-justified bias tolerance are supported by uncertainty, year, subgroup and separate band checks.
-Already-inspected evidence may inform that explicitly retrospective decision; it cannot become
-fresh validation. This documentation change promotes no model and changes no application output.
+[Plan 0027](docs/plans/0027-v1-forecast-improvement.md) is complete. Its fixed five-method comparison
+selects a fitted adjustment of the latest ratio for a future point projection, with 6.90% lower
+average absolute log error than persistence. Its edge over full Ridge is small (0.66%), and its
+forecast band fails the separate coverage criteria. See the [results and reproduction commands](docs/acceptance_forecast_results.md).
+The [revised policy](docs/specs/acceptance-forecast-0027.md) permits practical bias tradeoffs while
+preserving the original failed gate. This is exploratory retrospective evidence. The current
+app remains unchanged; [Plan 0028](docs/plans/0028-v1-point-projection-release.md) defines the
+separate deployment handoff.
 
 ## Start the tracked offline demo
 

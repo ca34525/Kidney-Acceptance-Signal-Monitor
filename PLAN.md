@@ -1,15 +1,15 @@
 # Kidney Acceptance Signal Monitor — Project roadmap
 
 **Current plan:** [Plan 0027 — V1 forecast improvement](docs/plans/0027-v1-forecast-improvement.md).
-Planning and documentation are complete; execution has not started. First describe errors
-in ratio units and percentages, including typical and large misses, then fix a small
-comparison of forecasting procedures. The [new specification](docs/specs/acceptance-forecast-0027.md)
-permits the existing or a revised Ridge model to be promoted under a justified policy even
-when its absolute mean signed error exceeds persistence's. The original frozen decision is
-preserved; the current app remains unchanged. See
-[Decision 0013](docs/decisions/0013-revise-future-forecast-promotion.md).
+P0–P4 are complete. The fixed five-method retrospective comparison selects a fitted adjustment
+of the latest ratio for a future point projection: 6.90% lower average absolute log error than
+persistence, with a small 0.66% advantage over full Ridge. Its band fails the separate coverage
+criteria. The original frozen decision and current app remain unchanged. See the
+[results](docs/acceptance_forecast_results.md),
+[Decision 0015](docs/decisions/0015-select-adjusted-persistence-point.md), and the separately
+defined [Plan 0028 deployment handoff](docs/plans/0028-v1-point-projection-release.md), not started.
 
-**Latest completed work:** [Plan 0026 — waiting-list case study](docs/plans/0026-waiting-list-case-study.md).
+**Previously completed work:** [Plan 0026 — waiting-list case study](docs/plans/0026-waiting-list-case-study.md).
 The original frequency finding is reproduced. Median signed transplant-removal changes among
 all growing-list programs were +2, 0 and −2 events in 2023–2025; among programs with increases,
 they were +15, +12 and +8. Three fixed examples reconcile annual growth and its change from the
@@ -38,7 +38,8 @@ V1 contract, and the applicable study specification/configuration for later work
 
 | Work | Status | Record |
 |---|---|---|
-| V1 forecast improvement | Planned; error distributions first, then small comparisons and a revised promotion decision | [Plan 0027](docs/plans/0027-v1-forecast-improvement.md), [specification](docs/specs/acceptance-forecast-0027.md) |
+| V1 forecast improvement | Complete; fitted latest-ratio adjustment selected for a future point release, band withheld | [Plan 0027](docs/plans/0027-v1-forecast-improvement.md), [results](docs/acceptance_forecast_results.md) |
+| V1 point-projection release | Handoff defined; not started, current app retains persistence | [Plan 0028](docs/plans/0028-v1-point-projection-release.md) |
 | Waiting-list analytical case study | Complete; distributions, worked examples and reusable offline program briefs | [Plan 0026](docs/plans/0026-waiting-list-case-study.md), [case study](docs/waiting_list_case_study.md) |
 | Waiting-list changes and operational interpretation | Complete; fixed descriptive continuation rule passed | [Plan 0025](docs/plans/0025-waiting-list-viability.md), [recommendation](docs/waiting_list_viability_results.md) |
 | Source coverage, repository cleanup and consequential review | Complete; original source-date error documented | [Plan 0022](docs/plans/0022-source-and-cleanup-audit.md) |

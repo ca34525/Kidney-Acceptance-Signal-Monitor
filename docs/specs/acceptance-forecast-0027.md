@@ -1,9 +1,10 @@
 # V1 forecast improvement and future promotion
 
-Version 1, September 8, 2026. This is the separate contract for
+Version 2, September 8, 2026. This is the separate contract for
 [Plan 0027](../plans/0027-v1-forecast-improvement.md), following the request to improve V1
 forecasts generally and reconsider the exact bias comparison with persistence. The current
-authorization is to document this work; no new analysis, model fit or deployment has run.
+authorization is to complete P1–P4 following the user's request to complete the plan.
+Deployment remains a separate implementation item.
 
 ## Question and preserved evidence
 
@@ -40,14 +41,14 @@ that bind the input identities, years, populations, formulas, strata, summary me
 output location. Before comparison execution, add a separately versioned comparison
 configuration fixing the candidate procedures, temporal folds, tuning/calibration rules,
 metrics and decision tolerances. Missing required choices must fail validation. These
-configuration files and their implementation do not yet exist.
+configuration files must pass their typed validators before the corresponding execution.
 
 The proposed output root is ignored `data/research/acceptance-forecast-0027/`; establish it
 in the execution settings before writing results. Each run has a distinct immutable identity
 and records specification/configuration/input hashes, source manifest and release identity,
 Git commit and dirty state, dependency-lock hash, UTC build time, years, row counts,
 exclusions, feature schema and fitted parameters where applicable. No original output is
-overwritten and no new tracked release bundle is authorized by this planning change.
+overwritten and no new tracked release bundle is authorized by this execution.
 
 Predictors, training outcomes and calibration outcomes must be public by the evaluated
 prediction origin. Measurement periods obey V1's availability rules. All rows for an outcome
@@ -153,6 +154,82 @@ permitted when identified as a retrospective choice, not as tuning-independent e
 Any newly tuned procedure must choose parameters from earlier permitted data within each fold.
 Reassess forecast bands for the complete corrected/refitted procedure rather than attaching
 old residual radii without evaluation.
+
+## Fixed comparison v1
+
+The September 8 saved-error diagnosis precedes these settings and their scoring. This is one
+retrospective comparison, fixed in `configs/acceptance_forecast/comparison.json` and explained
+in [Decision 0014](../decisions/0014-fix-forecast-comparison-0027.md). Report every configured
+procedure and stop; any further design revision needs a new identity and contract.
+
+| Procedure | Exact fit and inputs |
+|---|---|
+| Persistence | Latest available published log OAR |
+| Historical mean | Mean of the program's available annual published log OAR through the feature year; exponentiate for the ratio |
+| Ridge | Original fixed 17 inputs, training target years 2018 through origin target year minus one |
+| Ridge recent three years | Same inputs and fit, restricted to `max(2018, target_year-3)` through `target_year-1` |
+| Adjusted persistence | Ridge using only current log OAR, with a fitted intercept, on expanding 2018-through-prior-year training outcomes |
+
+For all fitted procedures use median imputation retaining empty columns, standard scaling,
+an intercept, Ridge alpha 10, `lsqr`, seed 20260903 and equal training-row weights. The shorter
+window changes history inclusion, not the input schema. The fitted adjustment estimates a
+slope and intercept from earlier outcomes; it is not a correction estimated from evaluation
+errors. There is no tuning grid or added correction. Alpha 10 remains an acknowledged
+retrospective choice from original 2021–2023 selection. Record coefficients, intercept,
+imputation/scaling parameters and the exact training years for every new fit.
+
+Evaluate complete intact target years 2021–2025. Generate a 2020 warmup prediction using
+training targets 2018–2019 solely for the first later band. Training targets, feature source
+and any calibration target must have been public at the origin: the origin is the manifest
+release for the feature year. A value from the identical release is available even when
+publication has month precision. For different releases, require the latest possible source
+publication date no later than the earliest possible origin date. Reject disagreeing panel
+publication metadata. Later evaluation outcomes may be read for scoring only.
+
+The new 2025 full-history fit includes target 2024, which was public in the feature release.
+This differs from the original frozen fit through 2023, retained only as a saved historical
+reference. Compare procedures on this same information design; do not attribute additional
+training information to the algorithm. Keep all original analytic rows and explicitly report
+missing targets, first-observed programs, public eligibility and the eligible-for-display
+subset. Every method must return a finite positive prediction on every required row.
+
+For each method and origin, take absolute log residuals from its immediately preceding
+year's out-of-sample complete procedure. Require at least 30, and use order statistic
+`min(n, ceil((n+1)*0.8))`. Apply that radius around the new fit's log prediction, then exponentiate.
+Record the calibration year, count and radius. The changing fitted model and possible time drift
+mean these are empirical bands; no exchangeability guarantee or new prospective coverage is claimed.
+Report every year's coverage, exact binomial 95% interval and ratio-unit width, plus groups.
+
+Primary comparison is mean of the five yearly mean absolute log errors. Retain all diagnostic
+ratio/percentage/log tables, paired changes and groups. Paired resampling draws whole programs
+with replacement, keeping all their observed years together, and recomputes the equal-year
+statistic on each draw. Use exactly 10,000 attempts, seed 20260908, linear 2.5th/97.5th percentiles;
+skip and count attempts missing any evaluation year. It describes variation across observed
+programs, not a new year or uncertainty from choosing the design after inspecting outcomes.
+
+Point recommendation requires all of these fixed rules:
+
+- At least 5% lower primary error than persistence, error no greater than historical mean,
+  and ratio-unit year-balanced mean absolute error no greater than persistence.
+- The paired whole-program 95% interval's upper bound is below zero.
+- Improvement in at least four of five years; no year's mean absolute log error more than
+  10% above persistence; absolute year-balanced signed log bias at most 0.05 and absolute
+  yearly signed log bias at most 0.15.
+- Mean of yearly 90th-percentile absolute log errors no more than 1.10 times persistence's
+  equivalent summary. This is a tail summary, not a pooled 90th percentile.
+- Every earlier-volume, earlier-ratio, missingness and public-eligible group-year cell with
+  at least 30 programs has mean absolute log error at most 1.10 times persistence's. Report
+  smaller and unknown cells without using them to invent new eligibility rules.
+- The year-balanced fraction with candidate absolute log error more than 0.25 worse than
+  persistence is at most 10%. Exact unrounded differences govern this comparison.
+
+Select the passing candidate with smallest primary error; exact ties use Ridge, adjusted
+persistence, then recent-three-year Ridge. If none pass, retain persistence and state why.
+For each method separately, band recommendation requires every yearly and every named
+group-year coverage interval with at least 30 programs to include 0.80, and year-balanced
+mean ratio width no larger than persistence's. Missing required band evidence fails its gate.
+Point selection never grants band selection. Public-ineligible rows remain in the analytic
+overall summaries and are reported separately; they cannot enter a future display population.
 
 ## Future promotion policy
 
