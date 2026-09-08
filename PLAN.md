@@ -1,5 +1,10 @@
 # Kidney Acceptance Signal Monitor — Project roadmap
 
+**Next planned work:** [Plan 0025 — waiting-list viability](docs/plans/0025-waiting-list-viability.md).
+Determine, in one bounded session, whether annual registrations and removals support a useful
+insight about growing or shrinking waiting lists. The plan is prepared; the investigation has
+not started. It authorizes no new model or change to the completed studies.
+
 **Latest completed work:** [Plan 0023 — deceased-donor receipt study](docs/plans/0023-deceased-donor-receipt-study.md).
 Adding acceptance to receipt history and access reduced average error by 0.113 percentage
 points (1.27%), missing the fixed continuation rule. Development of this acceptance extension
@@ -14,9 +19,10 @@ V1 contract, and the applicable study specification/configuration for later work
 
 | Work | Status | Record |
 |---|---|---|
+| Waiting-list changes and operational interpretation | Viability plan prepared; investigation not started | [Plan 0025](docs/plans/0025-waiting-list-viability.md) |
 | Source coverage, repository cleanup and consequential review | Complete; original source-date error documented | [Plan 0022](docs/plans/0022-source-and-cleanup-audit.md) |
 | Deceased-donor transplant receipt study | Complete; fixed acceptance continuation rule failed | [Plan 0023](docs/plans/0023-deceased-donor-receipt-study.md), [results](docs/deceased_donor_receipt_results.md) |
-| Earlier candidate characteristics study | Conditional plan; unimplemented | [Plan 0024](docs/plans/0024-candidate-mix-study.md) |
+| Earlier candidate characteristics study | Deferred; unimplemented and outside the viability screen | [Plan 0024](docs/plans/0024-candidate-mix-study.md) |
 | Project presentation | Packages prepared; source-date correction and author rehearsal remain | [Current walkthrough](docs/presentation/data-walkthrough/README.md), [Plan 0020 P4](docs/plans/0020-v2-follow-up-and-interview-story.md#p4-build-the-explanation-and-interview-package) |
 
 Each proposed analysis needs its own approved specification and fixed configuration before
