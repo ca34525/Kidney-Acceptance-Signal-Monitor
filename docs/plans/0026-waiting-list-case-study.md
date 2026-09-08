@@ -1,9 +1,10 @@
 # Plan 0026 — Turn the waiting-list finding into an analytical case study
 
-**Status:** planned; analytical execution not started. **Date:** 2026-09-08.
+**Status:** C0–C3 complete. **Date:** 2026-09-08.
 **Purpose:** produce a useful, explainable portfolio case study; publication novelty is not a goal.
 **Starting point:** completed [Plan 0025](0025-waiting-list-viability.md) and its
-[recommendation](../waiting_list_viability_results.md). This request authorizes planning only.
+[recommendation](../waiting_list_viability_results.md). The subsequent request to carry out
+Plan 0026 authorizes C0–C3 and the separate output root specified below.
 
 ## Question and intended use
 
@@ -39,10 +40,10 @@ practical value look more modest, and explain that qualification plainly.
 
 | Step | Deliverable and acceptance evidence | State |
 |---|---|---|
-| C0 Fix the follow-up contract | Separate specification, typed settings, decision and trusted-input/output boundaries before new calculations | Planned |
-| C1 Explain frequency and size | Reproducible distributions for all three years, separate denominators and consistent units; synthetic tests | Planned |
-| C2 Explain actual program records | Three examples selected by the fixed rule below, with exact annual and change-in-growth accounting | Planned |
-| C3 Package the case study | Short analytical brief, up to three main figures, reusable offline program brief and a five-minute explanation outline | Planned |
+| C0 Fix the follow-up contract | Separate specification, typed settings, decision and trusted-input/output boundaries before new calculations | Complete |
+| C1 Explain frequency and size | Reproducible distributions for all three years, separate denominators and consistent units; synthetic tests | Complete |
+| C2 Explain actual program records | Three examples selected by the fixed rule below, with exact annual and change-in-growth accounting | Complete |
+| C3 Package the case study | Short analytical brief, up to three main figures, reusable offline program brief and a five-minute explanation outline | Complete |
 
 ### C0 — Establish a small separate contract
 
@@ -152,8 +153,7 @@ has meaningful tests and inspected output. Completion does not depend on another
 
 ## Verification and stopping point
 
-This planning change is documentation-only: content/link review and `git diff --check` replace
-a failing test and Python-suite run. During execution, use the plan → failing test → implementation
+The original planning change was documentation-only. During execution, use the plan → failing test → implementation
 workflow for new calculations, trusted-input/output boundaries, selection and brief behavior.
 Run the required full code checks in [AGENTS.md](../../AGENTS.md), plus an isolated offline case-study
 build, output fingerprint checks and rendered inspection. Test malformed/missing/tampered inputs,
@@ -174,3 +174,60 @@ retrieval, code/configuration change, generated output or study rerun occurred i
 Verification: independent review approved the scope and counting/selection rules. Local links,
 content and whitespace checks passed for both changed documents, including direct checks of this
 new untracked plan; `git diff --check` passed. No Python suite was rerun for these prose changes.
+
+## Execution evidence
+
+- Started from clean commit `538a914a297e1410773af1c5bb88b91a4f78c6a5`.
+- Before new calculations, fixed the [separate contract](../specs/waiting-list-case-study-0026.md),
+  [settings](../../configs/waiting_list_case_study/experiment.json) and
+  [Decision 0012](../decisions/0012-isolate-waiting-list-case-study.md). No new source or dependency.
+- Regression expectations established before implementation: synthetic signed changes (ties,
+  zero, negative, extreme, small denominator), deterministic selection under reordering and
+  exact program equations; malformed, missing, mismatched, unsafe and overwritten input/output
+  cases; escaped offline rendering and unavailable comparisons.
+- RED → GREEN: each new module initially failed its focused test collection because its API was
+  absent. Additional failing regressions reproduced duplicate completion keys, root-directory
+  redirects, replacement during file reading, provenance identity and nested revision corruption,
+  an unreconciled row incorrectly displayed as a valid equation, and omitted narrow chart labels.
+  Each was corrected and passed. Final new focused cases: 19 calculation, 36 input, 7 rendering,
+  and 22 build tests; one additional link-creation test skips on this host. Tests use synthetic
+  fixtures and isolated temporary directories; the integrated build test prohibits network/source
+  parsing and compares selected and requested briefs from the same records.
+- C0 verified the pinned completion marker and six payloads, 2,144 annual records, 1,637 comparisons,
+  169 common programs and 1,195 retained revision records. The loader validates accounting and
+  source identity without calling the workbook parser or rerunning the old continuation rule.
+- C1 reproduced 56/106, 54/114 and 58/137 growing-program increases. Full signed and increased-only
+  distributions are in the [case study](../waiting_list_case_study.md). The original headline
+  remains; the added detail shows some increases were just one event.
+- C2 fixed selections: ARUA:TX1 (43 candidates, index 21), COSL:TX1 (63, index 31), PAAG:TX1
+  (58, index 28). All six annual equations and three change-in-growth equations reconcile.
+  ARUA's list grew 56 while growth slowed 52; PAAG's list shrank despite fewer transplant removals.
+  Independent factual review checked every narrative number against the trusted records.
+- C3 delivered the analytical HTML brief, full tables/observations CSV, three SVG/PNG figures,
+  three HTML program briefs, [reproduction commands](../waiting_list_case_study_reproduction.md),
+  [five-minute outline](../waiting_list_case_study_outline.md) and updated project guide.
+  Browser screenshots inspected the complete analytical brief and both sections of every selected
+  program brief. All three PNGs were inspected, including final narrow unchanged-count labels;
+  full extremes, counts, units and source dates remain readable. HTML is the export format;
+  no printed PDF page-count claim or application change is made.
+- Final write-once run:
+  `ecf56720c3f3f0b26f68fad70f6fbe0e0c29635ecd7731499a7e9d847ecdce3e`, built
+  `2026-09-08T13:51:57.863940+00:00`, 1,098,786 bytes including its marker (18 fingerprinted
+  payloads). The first presentation-inspection run `d98fdb9bc6c0e1c4d01b4a50db28188338fe43f4d7ed904399dc7f40c95f0ea9`
+  is preserved. Distributions, selections, program JSON and observation CSV match byte-for-byte
+  between runs; only presentation/provenance changed. Final implementation hashes match the
+  working files. Original input fingerprints remain intact.
+- Full required checks passed: `uv sync --frozen`; `uv run ruff format --check .` (112 files);
+  `uv run ruff check .`; `uv run mypy src/kasm` (56 files); and the exact required pytest command
+  with four coverage roots, branch coverage and the 80% floor: **867 passed, 2 platform-dependent
+  skips**, **85.20%** coverage. The separate patient-journey coverage command passed at **85.29%**.
+- Isolated generation and verification passed with `uv run --offline python -m
+  kasm.waiting_list_case_study.build` and `--verify-run` for the final identity. Actual requested
+  ARUA:TX1 briefs succeeded for 2023, 2024 and 2025; 2022 produced an explicit unavailable brief.
+  Workspace `UV_CACHE_DIR` and `MPLCONFIGDIR` avoid host-cache write restrictions. No dependencies,
+  parser, application, container or original-study artifacts changed, so their extra rebuild/refit
+  commands were not applicable. No frozen replay, source refresh or model fit was run.
+- Content/local-link review (90 links) and `git diff --check` passed. Generated research output is
+  ignored; the proposed Git diff contains only documentation, configuration, implementation and
+  tests. No unresolved issue remains in C0–C3.
+  Application integration and any further analysis require a separate plan.

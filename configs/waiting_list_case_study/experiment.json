@@ -1,0 +1,13 @@
+{
+  "analysis_id": "waiting_list_case_study_0026_v1",
+  "schema_version": 1,
+  "years": [2023, 2024, 2025],
+  "example_year": 2025,
+  "percentile_method": "linear",
+  "selection_rule": "lower_middle_start_then_program_key",
+  "common_programs": 169,
+  "output_root": "data/research/waiting-list-case-study-0026",
+  "input_run": "ad9a92cc0d20d407ab118f6b171e24bd9182a35557f149285a36035c45106cc4",
+  "input_complete_sha256": "2b24e865f2247fe11d190f7f89b8f49aa1da530ad2756f485ff7831b00bf243e",
+  "promotion_allowed": false
+}

@@ -1,12 +1,14 @@
 # Kidney Acceptance Signal Monitor — Project roadmap
 
-**Next planned work:** [Plan 0026 — waiting-list case study](docs/plans/0026-waiting-list-case-study.md).
-Show the sizes of transplant-removal changes, explain selected programs with their actual annual
-counts, and package the result as an analytical brief with a reusable offline program brief.
-This is a descriptive portfolio case study; execution has not started. Application integration
-would be a separate later decision.
+**Latest completed work:** [Plan 0026 — waiting-list case study](docs/plans/0026-waiting-list-case-study.md).
+The original frequency finding is reproduced. Median signed transplant-removal changes among
+all growing-list programs were +2, 0 and −2 events in 2023–2025; among programs with increases,
+they were +15, +12 and +8. Three fixed examples reconcile annual growth and its change from the
+preceding year. The [case study](docs/waiting_list_case_study.md) includes offline HTML briefs,
+three figures, supporting tables and reproduction commands. C0–C3 are complete; no new execution
+plan is active. Application integration would require a separate decision.
 
-**Latest completed work:** [Plan 0025 — waiting-list viability](docs/plans/0025-waiting-list-viability.md).
+**Previously completed work:** [Plan 0025 — waiting-list viability](docs/plans/0025-waiting-list-viability.md).
 The fixed descriptive screen supports continuing this direction: 52.8%, 47.4% and 42.3% of
 eligible growing-list programs also recorded increased transplant removals in 2023–2025.
 The count, relative-size, common-program and size-group rules passed. See the
@@ -27,7 +29,7 @@ V1 contract, and the applicable study specification/configuration for later work
 
 | Work | Status | Record |
 |---|---|---|
-| Waiting-list analytical case study | Planned; distributions, worked examples and reusable program brief | [Plan 0026](docs/plans/0026-waiting-list-case-study.md) |
+| Waiting-list analytical case study | Complete; distributions, worked examples and reusable offline program briefs | [Plan 0026](docs/plans/0026-waiting-list-case-study.md), [case study](docs/waiting_list_case_study.md) |
 | Waiting-list changes and operational interpretation | Complete; fixed descriptive continuation rule passed | [Plan 0025](docs/plans/0025-waiting-list-viability.md), [recommendation](docs/waiting_list_viability_results.md) |
 | Source coverage, repository cleanup and consequential review | Complete; original source-date error documented | [Plan 0022](docs/plans/0022-source-and-cleanup-audit.md) |
 | Deceased-donor transplant receipt study | Complete; fixed acceptance continuation rule failed | [Plan 0023](docs/plans/0023-deceased-donor-receipt-study.md), [results](docs/deceased_donor_receipt_results.md) |
