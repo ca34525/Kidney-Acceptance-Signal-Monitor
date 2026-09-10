@@ -1,6 +1,17 @@
 # Kidney Acceptance Signal Monitor — Project roadmap
 
-**Current plan:** [Plan 0027 — V1 forecast improvement](docs/plans/0027-v1-forecast-improvement.md).
+**Current plan:** [Plan 0030 — V1 data dictionary](docs/plans/0030-v1-data-dictionary.md).
+Completed the [V1 data dictionary](docs/v1-data-dictionary.md): source records, historical
+signals and prediction inputs, with exact field mappings and a verified program example.
+Documentation only; study definitions and results remain unchanged.
+
+**Previously completed work:** [Plan 0029 — Interview-readiness corrections](docs/plans/0029-interview-readiness-corrections.md).
+Completed the offer-cohort definition audit, complete release validation before display,
+and presentation corrections. The original exact-bias gate is a recorded design mistake,
+retained only as historical evidence. Future model choice and deployment usefulness are separate
+decisions. See [Decision 0016](docs/decisions/0016-retire-bias-gate-and-correct-readiness.md).
+
+**Previously completed work:** [Plan 0027 — V1 forecast improvement](docs/plans/0027-v1-forecast-improvement.md).
 P0–P4 are complete. The fixed five-method retrospective comparison selects a fitted adjustment
 of the latest ratio for a future point projection: 6.90% lower average absolute log error than
 persistence, with a small 0.66% advantage over full Ridge. Its band fails the separate coverage
@@ -38,6 +49,8 @@ V1 contract, and the applicable study specification/configuration for later work
 
 | Work | Status | Record |
 |---|---|---|
+| V1 data dictionary | Complete; source fields, record meanings and a worked program example | [Plan 0030](docs/plans/0030-v1-data-dictionary.md) |
+| Interview-readiness corrections | Complete; source definitions, trusted display and current explanations corrected | [Plan 0029](docs/plans/0029-interview-readiness-corrections.md) |
 | V1 forecast improvement | Complete; fitted latest-ratio adjustment selected for a future point release, band withheld | [Plan 0027](docs/plans/0027-v1-forecast-improvement.md), [results](docs/acceptance_forecast_results.md) |
 | V1 point-projection release | Handoff defined; not started, current app retains persistence | [Plan 0028](docs/plans/0028-v1-point-projection-release.md) |
 | Waiting-list analytical case study | Complete; distributions, worked examples and reusable offline program briefs | [Plan 0026](docs/plans/0026-waiting-list-case-study.md), [case study](docs/waiting_list_case_study.md) |
@@ -45,7 +58,7 @@ V1 contract, and the applicable study specification/configuration for later work
 | Source coverage, repository cleanup and consequential review | Complete; original source-date error documented | [Plan 0022](docs/plans/0022-source-and-cleanup-audit.md) |
 | Deceased-donor transplant receipt study | Complete; fixed acceptance continuation rule failed | [Plan 0023](docs/plans/0023-deceased-donor-receipt-study.md), [results](docs/deceased_donor_receipt_results.md) |
 | Earlier candidate characteristics study | Deferred; unimplemented and outside the viability screen | [Plan 0024](docs/plans/0024-candidate-mix-study.md) |
-| Project presentation | Packages prepared; source-date correction and author rehearsal remain | [Current walkthrough](docs/presentation/data-walkthrough/README.md), [Plan 0020 P4](docs/plans/0020-v2-follow-up-and-interview-story.md#p4-build-the-explanation-and-interview-package) |
+| Project presentation | Current package corrected and rendered; 20-minute selection and author rehearsal remain | [Current walkthrough](docs/presentation/data-walkthrough/README.md), [Plan 0020 P4](docs/plans/0020-v2-follow-up-and-interview-story.md#p4-build-the-explanation-and-interview-package) |
 
 Each proposed analysis needs its own specification and fixed settings before its corresponding
 execution. Plan 0027 fixes diagnostic settings before new summaries and comparison settings

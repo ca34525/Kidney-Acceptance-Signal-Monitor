@@ -4,8 +4,8 @@ September 8, 2026. [Plan 0027](plans/0027-v1-forecast-improvement.md),
 [study contract](specs/acceptance-forecast-0027.md),
 [fixed design](decisions/0014-fix-forecast-comparison-0027.md).
 
-**Recommendation:** select the fitted adjustment of the latest published ratio for a future
-point projection, and withhold its forecast band. It reduced average absolute log error by
+**Research recommendation:** select the fitted adjustment of the latest published ratio as
+a provisional candidate, and withhold its forecast band. It reduced average absolute log error by
 6.90% versus persistence and passed every fixed point criterion. Its advantage over full Ridge
 was only 0.66%; this comparison does not establish a meaningful superiority over Ridge.
 The current application still displays persistence. The separate
@@ -14,6 +14,19 @@ The current application still displays persistence. The separate
 This is a public aggregate screening signal for quality-improvement review, not clinical or
 regulatory decision support. Every evaluated historical year had already been inspected.
 The findings are exploratory development evidence, not prospective or independent validation.
+
+**Interpretation corrected under Plan 0029:** The original exact-bias rule was a design mistake
+and is retired. This comparison's revised numerical gates remain the research choices actually
+used; passing them does not establish usefulness or authorize deployment. Source-definition
+compatibility and the intended review task need separate consideration under
+[Decision 0016](decisions/0016-retire-bias-gate-and-correct-readiness.md). The saved scores,
+settings and original recommendations retain their identity.
+
+The [source-definition audit](audits/source-definition-0029.md) establishes an offer-exclusion
+change already present in July 2025 reports and an expansion in January 2026. This affects
+the published calendar-2024 and calendar-2025 measures. The original comparison did not
+explicitly assess that boundary. Its scores describe the saved published values; neither
+the audit nor those scores establishes how much the definition changes affected performance.
 
 ## What was counted
 
@@ -152,8 +165,8 @@ published credible intervals for the current ratio and may never share a label.
 | Plan 0027 comparison v1; expanding fits through each previous year | Full Ridge and both alternatives pass revised point criteria. Select the fitted adjustment by the fixed lowest-error rule; withhold its band. |
 | Current released application | Continue persistence until the separate trusted release and offline application work is completed. |
 
-No original result was changed into a pass. The revised bias policy knowingly permits a useful
-model with greater absolute bias than persistence; its test suite includes that case. This
+No original result was changed into a pass. The fixed comparison permits a lower-error
+candidate with greater absolute bias than persistence; its test suite includes that case. This
 particular selected procedure also has lower five-year absolute signed bias than persistence.
 
 Stop this comparison here. A later unseen annual report, sustained error changes across years,

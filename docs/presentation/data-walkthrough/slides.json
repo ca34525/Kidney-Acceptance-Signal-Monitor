@@ -1,5 +1,5 @@
 {
-  "package_version": "2026-09-07",
+  "package_version": "2026-09-08",
   "banner": "Public aggregate research prototype. Not clinical or regulatory decision support.",
   "slides": [
     {
@@ -169,13 +169,14 @@
         "OAR 0.50 does not mean 50% of offers were accepted.",
         "It cannot determine whether a decline was appropriate or establish clinical quality or regulatory status."
       ],
-      "limitation": "The app uses SRTR's published ratio. Rounded public inputs may not reproduce every published digit.",
+      "limitation": "Published values remain authoritative. Changed offer definitions can also affect annual comparisons.",
       "caption": "V1: calendar-year offer cohorts, 2017–2025. Sources: SRTR offer-acceptance FAQ and technical methods.",
-      "notes": "The offer-acceptance ratio is a published, risk-adjusted program measure. SRTR's FAQ gives (acceptances + 2) / (expected acceptances + 2). Expected acceptances sum offer-level probabilities from SRTR's logistic models. This project reads that published expectation; it does not recreate the underlying offer-level model. Only acceptances resulting in completed transplants count, within SRTR's included-offer population. The algebraic +2 adjustment moves the ratio toward 1, particularly with small expected counts. In the hypothetical example, (48+2)/(98+2)=0.50. The number of offers is not the denominator, so this does not say half the offers were accepted. The 95% credible interval expresses uncertainty about the source ratio and differs from a band around a prediction. The public expected counts and ratios are rounded, so the application preserves published values and uses formula reconstruction only as a rounding-aware QA check. The measure supports a screening signal for quality-improvement review. It does not determine the appropriateness of an individual decline or establish clinical quality, causal effects or regulatory standing. Cross-year changes can reflect national practice and model changes as well as program behavior.",
+      "notes": "The offer-acceptance ratio is a published, risk-adjusted program measure. SRTR's FAQ gives (acceptances + 2) / (expected acceptances + 2). Expected acceptances sum offer-level probabilities from SRTR's logistic models. This project reads that published expectation; it does not recreate the underlying offer-level model. Only acceptances resulting in completed transplants count, within SRTR's included-offer population. The algebraic +2 adjustment moves the ratio toward 1, particularly with small expected counts. In the hypothetical example, (48+2)/(98+2)=0.50. The number of offers is not the denominator, so this does not say half the offers were accepted. The 95% credible interval expresses uncertainty about the source ratio and differs from a band around a prediction. The public expected counts and ratios are rounded, so the application preserves published values and uses formula reconstruction only as a rounding-aware QA check. The measure supports a screening signal for quality-improvement review. It does not determine the appropriateness of an individual decline or establish clinical quality, causal effects or regulatory standing. Cross-year changes can reflect national practice and model changes as well as program behavior. SRTR changed which declined offers count in July 2025 and broadened the rule in January 2026. The July 2025 pinned report for calendar 2024 used the first exclusion, based on bypass code 863. The July 2026 report for calendar 2025 follows the broader definition. These changes can affect annual ratios. The audit does not establish their quantitative effect on this study or show that they caused a model gain.",
       "sources": [
         "https://srtr.hrsa.gov/getting-started/faqs/for-transplant-center-professionals/",
         "https://srtr.hrsa.gov/transplant-professionals/program-specific-report/technical-methods-for-the-program-specific-reports/",
-        "SPEC.md"
+        "SPEC.md",
+        "docs/audits/source-definition-0029.md"
       ],
       "layout": "oar"
     },
@@ -191,16 +192,19 @@
       "right_heading": "How we evaluate",
       "right_bullets": [
         "Keep whole years together. Fit missing-value handling and scaling on training rows only.",
-        "Select using 2021–2023 outcomes. Replay fitting ends at 2023. 2024 calibrates the band.",
-        "Freeze choices before the 2025 replay. Check average error, bias and lower-volume performance."
+        "Select alpha using 2021–2023. Original replay fit ends at 2023, reserving 2024 for the band.",
+        "Compare average error, signed errors, large misses and earlier-volume groups."
       ],
-      "result": "2025 replay: Ridge cut average absolute log error by 10.13%.\nIt missed the fixed bias rule, so the app retains persistence.",
-      "caption": "V1: 2017–2025 offer cohorts. Descriptive retrospective replay. The projection is a delayed-report nowcast.",
-      "notes": "V1's product is the historical monitor. Its prediction question is whether earlier public program summaries improve on carrying the latest published ratio forward. The target is the next same-cadence calendar-year published log(OAR). Logarithms put reciprocal multiplicative changes on symmetric scales; OAR=1 maps to zero. The 17 prespecified inputs cover earlier ratios and changes, expected volume, interval width, donor groups, offer shares and missingness. Identity and location are excluded. Ridge limits coefficient size; alpha 10 was selected using 2021–2023 outcomes. Entire target years remain in temporal folds. Imputation and scaling learn only from training rows. The frozen replay model fits target years 2018–2023; held-out 2024 outcomes calibrate the separate forecast band and do not enter that fit. On 229 programs in the 2025 replay, Ridge's average absolute log error was 0.2399 versus 0.2670 for persistence, a 10.13% reduction. Its absolute mean signed log error was 0.01145 versus 0.00885, failing one required display rule. These are different error measures. Model comparisons resample whole programs. The app retains persistence and suppresses the Ridge band. This is descriptive retrospective product-selection evidence, not prospective validation. Publication lag makes the projection a delayed-report nowcast. Next, demonstrate ALUA's history, donor groups, persistence projection and the model-evaluation page.",
+      "result": "2025 replay: Ridge cut average absolute log error by 10.13%.\nThe old bias rule was mistaken. The unchanged app displays persistence.",
+      "caption": "Original retrospective replay. SRTR changed included offers in July 2025 and January 2026.",
+      "notes": "V1's product is the historical monitor. Its prediction question is whether earlier public program summaries improve on carrying the latest published ratio forward. The target is the next same-cadence calendar-year published log(OAR). Logarithms put reciprocal multiplicative changes on symmetric scales. The 17 original inputs include earlier ratios, their changes, expected volume, interval width, donor groups, offer shares and missingness. Identity and location are excluded by this study's scope. Alpha 10 was selected using 2021–2023 outcomes. Whole target years stay together, and preprocessing learns only from training rows. The original 2025 replay fits target years 2018–2023. It reserves 2024 outcomes for its empirical band. Across 229 programs, Ridge's mean absolute log error was 0.2399 versus 0.2670 for persistence, a 10.13% reduction. Its absolute mean signed log error was 0.01145 versus 0.00885. The exact-bias comparison that rejected Ridge was a design mistake: such a small difference had no demonstrated connection to the user's review task. Decision 0016 withdraws that rule from current model selection while retaining the historical calculation. The unchanged app displays persistence. The separate five-method Plan 0027 comparison selected a fitted adjustment of the latest ratio as a provisional research candidate, with 6.90% lower mean absolute log error than persistence across already-inspected 2021–2025. Its small 0.66% edge over full Ridge does not establish a meaningful advantage. Its bands remain withheld. The source audit confirms included-offer changes in July 2025 and January 2026. It does not quantify their effect on the saved model scores. These changes must inform any later deployment decision. All comparisons are retrospective, and publication lag makes the projection a delayed-report nowcast.",
       "sources": [
         "docs/model_card.md",
         "configs/frozen_experiment.yaml",
-        "SPEC.md"
+        "SPEC.md",
+        "docs/acceptance_forecast_results.md",
+        "docs/decisions/0016-retire-bias-gate-and-correct-readiness.md",
+        "docs/audits/source-definition-0029.md"
       ],
       "layout": "v1-method"
     },
@@ -246,16 +250,17 @@
         "Overall history, then donor groups",
         "2025 overall: 1.11\n95% credible interval: 0.95–1.28",
         "2026 persistence projection: 1.11",
-        "Model evaluation: why persistence remains"
+        "Model evaluation: accuracy and limits"
       ],
-      "result": "A changing screening signal invites review. These aggregates do not explain why it changed.",
+      "result": "SRTR changed offer definitions in July 2025 and January 2026, affecting annual comparability.",
       "caption": "V1 app backup. Calendar-year offers, 2017–2025. Latest source published July 7, 2026.",
-      "notes": "Switch to the V1 Program monitor and select University of Alabama Hospital (ALUA) — Birmingham, AL. This slide is a factual fallback if the app is unavailable, not a screenshot. The line shows published point estimates, without historical credible-interval bars; inspect the intervals in the app. OAR rises from 0.74 to 2.00, falls to 0.81 and ends at 1.11. In the latest donor detail, high-KDRI OAR is 0.41 (95% credible interval 0.15–0.81) and hard-to-place OAR is 0.16 (0.03–0.39). KDRI is the Kidney Donor Risk Index; the hard-to-place group overlaps the KDRI groups, so these are not additive categories. The overall ratio hides differences between groups. The projection carries 1.11 into calendar 2026. Its origin is July 7, 2026, when 51.5% of the target year has elapsed; call it a delayed-report nowcast. The current ratio's credible interval is not a future forecast band. Open Model evaluation and methodology to explain the fixed display decision. This case was chosen for a readable changing history and continuity with the workbook example, not as evidence of model performance or program quality. Transition: V1 describes acceptance; V2 asks about the later reported experience of people who were listed.",
+      "notes": "Switch to the V1 Program monitor and select University of Alabama Hospital (ALUA) — Birmingham, AL. This slide is a factual fallback if the app is unavailable, not a screenshot. The line shows published point estimates, without historical credible-interval bars; inspect the intervals in the app. OAR rises from 0.74 to 2.00, falls to 0.81 and ends at 1.11. In the latest donor detail, high-KDRI OAR is 0.41 (95% credible interval 0.15–0.81) and hard-to-place OAR is 0.16 (0.03–0.39). KDRI is the Kidney Donor Risk Index; the hard-to-place group overlaps the KDRI groups, so these are not additive categories. The overall ratio hides differences between groups. The projection carries 1.11 into calendar 2026. Its origin is July 7, 2026, when 51.5% of the target year has elapsed; call it a delayed-report nowcast. The current ratio's credible interval is not a future forecast band. Open Model evaluation and methodology to explain accuracy, the unchanged historical release and the limits of the data. The old exact-bias rule has been withdrawn. The separately selected point method remains a research candidate, and forecast bands remain withheld. The source audit confirms changes to the offer population in July 2025 and January 2026. The pinned calendar-2024 and calendar-2025 signals therefore use different stages of the exclusion rule. The audit does not establish how much of this example’s change reflects definitions or behavior. This case was chosen for a readable changing history and continuity with the workbook example, not as evidence of model performance or program quality. Transition: V1 describes acceptance; V2 asks about the later reported experience of people who were listed.",
       "sources": [
         "artifacts/release",
         "docs/model_card.md",
         "docs/presentation/data-walkthrough/README.md",
-        "app/streamlit_app.py"
+        "app/streamlit_app.py",
+        "docs/audits/source-definition-0029.md"
       ]
     },
     {
@@ -357,14 +362,16 @@
         425,
         432
       ],
-      "result": "Four non-overlapping listing groups remain in the panel, but only one Ridge evaluation period is usable.",
+      "result": "The original configuration evaluates Ridge in one period. It does not establish the archive’s limit.",
       "detail": "Predictor measurement periods must also end before the target listing group starts.",
       "caption": "Original V2. July 2022 has month-only publication precision; no day is invented.",
-      "notes": "Each row in this table summarizes a group of program records. The training pair is 1905→2205: its features were available at its earlier origin and its July 2019–June 2020 listing outcome becomes public in July 2022. The evaluation pair is 2205→2505, with July 2022–June 2023 listings and a later July 8, 2025 outcome publication. At the July 2022 evaluation origin, the earlier outcome can be used for training, while the evaluation outcome cannot. A predictor also needs its entire measurement and follow-up period to end before the new listing group begins; publication alone is insufficient. Earlier configured origins do not have an already-published qualifying training outcome, leaving one Ridge evaluation period. This does not mean there is only one program or only one report in the study. Because publication day is not verified for July 2022, do not claim prediction before the first listing that month. The 2026 outcome release switches to calendar 2023 and overlaps the preceding listing group; it cannot provide an additional non-overlapping primary test. See the cohort appendix.",
+      "notes": "Each row in this table summarizes a group of program records. The training pair is 1905→2205: its features were available at its earlier origin and its July 2019–June 2020 listing outcome becomes public in July 2022. The evaluation pair is 2205→2505, with July 2022–June 2023 listings and a later July 8, 2025 outcome publication. At the July 2022 evaluation origin, the earlier outcome can be used for training, while the evaluation outcome cannot. A predictor also needs its entire measurement and follow-up period to end before the new listing group begins; publication alone is insufficient. Earlier configured origins do not have an already-published qualifying training outcome, leaving one Ridge evaluation period in that original configuration. This does not mean there is only one program or only one report in the study. Because publication day is not verified for July 2022, do not claim prediction before the first listing that month. The original ledger incorrectly excluded the July 2026 outcome release for overlap. That report actually covers July 2023–June 2024 listings, following the previous July–June group without overlap. The separate deceased-donor receipt study subsequently evaluated that additional period with its own target and configuration. Neither additional retrospective data nor a corrected date turns inspected outcomes into untouched validation. See the cohort appendix.",
       "sources": [
         "docs/specs/patient-journey-v2.md",
         "configs/patient_journey_v2/methodology.yaml",
-        "docs/patient_journey_v2_followup_results.md"
+        "docs/patient_journey_v2_followup_results.md",
+        "docs/audits/source-feasibility-0022.md",
+        "docs/deceased_donor_receipt_results.md"
       ]
     },
     {
@@ -599,27 +606,32 @@
     {
       "layout": "columns",
       "title": "What this project established, and what comes next",
-      "intro": "The useful outcome is a defensible monitor and a clearer interpretation of the evidence",
+      "intro": "A working historical monitor and a more qualified forecasting result",
       "left_heading": "Established in this project",
       "left_bullets": [
         "A reproducible historical screening monitor using public SRTR reports.",
-        "V1: lower average Ridge error did not satisfy every fixed rule; persistence remains.",
-        "V2: much of the apparent acceptance gain depended on a weak comparator; the remaining gain is uncertain."
+        "V1: a fitted ratio adjustment cut mean absolute log error by 6.90%. It remains a research candidate.",
+        "V2: correcting a weak comparator left a small, uncertain gain from acceptance."
       ],
-      "right_heading": "The next evidence to seek",
+      "right_heading": "Before a new forecast release",
       "right_bullets": [
-        "Lock a revised design before a new compatible, non-overlapping outcome period.",
-        "Keep simple comparisons and recheck publication timing and source definitions.",
-        "For incomplete follow-up, obtain event and observation timing or adequate equivalent counts, with justified assumptions."
+        "Account for changed SRTR offer definitions when interpreting reports across years.",
+        "Test a specific analyst workflow and agree what errors would affect that task.",
+        "Keep bands withheld. Separate research model choice from a release decision."
       ],
-      "result": "A new compatible period is needed to test whether the revised approach holds up.",
-      "caption": "Future steps are proposals. No clinical or regulatory conclusions; no V2 model promotion.",
-      "notes": "Close by connecting the work to the original question: can public aggregate reports support a useful and explainable monitor, and how much additional predictive information do they provide? V1 produced a functioning historical product with a conservative, prespecified display decision. Original V2 produced an attractive comparison that became less persuasive when checked against a simpler baseline and then investigated. The follow-up narrowed the claim instead of overwriting the original evidence. The published known-functioning outcome also leaves unknown statuses unresolved. A new predictive test needs a locked design and a genuinely new compatible period. A separate investigation of follow-up needs appropriate data access, timing information or sufficient equivalent aggregates, and defensible assumptions. These are future proposals, not analyses performed by this slide build. End the main walkthrough here; the remaining slides answer optional technical questions.",
+      "result": "The app still displays persistence. A calendar-2026 outcome report is expected around mid-2027.",
+      "caption": "Completed retrospective work. Research candidate only. SRTR offer definitions changed in 2025–2026.",
+      "notes": "V1 provides a working historical monitor. Its original exact-bias selection rule was a mistake, now explicitly withdrawn. The later fixed comparison found that a fitted adjustment of the latest ratio reduced mean absolute log error by 6.90%, with modest improvement in the share of predictions close to the later published ratio. That method remains a provisional research candidate. Its comparison thresholds do not demonstrate user benefit or authorize deployment. The source audit confirms changed SRTR offer exclusions in July 2025 and January 2026. It does not quantify their contribution to the saved prediction errors. The app must check the complete artifact before display. The next release decision requires a specific analyst task and justified error tolerances. The current app retains persistence, and empirical bands remain withheld. Original V2's attractive result weakened after comparison with a simple average and removal of the report-count input. Its outcome also depends on documented follow-up. A separately completed receipt study used the corrected July 2023–June 2024 listing period and found only a 0.113-percentage-point gain from acceptance beyond history plus access, with an interval spanning worsening and improvement. The waiting-list case study separately demonstrates why list growth needs an additions-and-removals breakdown. These completed follow-ups do not create new validation or patient-level advice. Future unseen calendar-year 2026 OAR outcomes are expected around mid-2027. ",
       "sources": [
         "docs/model_card.md",
         "docs/patient_journey_v2_followup_results.md",
         "docs/patient_journey_v2_component_results.md",
-        "docs/project-guide.md"
+        "docs/project-guide.md",
+        "docs/acceptance_forecast_results.md",
+        "docs/deceased_donor_receipt_results.md",
+        "docs/waiting_list_case_study.md",
+        "docs/decisions/0016-retire-bias-gate-and-correct-readiness.md",
+        "docs/audits/source-definition-0029.md"
       ]
     },
     {
@@ -664,11 +676,11 @@
       "right_bullets": [
         "Ridge is linear regression with a penalty on large coefficients.",
         "It offers a restrained comparison when inputs overlap and time evidence is limited.",
-        "A reasonable model family still has to beat simple alternatives and satisfy the study's rules."
+        "Compare observed error with simple alternatives and inspect large misses and changes over time."
       ],
       "result": "A transformation or penalty can help fitting; it cannot repair unavailable data or an unstable input.",
       "caption": "V1: alpha 10 selected in development. Original V2: alpha 1 fixed before the comparison.",
-      "notes": "V1 predicts log(OAR); exponentiating returns a positive ratio. Symmetric log errors represent multiplicative discrepancies, which differ from absolute error in ratio units. V2 uses k=round(N×published_percentage/100), p=(k+0.5)/(N+1), then log(p/(1−p)). This is a specified modeling transform and rounding reconstruction, not a replacement published numerator. The half-count adjustment keeps p strictly between zero and one, and inverse-logit predictions remain bounded. Ridge minimizes squared training error plus alpha times the sum of squared coefficients; the evaluation metric can still be mean absolute error on the declared scale. Standardization keeps the penalty from depending arbitrarily on input units and is learned within training only. V1 chose alpha 10 using its development years. V2 fixed alpha 1 and allows no model promotion. Neither model's weights establish causal effects. The report-count issue shows that shrinkage is not a substitute for checking whether input meaning and range remain appropriate.",
+      "notes": "V1 predicts log(OAR). Exponentiating returns a positive ratio-scale point prediction, generally not the arithmetic expected OAR. Symmetric log errors represent multiplicative discrepancies, which differ from absolute error in ratio units. V2 uses k=round(N×published_percentage/100), p=(k+0.5)/(N+1), then log(p/(1−p)). This is a specified modeling transform and rounding reconstruction, not a replacement published numerator. The half-count adjustment keeps p strictly between zero and one, and inverse-logit predictions remain bounded. Ridge minimizes squared training error plus alpha times the sum of squared coefficients; the evaluation metric can still be mean absolute error on the declared scale. Standardization keeps the penalty from depending arbitrarily on input units and is learned within training only. V1 chose alpha 10 using its development years. V2 fixed alpha 1 and allows no model promotion. Neither model's weights establish causal effects. The report-count issue shows that shrinkage is not a substitute for checking whether input meaning and range remain appropriate.",
       "sources": [
         "SPEC.md",
         "docs/model_card.md",
@@ -679,53 +691,55 @@
     {
       "layout": "table",
       "appendix": true,
-      "title": "Appendix: why did V1 retain persistence?",
-      "intro": "Every point-model rule had to pass in the frozen 2025 replay (229 programs).",
+      "title": "Appendix: how large are V1 forecast errors?",
+      "intro": "Plan 0027: same 1,150 program-years in 2021–2025, with equal weight for each year.",
       "table": [
         [
-          "Fixed rule",
-          "Observed result",
-          "Decision"
+          "Error summary",
+          "Persistence",
+          "Fitted ratio adjustment"
         ],
         [
-          "At least 5% lower average absolute log error",
-          "10.13% lower",
-          "Pass"
+          "Mean absolute log error",
+          "0.31420",
+          "0.29252"
         ],
         [
-          "Paired error interval entirely below zero",
-          "Upper bound −0.01332",
-          "Pass"
+          "Mean absolute error, ratio units",
+          "0.34000",
+          "0.30872"
         ],
         [
-          "Absolute mean signed log error ≤0.05",
-          "0.01145",
-          "Pass"
+          "Mean absolute relative error",
+          "34.9%",
+          "32.3%"
         ],
         [
-          "Absolute bias no greater than persistence",
-          "0.01145 vs 0.00885",
-          "Fail"
+          "Predictions within ±25% of later ratio",
+          "52.3%",
+          "55.5%"
         ],
         [
-          "Lowest-volume error ≤1.10 × persistence; n≥30",
-          "0.3140 vs 0.3463; n=58",
-          "Pass"
+          "Absolute log errors worse than persistence",
+          "Reference",
+          "40.1%"
         ]
       ],
       "column_widths": [
-        625,
-        392,
-        180
+        620,
+        235,
+        342
       ],
       "table_font": 23,
-      "result": "The band's separate statistical gate passed, but a failed point gate prevents displaying Ridge.",
-      "detail": "Average absolute error measures error size. Absolute mean signed error measures systematic offset.",
-      "caption": "V1 frozen retrospective replay. Fixed product-selection rules; not prospective validation.",
-      "notes": "The app retains persistence because all point-model conditions were mandatory. Ridge's average absolute log error was 0.2399 versus 0.2670, but its absolute mean signed log error was 0.01145 versus 0.00885. Opposing signed errors can cancel, so this is different from average error size. Lowest-volume means the fixed quartile of expected acceptances. The paired bootstrap resampled whole programs 10,000 times. Separately, the nominal 80% band covered 187/229 outcomes (81.66%) with exact 95% interval 76.03%–86.45% and mean width 90.05% of persistence's band, satisfying its statistical rule. The point failure still suppresses the Ridge output and its band. This does not establish that persistence is clinically safer. SRTR's published 95% credible interval and an empirical forecast band describe different uncertainties and never share a label. No replay was rerun to make this deck.",
+      "result": "Provisional research candidate. The current app retains persistence and withholds forecast bands.",
+      "detail": "The 6.90% log-error gain leaves large misses. SRTR offer definitions changed during the evaluated reports.",
+      "caption": "Plan 0027 comparison v1. Percent error uses the later published ratio as denominator.",
+      "notes": "The completed five-method comparison uses identical program-year rows and gives each of the five years equal weight. It selected adjusted persistence, a Ridge fit with the latest log OAR as its only input, on the smallest mean absolute log error. The comparison includes 236 programs and 1,150 observed program-years, excluding 11 missing later reports. The numbers here come from saved results. The fitted adjustment has 6.90% lower mean absolute log error and 9.20% lower mean ratio-unit error than persistence. Its advantage over full Ridge is only 0.66%, with no configured direct comparison interval. The candidate makes individual absolute log errors worse in 40.1% of program-years. In 2022, its median relative error is 30.7% and the worst-tenth boundary is 116.6%. Relative error divides the miss by the later published ratio. It is not a percentage-point change in acceptance. No result here establishes user benefit or future-year accuracy. The original rule comparing exact absolute mean signed errors was a design mistake and has been retired. The saved original decision remains historical evidence only. Likewise, inclusion of 80% in every coverage confidence interval is not a guarantee of calibration. The candidate bands cover 77.4%, 75.2%, 92.7%, 79.5% and 85.6% across these years and remain withheld. The source audit confirms included-offer changes in July 2025 and January 2026, without establishing their quantitative effect on the model results. These source changes and an explicit analyst use case must inform a later deployment decision.",
       "sources": [
-        "docs/model_card.md",
-        "configs/frozen_experiment.yaml"
+        "docs/acceptance_forecast_results.md",
+        "docs/decisions/0016-retire-bias-gate-and-correct-readiness.md",
+        "data/research/acceptance-forecast-0027/comparison-v1/report.json",
+        "docs/audits/source-definition-0029.md"
       ]
     },
     {
@@ -832,15 +846,17 @@
         417
       ],
       "table_font": 25,
-      "result": "October 2018 is too late for its cohort. The July 2026 outcome uses calendar 2023 and overlaps the prior group.",
+      "result": "Correction: July 2026 reports July 2023–June 2024 listings. Those groups do not overlap.",
       "detail": "Baselines can use all four groups. Only the final prediction date has a qualifying public training outcome.",
-      "caption": "Original V2 ledger and fixed configuration. Month-only publication precision is preserved.",
-      "notes": "The included release pairs are 1905→2205, 2006→2305, 2105→2405 and 2205→2505. This is not a clean before-first-listing prediction design: the fixed specification allows the documented origin offset up to one calendar month. The 2020 origin falls in August, while the July 2022 source has month-only publication precision. The excluded 1808→2105 pair would use an October origin for July-start listings, exceeding that rule. The excluded 2305→2605 pair has a calendar-2023 target that overlaps January–June 2023 of the preceding July–June listing group. The primary evaluation requires reported targets, target N≥10 and prior outcome history. The eligibility audit records 966 program/listing-group records, with 47 missing targets, 48 below the primary count minimum, six without prior history and 865 eligible. Original Ridge uses one train/evaluation pair of groups because each training target also has to be public by the later prediction origin. Missing target rows remain unknown, not negative outcomes.",
+      "caption": "Original V2 configuration and corrected source audit. Additional period used in the separate receipt study.",
+      "notes": "The included release pairs are 1905→2205, 2006→2305, 2105→2405 and 2205→2505. This is not a clean before-first-listing prediction design: the fixed specification allows the documented origin offset up to one calendar month. The 2020 origin falls in August, while the July 2022 source has month-only publication precision. The excluded 1808→2105 pair would use an October origin for July-start listings, exceeding that rule. The original exclusion of 2305→2605 for an overlapping calendar-2023 target was a source-date error. The July 2026 report actually describes July 2023–June 2024 listings, with no overlap with the preceding listing group. The separate receipt study used that corrected period without changing original V2 data or results. The primary evaluation requires reported targets, target N≥10 and prior outcome history. The eligibility audit records 966 program/listing-group records, with 47 missing targets, 48 below the primary count minimum, six without prior history and 865 eligible. Original Ridge uses one train/evaluation pair among its four configured groups because each training target also has to be public by the later prediction origin. That describes the original configuration, not all possible archive history. Missing target rows remain unknown, not negative outcomes.",
       "sources": [
         "configs/data_sources.yaml",
         "configs/patient_journey_v2/methodology.yaml",
         "configs/patient_journey_v2/experiment.yaml",
-        "docs/specs/patient-journey-v2.md"
+        "docs/specs/patient-journey-v2.md",
+        "docs/audits/source-feasibility-0022.md",
+        "docs/deceased_donor_receipt_results.md"
       ]
     },
     {

@@ -110,9 +110,16 @@ good, bad, or zero.
 - The 2020 cohort reflects COVID-19 disruption.
 - Circle-based kidney allocation began 2021-03-15, within the 2021 cohort.
 - The OAR monitoring metric took effect 2023-07-27, so 2023 is mixed context; 2024–2025 are full
-  post-policy cohorts but are insufficient for a separate era model.
+  post-monitoring cohorts. This does not mean their offer definitions are constant.
+- July 2025 reports already excluded declined offers after allocation out of sequence began,
+  identified by bypass code 863. January 2026 reports broadened that identification. The pinned
+  `2505` report for calendar 2024 uses the earlier exclusion; `2605` for calendar 2025 uses the
+  expanded definition. The [source-definition audit](audits/source-definition-0029.md) binds
+  release-specific evidence and records unresolved details. The original methodology ledger
+  omitted these changes; its saved bytes remain historical evidence.
 - SRTR risk models and national practice can change. Cross-year OAR change need not reflect program
-  behavior alone.
+  behavior alone. The saved scores compare published ratios under their respective definitions;
+  their numerical accuracy does not isolate program behavior from measurement changes.
 - Program entry, closure, and type change occur. Adjacent matched transitions range from 229 to
   238 and are reconciled in `qa_report.json`.
 

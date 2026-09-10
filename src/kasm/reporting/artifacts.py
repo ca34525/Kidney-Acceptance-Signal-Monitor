@@ -786,3 +786,26 @@ def validate_release_bundle(
         total_bytes=total_bytes,
         bundle_content_sha256=recorded_bundle_hash,
     )
+
+
+def validate_application_release(processed_dir: Path, modeling_dir: Path) -> ReleaseBundleResult:
+    """Verify that both app inputs belong to one complete, fingerprinted release.
+
+    A development override selects another packaged release. It cannot bypass the
+    manifest checks or combine otherwise valid files from different release roots.
+    """
+    try:
+        processed = processed_dir.resolve()
+        modeling = modeling_dir.resolve()
+        if (
+            processed.name != "processed"
+            or modeling.name != "modeling"
+            or processed.parent != modeling.parent
+        ):
+            raise ReleaseBundleError(
+                "App inputs must be the processed and modeling folders of the same complete "
+                "release. Set KASM_ARTIFACT_DIR and KASM_MODELING_DIR to those sibling folders."
+            )
+        return validate_release_bundle(processed.parent)
+    except (OSError, RuntimeError) as exc:
+        raise ReleaseBundleError("The selected offline release cannot be read.") from exc

@@ -3,6 +3,10 @@
 This guide explains the completed studies and the current forecast-improvement plan.
 Precise equations, field names and methods remain in the linked specifications and code.
 
+For a first V1 walkthrough, start with the [V1 data dictionary](v1-data-dictionary.md).
+It follows an actual program's source row into the historical table and next-year prediction
+inputs, with field meanings, dates, units and missing-value rules.
+
 ## What V1 and V2 do
 
 V1 helps a kidney transplant program review its published offer-acceptance history. The published
@@ -22,8 +26,9 @@ acceptance decision.
 
 | Work | Current state | Detailed record |
 |---|---|---|
-| V1 acceptance monitor | Released; carries the latest ratio forward because Ridge missed a frozen promotion rule | [V1 model card](model_card.md) |
-| V1 forecast improvement | Complete; fitted latest-ratio adjustment selected for a future point release, band withheld | [Plan 0027](plans/0027-v1-forecast-improvement.md), [results](acceptance_forecast_results.md) |
+| V1 acceptance monitor | Released historical monitor with persistence; original exact-bias rule retired as a design mistake | [V1 model card](model_card.md) |
+| V1 forecast improvement | Complete research comparison; fitted latest-ratio adjustment is provisional, band withheld | [Plan 0027](plans/0027-v1-forecast-improvement.md), [results](acceptance_forecast_results.md) |
+| Interview-readiness corrections | Source-definition audit, trusted loading and corrected explanations | [Plan 0029](plans/0029-interview-readiness-corrections.md) |
 | Original V2 patient-journey study | Completed exploratory study; no model promoted and no future forecast displayed | [V2 model card](patient_journey_v2_model_card.md) |
 | V2 follow-up | Report-count comparison and matched outcome-component analysis complete | [Report-count results](patient_journey_v2_followup_results.md), [component results](patient_journey_v2_component_results.md) |
 | Deceased-donor receipt study | Complete; acceptance added too little improvement to continue under the fixed rule | [Receipt results](deceased_donor_receipt_results.md) |
@@ -70,25 +75,32 @@ receipt, not survival, graft function or a patient's chance of receiving a trans
 ## Improving V1 forecasts
 
 The original Ridge model predicted the next published annual acceptance ratio with 10.13% lower
-average absolute log error than persistence in the 2025 replay. It was not promoted because its
-absolute average signed log error was 0.01145 versus persistence's 0.00885. That exact comparison
-was the only failed point-promotion criterion. The original configuration, results and product
-decision remain preserved; the current application still displays persistence.
+average absolute log error than persistence in the 2025 replay. An exact comparison of small
+mean signed errors blocked its original display. That rule was a design mistake: it had no
+demonstrated connection to usefulness and is retired. The original numerical evidence remains
+in the model card. The current application still displays its historical persistence reference.
 
 [Plan 0027](plans/0027-v1-forecast-improvement.md) is complete. The saved Ridge forecasts typically
 missed by about 19%–32% of the published ratio across years, and their largest tenth of errors
 were much larger. The fixed follow-up compared persistence, historical mean, full Ridge, Ridge
 with three recent training years, and a simple fitted adjustment of the latest ratio.
 
-The fitted adjustment had 6.90% lower average absolute log error than persistence and met the
-[revised policy](specs/acceptance-forecast-0027.md). It is recommended for a future point release,
+The fitted adjustment had 6.90% lower average absolute log error than persistence in the fixed
+[research comparison](specs/acceptance-forecast-0027.md). It is the provisional research candidate,
 with its band withheld because coverage varied across years and groups. Its advantage over full
 Ridge was small (0.66%), and it worsened individual errors about 40% of the time. The
 [complete results](acceptance_forecast_results.md) explain the units, comparisons and limits.
 
-This remains exploratory retrospective evidence. The current app retains persistence until
-the separate [Plan 0028 handoff](plans/0028-v1-point-projection-release.md) is implemented. The
-original V1 decision and original V2 prohibition on promotion remain intact.
+This remains exploratory retrospective evidence. The comparison's thresholds do not establish
+user benefit or automatically authorize deployment. [Decision 0016](decisions/0016-retire-bias-gate-and-correct-readiness.md)
+requires source-definition review and a reasoned intended-use decision before the separate
+[Plan 0028 handoff](plans/0028-v1-point-projection-release.md). Original V2 remains exploratory.
+
+The [source-definition audit](audits/source-definition-0029.md) found that July 2025 reports
+already excluded declined offers after allocation out of sequence began, and January 2026
+broadened how that start was identified. These rules affect the calendar-2024 and calendar-2025
+published ratios. The original ledger omitted them. The scores still describe the saved
+published values; they cannot tell us how much a definition change contributed to a difference.
 
 ## First investigation: is the comparison model being misled by report count?
 

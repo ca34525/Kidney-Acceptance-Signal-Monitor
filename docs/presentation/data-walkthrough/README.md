@@ -1,16 +1,27 @@
 # Project walkthrough
 
-> **Correction for the next presentation revision, 2026-09-07:** The cohort appendix and its
-> notes incorrectly say that the July 2026 report uses calendar 2023 and overlaps the prior
-> group. It uses **July 2023–June 2024** listings. Say: “The original design evaluated one fitted
-> period; a source audit identified an additional historical period to investigate.” The
-> [source audit](../../audits/source-feasibility-0022.md) records the evidence. The slide source,
-> PowerPoints and build metadata are preserved in this audit session; correct and rebuild the
-> presentation package before using the affected material.
-
 [Open the complete PowerPoint](data-walkthrough-with-introduction.pptx): **19 main slides and six optional reference
-slides**, with editable charts/tables and speaking notes. This pass has no time limit. Slides 2-7 preserve the author's approved data, QA and V1 sequence.
-The updated deck has a separate filename because the previous PowerPoint is open and locked.
+slides**, with editable charts/tables and speaking notes. This is the current corrected package.
+It preserves the author's approved sequence and visual design. Selecting and timing a shorter
+20-minute interview edition, the author's spoken rehearsal and presentation-machine checks
+remain separate work.
+
+For personal study alongside slides 2–8 and 21–22, read the
+[V1 data dictionary](../../v1-data-dictionary.md). Start with its actual ALUA source record
+and input–outcome pair, then use the field tables as a reference. Its acceptance records
+are separate from the V2 Table B7 example shown at the start of this deck.
+
+The September 8 correction fixes July 2026 Table B7 to **July 2023–June 2024** listings, recognizes
+the completed additional-period receipt study, and replaces the obsolete bias-rule appendix
+with actual forecast errors. The original exact-bias rule was a design mistake. Current slides
+also identify SRTR's changed included-offer definitions in July 2025 and January 2026. See the
+[listing-date audit](../../audits/source-feasibility-0022.md),
+[offer-definition audit](../../audits/source-definition-0029.md), and
+[current interpretation](../../decisions/0016-retire-bias-gate-and-correct-readiness.md).
+
+The earlier [walkthrough without the introduction](data-walkthrough.pptx) and its
+[provenance](package-provenance.json) are historical and superseded. They retain obsolete
+statements. [Other historical presentation packages](../README.md) are also outside current use.
 
 ## Principles inferred from the author's walkthrough
 
@@ -18,7 +29,7 @@ The updated deck has a separate filename because the previous PowerPoint is open
 2. Let natural questions drive the order, including why simpler approaches are insufficient.
 3. Pair an overview with a concrete row, calculation, chart, result or app demonstration.
 4. Keep useful math explainable in ordinary language; label hypothetical examples clearly.
-5. Judge models against simple alternatives and the rules fixed for their study.
+5. Compare models with simple alternatives and explain the errors that matter to the task.
 6. Reuse ALUA to connect the workbook, app and outcome discussion, without treating it as
    representative or as evidence of clinical quality.
 7. Distinguish original findings, later investigation, uncertain conclusions and proposed work.
@@ -36,8 +47,8 @@ The updated deck has a separate filename because the previous PowerPoint is open
 | 9-12 | What does V2 ask, count and compare, and what was public when? |
 | 13-15 | Why was the initial result attractive, and what changed after investigation? |
 | 16-17 | What does known functioning mean for interpreting the outcome? |
-| 18-19 | How is evidence delivered, what was established, and what comes next? |
-| 20-25 | CSVs, transforms/Ridge, V1 rules, all V2 errors, cohorts and unknown follow-up |
+| 18-19 | How is evidence delivered, and what remains before a new forecast release? |
+| 20-25 | CSVs, transforms/Ridge, V1 errors, all V2 errors, corrected cohorts and unknown follow-up |
 
 The workbook example shows four named columns from July 2025 Table B7, Excel rows 3-5 after its
 two header rows. It is a schema illustration. The QA example compares source-order program keys
@@ -56,10 +67,13 @@ Slide 8 provides a static history chart if the app is unavailable.
    hard-to-place OAR is 0.16 (0.03-0.39). Hard-to-place overlaps KDRI groups; they cannot be summed.
 3. Show **Next-calendar-year PSR projection**. Persistence carries 1.11 into calendar 2026.
    The origin is July 7, 2026, with 51.5% of the year elapsed: a delayed-report nowcast.
-4. Open **Model evaluation and methodology**. The fixed bias rule explains why the app retains
-   persistence and suppresses the Ridge band. The decision uses the full evaluation population.
+4. Open **Model evaluation and methodology**. Explain actual errors, the unchanged historical
+   app, and source-definition limits. The later fitted adjustment remains a research candidate,
+   with bands withheld. The old exact-bias rule is withdrawn.
 
-ALUA is illustrative; it cannot explain why the signal changed or diagnose care. V2 slides compare
+SRTR changed which offers count in July 2025 and January 2026. The audit establishes those
+definitions but does not quantify their effect on these scores. ALUA is illustrative and cannot
+explain why the signal changed or diagnose care. V2 slides compare
 all models on the same 218 programs. The original V2 app's baseline summaries span more periods
 and should not be compared directly with its one-period Ridge results. The later follow-up does
 not replace the original app's evidence.
@@ -86,12 +100,13 @@ contains the PowerPoint and provenance, with slide PNGs and validation outside i
 refuses an existing directory and does not overwrite the checked-in deck. PPTX metadata and
 object IDs may vary between builds; displayed content is reproducible.
 
-All 25 final slides are rendered and inspected. Content, editable evidence, package structure,
-layout and the six required repository checks pass. The artifact renderer emits the inherited
-Helvetica Neue embedded-font decode warning; rendered text remains legible. Native PowerPoint
-rendering and fonts still need checking on the presentation machine during the author's rehearsal.
+The presentation finalizer checks slide count, package integrity, geometry and editable tables
+and charts. Rendered inspection covers all 25 final slides. The artifact renderer emits an
+inherited Helvetica Neue embedded-font decode warning, so native PowerPoint rendering and fonts
+still require checking on the presentation machine. The build does not perform model fitting or
+scientific validation. The [active plan](../../plans/0029-interview-readiness-corrections.md)
+records this correction's verification separately from application checks.
 
-The author's complete walkthrough remains pending. These completion changes stay uncommitted;
-the author will decide when to make the single eventual presentation commit.
+The author's complete walkthrough and timed rehearsal remain pending.
 
 Public aggregate research prototype. Not clinical or regulatory decision support.
