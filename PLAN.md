@@ -1,6 +1,13 @@
 # Kidney Acceptance Signal Monitor — Project roadmap
 
-**Current plan:** [Plan 0030 — V1 data dictionary](docs/plans/0030-v1-data-dictionary.md).
+**Current plan:** [Plan 0031 — Program prediction sprint](docs/plans/0031-program-prediction-sprint.md).
+Planning complete on `codex/program-prediction-sprint`; implementation has not started.
+The initial screen crosses five annual targets with four pipelines, then examines whether
+the strongest candidates can improve a limited review decision. See the
+[study specification](docs/specs/program-prediction-sprint-0031.md) and
+[Decision 0017](docs/decisions/0017-broaden-program-prediction-research.md).
+
+**Previously completed work:** [Plan 0030 — V1 data dictionary](docs/plans/0030-v1-data-dictionary.md).
 Completed the [V1 data dictionary](docs/v1-data-dictionary.md): source records, historical
 signals and prediction inputs, with exact field mappings and a verified program example.
 Documentation only; study definitions and results remain unchanged.
@@ -49,6 +56,7 @@ V1 contract, and the applicable study specification/configuration for later work
 
 | Work | Status | Record |
 |---|---|---|
+| Broad program prediction sprint | Plan complete; 20 initial experiments and decision comparison specified, no fits yet | [Plan 0031](docs/plans/0031-program-prediction-sprint.md) |
 | V1 data dictionary | Complete; source fields, record meanings and a worked program example | [Plan 0030](docs/plans/0030-v1-data-dictionary.md) |
 | Interview-readiness corrections | Complete; source definitions, trusted display and current explanations corrected | [Plan 0029](docs/plans/0029-interview-readiness-corrections.md) |
 | V1 forecast improvement | Complete; fitted latest-ratio adjustment selected for a future point release, band withheld | [Plan 0027](docs/plans/0027-v1-forecast-improvement.md), [results](docs/acceptance_forecast_results.md) |

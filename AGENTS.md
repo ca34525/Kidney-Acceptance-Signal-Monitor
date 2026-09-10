@@ -27,6 +27,7 @@ Choose the study contract before selecting implementation rules:
 
 | Work | Specification and configuration |
 |---|---|
+| Plan 0031 exploratory program prediction sprint | `docs/specs/program-prediction-sprint-0031.md`; typed settings under `configs/program_prediction/` before fitting; five targets and four initial pipelines, with versioned exploratory follow-ups and separate ignored research output |
 | V1 acceptance monitor | `SPEC.md`; `configs/experiment.yaml` and `configs/frozen_experiment.yaml` |
 | Plan 0027 V1 forecast improvement | `docs/specs/acceptance-forecast-0027.md`; separate typed diagnostic/comparison settings under `configs/acceptance_forecast/` must exist before the corresponding execution; original frozen evidence stays intact |
 | Original V2 patient-journey study | `docs/specs/patient-journey-v2.md`; `configs/patient_journey_v2/experiment.yaml` and its methodology ledger |
