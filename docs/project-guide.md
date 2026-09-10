@@ -1,6 +1,6 @@
 # Understanding the project
 
-This guide explains the completed studies and the current forecast-improvement plan.
+This guide explains the completed studies and the current research findings.
 Precise equations, field names and methods remain in the linked specifications and code.
 
 For a first V1 walkthrough, start with the [V1 data dictionary](v1-data-dictionary.md).
@@ -26,6 +26,7 @@ acceptance decision.
 
 | Work | Current state | Detailed record |
 |---|---|---|
+| Program prediction sprint | Complete; adapted registration-demand queue is promising, but its gain over simple review remains uncertain | [Sprint findings](program_prediction_results.md), [complete results](program_prediction_reproduction.md) |
 | V1 acceptance monitor | Released historical monitor with persistence; original exact-bias rule retired as a design mistake | [V1 model card](model_card.md) |
 | V1 forecast improvement | Complete research comparison; fitted latest-ratio adjustment is provisional, band withheld | [Plan 0027](plans/0027-v1-forecast-improvement.md), [results](acceptance_forecast_results.md) |
 | Interview-readiness corrections | Source-definition audit, trusted loading and corrected explanations | [Plan 0029](plans/0029-interview-readiness-corrections.md) |
@@ -34,6 +35,13 @@ acceptance decision.
 | Deceased-donor receipt study | Complete; acceptance added too little improvement to continue under the fixed rule | [Receipt results](deceased_donor_receipt_results.md) |
 | Waiting-list viability screen | Complete; growing lists commonly coexist with more transplant removals, passing the fixed descriptive rules | [Waiting-list recommendation](waiting_list_viability_results.md) |
 | Waiting-list case study | Complete; signed change distributions, three fixed program examples and reusable offline briefs | [Case study](waiting_list_case_study.md), [reproduction](waiting_list_case_study_reproduction.md) |
+
+The completed prediction sprint compares five annual outcomes across four pipelines and all
+simple baselines. Its strongest lead uses earlier registration and activity reports to focus
+demand review: at 25 reviews, the adapted model captured 38.7% and 30.6% of observed growth
+in 2024/2025, versus 30.1% and 27.2% for reviewing the largest programs. This is uncertain,
+hindsight-selected historical evidence, with worse discovery and small-program accuracy.
+The original shortlist's count-error gains did not persist. The application remains unchanged.
 
 The original V2 results remain available. The follow-up has its own specification, configuration,
 results and provenance; it does not overwrite the earlier study.

@@ -1,6 +1,6 @@
 # Plan 0031 — Find useful program predictions through a short experiment sprint
 
-**Status:** execution authorized; P0–P4 in progress.
+**Status:** P0–P4 complete, including both focused follow-up rounds.
 **Branch:** `codex/program-prediction-sprint`, based on `cta/main` at `0f1a2cc`.
 **Authorization:** on September 9, 2026, the user authorized implementation and execution of
 P0–P4, all initial fits, historical evaluations, local outputs and up to two documented
@@ -8,6 +8,8 @@ follow-up rounds. This supersedes the original planning-only status. Local miles
 are authorized; pushing, merging and rewriting history are not.
 **Study specification:** [program prediction sprint](../specs/program-prediction-sprint-0031.md).
 **Decision:** [0017](../decisions/0017-broaden-program-prediction-research.md).
+**Findings:** [completed report](../program_prediction_results.md) and
+[all results, revisions and reproduction commands](../program_prediction_reproduction.md).
 
 ## Purpose and intended result
 
@@ -80,14 +82,10 @@ panel construction, fitting/evaluation and reporting. Add a CLI group in `src/ka
 Use installed scikit-learn models; no new package is planned. Do not route this study through
 the old frozen-replay command or call the fixed descriptive build as if it created forecast pairs.
 
-Proposed commands below are **not implemented yet**; document final working commands in P4:
-
-```text
-uv run kasm program-prediction build --config configs/program_prediction/experiment.json
-uv run kasm program-prediction screen --config configs/program_prediction/experiment.json
-uv run kasm program-prediction assess --config configs/program_prediction/experiment.json
-uv run kasm program-prediction report --run-dir data/research/program-prediction-0031/<run-id>
-```
+The implemented commands are `build`, `screen`, `shortlist`, `assess`, `report` and
+`reassess`. Each uses an explicit write-once run ID; dependent stages name their saved inputs.
+The [reproduction record](../program_prediction_reproduction.md#exact-executed-commands)
+contains the exact successful commands and instructions for distinct audit identities.
 
 ## Outputs and verification
 
@@ -149,7 +147,7 @@ failing-test-first and executable verification requirements above.
   scientific defect. The spec now states the exact transformed-history mean/change convention,
   ordinary least-squares OAR adjustment and shared random seeds across feature-removal rounds.
   Ineligible records live in the panel/exclusion ledger, outside prediction-only denominators.
-- First full verification: 1,048 tests passed, two environment-dependent smoke tests skipped;
+- First full verification: 1,048 tests passed, two host-restricted symlink tests skipped;
   combined branch coverage 86.06%. Ruff lint and all 74 typed modules passed. Applied the
   required CLI formatting correction and rechecked formatting. A later independent report
   review found partial-coverage plotting and run-lineage gaps before any recorded fit.
@@ -199,6 +197,44 @@ failing-test-first and executable verification requirements above.
   actual initial/first-follow-up ancestry, source feature omission, preserved simple comparator,
   both periods and complete method records. The CLI test failed before command registration.
   No additional model fit or tuning is part of this second round.
+- Round 2 completed at clean revision `b301cb4` as `followup-2-review`. Registration Ridge
+  without OAR captures 38.69%/30.65% of observed growth at 25 reviews in 2024/2025, versus
+  30.08%/27.21% for largest-latest-count review. False alarms are 4/25 and 5/25 versus
+  11/25 and 10/25. The average capture advantage is 6.02 percentage points, with descriptive
+  whole-program interval −6.24 to +17.41. It loses at budget 10 in 2025, has worse discovery
+  errors and worsens the smallest earlier-list group. This is the strongest research lead,
+  not established superiority, independent confirmation or permission to deploy.
+- P4 completed: the findings report gives all initial comparisons, both follow-ups, three
+  main figures plus the adapted review figure, anonymous worked cases, unknown-outcome
+  denominators, group/tail limits and an intended analyst decision. Every figure was rendered
+  and visually checked. The reproduction record links all nine immutable runs; all were
+  published from committed settings/code with a clean working tree. Initial and Round 1
+  results total 215 procedure/year records and 125 fitted models; no model failures occurred.
+- Independent final scientific review recomputed all 215 method/year errors and 96 full
+  deterministic review queues, checked all 9,013 initial/follow-up panel rows and all 125
+  fitted training universes against publication bounds, and verified every payload/parent
+  fingerprint. All agreed with saved evidence; no material issue remained. Failed predictions
+  of practical improvement, ineligible records and missing future outcomes remain available.
+- Final executable verification at `b301cb4`: `uv sync --frozen` checked 74 packages;
+  Ruff format checked all 145 files, Ruff lint passed, and `uv run python -m mypy src/kasm`
+  passed all 75 modules. The full suite passed 1,069 tests, with two existing symlink tests
+  skipped because the host cannot create those links. Combined branch-enabled coverage is
+  86.02%; separate gates passed at 85.29% for patient journey and 90.37% for the new package.
+  An initial attempt using `.test-tmp/final-full` caused 15 Windows path-length failures in
+  existing artifact fixtures; rerunning with the repository's shorter default `.test-tmp`
+  passed without code changes. No live frozen replay was run.
+- Final changes after executable verification are documentation only; the test-first exception
+  applies. Independent report content review passed; 199 local Markdown/HTML links have no
+  missing targets, and `git diff --check` passed before the documentation commit.
+  A path-scoped Git diff confirms no change to existing application/release artifacts,
+  frozen/source configurations or original data/model/reporting/patient-journey modules.
+  No dependency or container change warrants a Docker build. No push, merge or history rewrite.
+- Remaining limitations and next choice: two inspected later years cannot establish future
+  review utility; queue bootstrap intervals hold historical selections fixed and omit
+  selection/new-year uncertainty. Optional candidate inputs remain unbound. A separate next
+  study should predeclare the no-OAR registration model against simple queues on an uninspected
+  release and establish whether analysts learn anything beyond fresher internal information.
+  The sprint's two-round allowance is exhausted; no additional experiment remains in P0–P4.
 
 ## Planning evidence
 
