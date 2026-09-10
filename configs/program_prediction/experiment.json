@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "study_id": "program-prediction-0031",
+  "round_id": "initial",
+  "question": "Which annual prediction could help allocate limited review time?",
+  "parent_run": null,
+  "targets": [
+    "registrations",
+    "ddkt_removals",
+    "ldkt_removals",
+    "ending_list",
+    "overall_oar"
+  ],
+  "pipelines": [
+    "ridge_history",
+    "ridge_broader",
+    "boosting_broader",
+    "extra_trees_broader"
+  ],
+  "discovery_years": [
+    2021,
+    2022,
+    2023
+  ],
+  "later_years": [
+    2024,
+    2025
+  ],
+  "seed": 20260909,
+  "bootstrap_resamples": 2000,
+  "budgets": [
+    10,
+    15,
+    25
+  ],
+  "omit_oar_features": false,
+  "candidate_features": "omit_without_release_period_and_denominator_binding",
+  "ridge_alpha": 10.0,
+  "boosting_iterations": 150,
+  "boosting_learning_rate": 0.05,
+  "boosting_max_leaf_nodes": 7,
+  "boosting_min_samples_leaf": 20,
+  "boosting_l2_regularization": 1.0,
+  "boosting_early_stopping": false,
+  "extra_trees_estimators": 300,
+  "extra_trees_max_depth": 6,
+  "extra_trees_min_samples_leaf": 8,
+  "extra_trees_max_features": 1.0,
+  "primary_summary": "equal_year_mean_of_equal_program_absolute_error",
+  "count_fit_transform": "log1p",
+  "oar_fit_transform": "log",
+  "feature_vintage": "latest_public_vintage_per_past_year_global_across_programs",
+  "truth_vintage": "earliest_verified_vintage_per_target_year_global_across_programs",
+  "output_root": "data/research/program-prediction-0031",
+  "promotion_allowed": false
+}

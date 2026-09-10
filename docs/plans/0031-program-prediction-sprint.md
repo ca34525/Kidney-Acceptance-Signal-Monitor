@@ -115,11 +115,33 @@ failing-test-first and executable verification requirements above.
   than duplicating it. This authorization update is documentation only and needs no new test.
 - P0/P1 expected evidence: strict settings, release-specific rows, cutoff and vintage fixtures,
   preserved missing targets, and source/feature/fold ledgers from the verified cache.
+- Clarified earliest-release membership as unknown prior history, not observed program entry;
+  retain latest-valid initial programs to preserve the specified earliest training pairs.
+  Later first-observed identities are retained separately. Specification and Decision 0017
+  record this interpretation before fitting.
 - P2 expected evidence: train-only preprocessing and baseline fixtures, finite predictions or
   explicit failures, every discovery combination, matched-row metrics and a saved shortlist.
 - P3/P4 expected evidence: later scoring requires that saved shortlist; hand-worked equal-year
   error and review-queue fixtures preserve unknown outcomes and whole-program resampling;
   complete runs, figures, report, reproduction and full verification follow.
+- Environment preflight: `uv sync --frozen` checked 74 packages; `uv run kasm data
+  verify-cache` verified all nine sources with no issues. Set `UV_CACHE_DIR=.uv-cache`
+  and `MPLCONFIGDIR=.test-tmp/matplotlib` within this workspace. Windows Application
+  Control blocks the `mypy` launcher; use equivalent `uv run python -m mypy`.
+- Run storage and command regressions failed first with missing-module errors, then all
+  16 focused checks passed. They exercise write-once stages, content-hash verification,
+  unsafe paths/redirects, missing records, discovery coverage and the required shortlist
+  argument before later scoring. Focused Ruff checks passed.
+- P0/P1 implemented: strict initial settings and documented follow-up settings; diagnostic
+  panel has 7,585 rows, 30 explicit features, 3,326 B1 source records and 10,515 OAR stratum
+  records. All seven supported B1 releases retain both vintages. Candidate headers are
+  present, but origin-period/denominator binding is incomplete; omit that optional block.
+  Initial-release history is labeled unknown; later entries stay outside main evaluation.
+  No clean-accounting or positive-start restriction is imported from Plan 0025.
+- P0/P1 tests: 24 passed after initial missing-module failures and specific duplicate-key and
+  follow-up-subset failures. Config/panel branch coverage is 98%; focused Ruff and mypy
+  pass. Negative fixtures cover manifest/ledger drift, duplicates, invalid publication,
+  already-public targets, global vintage choice, gaps, entry, null versus zero and OAR omission.
 
 ## Planning evidence
 

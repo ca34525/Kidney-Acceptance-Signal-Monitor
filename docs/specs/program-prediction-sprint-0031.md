@@ -19,6 +19,13 @@ target. Evaluate established programs with a reported latest target-history valu
 report first-observed/insufficient-history cases separately. Do not require a program to exist
 in every future year to enter an earlier fold.
 
+An identity present in the earliest verified release has unknown earlier history, rather than
+an observed entry date. Retain these initial programs with a `left_censored_history` label
+when their latest value is valid; this preserves the specified earliest training pairs.
+`first_observed` identifies a program newly appearing after that source family's initial
+release. Exclude those entry cases from the main evaluation and retain them separately.
+Neither history-status label is a predictor.
+
 | Target ID | Source field | Units and interpretation | Primary loss |
 |---|---|---|---|
 | `registrations` | B1 `WLA_ADDCEN_NC1` / `_NC2` | Registration events during the year | Mean absolute error in events |

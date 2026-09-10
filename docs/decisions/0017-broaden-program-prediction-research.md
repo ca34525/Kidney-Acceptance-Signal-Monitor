@@ -9,6 +9,11 @@ fits and historical evaluations, local research outputs, and up to two documente
 rounds. This supersedes the planning-only boundary below; the study and application safeguards
 remain in force.
 
+Implementation interpretation: membership in the earliest verified release cannot establish
+when a program began. Label its earlier history as unknown and retain latest-valid examples,
+including the specified OAR 2017→2018 pair. Later newly appearing composite identities are
+first-observed cases, retained outside the main evaluation. Neither label enters the models.
+
 The next research question covers five annual program outcomes and several simple/nonlinear
 models. Acceptance is one target and one optional feature block, not the required explanation
 for every outcome. The initial 20 experiments use shared code and a complete results ledger;
