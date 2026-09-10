@@ -142,6 +142,21 @@ failing-test-first and executable verification requirements above.
   follow-up-subset failures. Config/panel branch coverage is 98%; focused Ruff and mypy
   pass. Negative fixtures cover manifest/ledger drift, duplicates, invalid publication,
   already-public targets, global vintage choice, gaps, entry, null versus zero and OAR omission.
+- P2/P3 implementation: all specified procedures and fold-local preprocessing are implemented;
+  15 model tests pass (86.17% branch coverage), and 16 error/decision tests pass (89%).
+  Each suite failed first before its implementation. Focused Ruff and mypy pass. Independent
+  reviews checked panel/model timing and error/queue arithmetic without finding a blocking
+  scientific defect. The spec now states the exact transformed-history mean/change convention,
+  ordinary least-squares OAR adjustment and shared random seeds across feature-removal rounds.
+  Ineligible records live in the panel/exclusion ledger, outside prediction-only denominators.
+- First full verification: 1,048 tests passed, two environment-dependent smoke tests skipped;
+  combined branch coverage 86.06%. Ruff lint and all 74 typed modules passed. Applied the
+  required CLI formatting correction and rechecked formatting. A later independent report
+  review found partial-coverage plotting and run-lineage gaps before any recorded fit.
+  Regressions reproduced both defects, plus unchecked parent fingerprints; fixes suppress
+  incomplete plot points, validate actual discovery/panel/follow-up ancestry and fingerprints,
+  and compare settings/code/revision before and after execution. All 21 root integration,
+  publication and report checks now pass. Full checks will run again on the final code.
 
 ## Planning evidence
 

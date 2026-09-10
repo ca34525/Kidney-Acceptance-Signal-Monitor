@@ -90,6 +90,14 @@ History block: latest target value, previous calendar-year value if public, the 
 three available years, and the last consecutive-year change. Preserve gaps. Do not use the
 number of earlier reports, identity, geography, future availability or target-period components.
 
+Pre-run transform convention: the fitted history block uses log1p for counts and log for
+OAR. Its mean is the average of up to three separately transformed annual values; its change
+is the difference between transformed consecutive-year values. Baseline count arithmetic
+remains in original units, and baseline OAR arithmetic remains in log units as specified below.
+The fitted OAR intercept/slope reference uses ordinary least squares on earlier available
+log-OAR pairs. Randomized methods reuse their target/year/model seed across feature-removal
+rounds so that the comparison does not also change random initialization.
+
 Broader block: history plus earlier B1 starting/ending list, additions and separate removals;
 earlier overall/subgroup OAR, offers and expected acceptances; and a small candidate-mix block
 when supported. Use appropriate log/log1p transforms for nonnegative scales; preserve missing

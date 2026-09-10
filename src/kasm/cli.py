@@ -48,6 +48,9 @@ def build_parser() -> argparse.ArgumentParser:
     """Build the command parser."""
     parser = argparse.ArgumentParser(prog="kasm")
     commands = parser.add_subparsers(dest="command", required=True)
+    from kasm.program_prediction.commands import add_parser
+
+    add_parser(commands)
     forecast = commands.add_parser("acceptance-forecast")
     forecast_commands = forecast.add_subparsers(dest="forecast_command", required=True)
     for name, config_name in (("diagnose", "diagnostics"), ("compare", "comparison")):
@@ -334,6 +337,10 @@ def _run_patient_journey_command(args: argparse.Namespace) -> int:
 def main(argv: Sequence[str] | None = None) -> int:
     """Run a command and return a process exit code."""
     args = build_parser().parse_args(argv)
+    if args.command == "program-prediction":
+        from kasm.program_prediction.commands import run_command as run_prediction
+
+        return run_prediction(args)
     if args.command == "acceptance-forecast":
         from kasm.acceptance_forecast.commands import run_command
 
