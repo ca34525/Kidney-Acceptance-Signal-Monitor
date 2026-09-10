@@ -1,0 +1,27 @@
+{
+  "discovery_run": "initial-discovery",
+  "discovery_revision": "a4a394fb521617f4e5680d059754dae4347a81cd",
+  "saved_before_later_scoring": true,
+  "interpretation": "Exploratory choices, not a claim of established utility or selection-adjusted validation.",
+  "questions": [
+    {
+      "target": "ddkt_removals",
+      "model": "ridge_history",
+      "direction": "decline",
+      "question": "Can a prediction based on earlier DDKT removal counts help an analyst prioritize review of declining reported activity at budgets of 10, 15 or 25 programs?",
+      "rationale": "Discovery mean annual absolute error was 16.352 events versus 16.809 for persistence, a 0.457-event (2.72%) reduction. It improved in all three years and still improved without the one-training-cohort 2021 fold. The descriptive whole-program error-difference interval was [-0.817, -0.103] events. The 90th-percentile absolute error was essentially unchanged at about 41.94 events, so this small accuracy gain does not establish review utility. Compare selected observed declines with last change, latest count and random review, retaining unknown outcomes and all-zero persistence ties. History-only Ridge uses no OAR features."
+    },
+    {
+      "target": "registrations",
+      "model": "extra_trees_broader",
+      "direction": "growth",
+      "question": "Can a prediction using earlier activity and acceptance information help an analyst prioritize registration-demand growth for discussion with programs?",
+      "rationale": "Discovery mean annual absolute error was 30.878 registration events versus 31.564 for persistence, a 0.685-event (2.17%) reduction. It improved in 2021 and 2023 but worsened in 2022. Without 2021, history-only Ridge was slightly better than Extra Trees; the overall Extra Trees error-difference interval [-2.629, 1.302] includes no improvement. Mean signed error remained -7.033 events, while the mean annual 90th-percentile error was 74.072 versus persistence 77.100. This is the weaker second exploratory question, selected for a concrete demand-review use rather than statistical certainty. Later review selection must beat useful simple queues, not merely persistence's tied zero-change scores. An OAR-feature-removal round is planned if the question remains worth investigating."
+    }
+  ],
+  "other_targets": {
+    "ending_list": "Damped trend was the strongest method (31.486 mean annual absolute error); it already ranks growth identically to the last-change review rule. Keep it as a useful simple planning reference, not evidence that a fitted pipeline adds information.",
+    "ldkt_removals": "Recent mean was strongest at about 5.73 removal events. Fitted models did not establish an accuracy advantage over the simple reference.",
+    "overall_oar": "The fitted latest-log-ratio adjustment was strongest. Richer pipelines did not improve on this simple reference, and later published ratios span known definition changes."
+  }
+}

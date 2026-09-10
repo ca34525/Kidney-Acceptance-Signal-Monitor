@@ -157,6 +157,18 @@ failing-test-first and executable verification requirements above.
   incomplete plot points, validate actual discovery/panel/follow-up ancestry and fingerprints,
   and compare settings/code/revision before and after execution. All 21 root integration,
   publication and report checks now pass. Full checks will run again on the final code.
+- P2 completed at clean code revision `a4a394f`: `initial-panel` and `initial-discovery`
+  retain all five targets, all four fitted pipelines and every baseline over 2021–2023.
+  There are 108 method/year records, all with complete forecast coverage and no model failure.
+  The saved simple references are persistence (registrations, DDKT), recent mean (LDKT),
+  damped trend (ending list) and fitted log-ratio adjustment (OAR). Predictions preserve
+  missing future outcomes; panel and exclusion ledgers retain first-observed cases.
+- Discovery shortlist written in `configs/program_prediction/shortlist.json` before any
+  later scoring: DDKT history Ridge (16.352 versus 16.809 events, consistent small gains)
+  and registration Extra Trees (30.878 versus 31.564 events, uncertain and inconsistent).
+  The questions concern limited activity-decline and demand-growth review. No accuracy
+  threshold establishes practical usefulness; later review-budget comparisons decide what
+  this evidence supports. Full unfavorable model results remain in the discovery ledger.
 
 ## Planning evidence
 
