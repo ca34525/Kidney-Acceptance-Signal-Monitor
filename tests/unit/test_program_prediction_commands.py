@@ -229,3 +229,17 @@ def test_followup_cannot_name_a_different_parent_shortlist(tmp_path: Path) -> No
     publish_run(tmp_path, "earlier", {"shortlist.json": b"{}"}, {"stage": "assess", "parents": {}})
     with pytest.raises(ValueError, match="shortlist"):
         validate_followup(tmp_path, config, "unrelated")
+
+
+def test_cli_accepts_explicit_final_review_followup() -> None:
+    args = build_parser().parse_args(
+        [
+            "program-prediction",
+            "reassess",
+            "--run-id",
+            "followup-2-review",
+            "--config",
+            "configs/program_prediction/followup_2_review.json",
+        ]
+    )
+    assert args.prediction_command == "reassess"

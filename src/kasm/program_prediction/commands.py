@@ -22,7 +22,7 @@ def add_parser(commands: Any) -> None:
     """Expose explicit dependencies so later scoring cannot skip a saved choice."""
     parser = commands.add_parser("program-prediction")
     stages = parser.add_subparsers(dest="prediction_command", required=True)
-    for name in ("build", "screen", "shortlist", "assess", "report"):
+    for name in ("build", "screen", "shortlist", "assess", "report", "reassess"):
         stage = stages.add_parser(name)
         stage.add_argument("--run-id", required=True)
         stage.add_argument(
@@ -278,6 +278,10 @@ def run_command(args: argparse.Namespace) -> int:
             from kasm.program_prediction.reporting import report_files
 
             files, parents = report_files(root, args)
+        elif args.prediction_command == "reassess":
+            from kasm.program_prediction.reassessment import reassess
+
+            files, parents = reassess(root, args.config)
         else:
             functions = {
                 "build": _build,

@@ -182,6 +182,23 @@ failing-test-first and executable verification requirements above.
   and its known definition changes. The original discovery question/model/reference stay fixed;
   no later-winning model replaces the shortlist. DDKT's shortlisted history model already uses
   no OAR inputs. The round is adapted exploratory analysis, never independent confirmation.
+- Round 1 completed at clean revision `0508c4a`: `followup-1-panel`,
+  `followup-1-discovery` and `followup-1-later`. Removing OAR changes registration Extra
+  Trees' later error only from 37.17 to 37.03 events (persistence 36.24); its growth-review
+  queue still loses to largest-program review at all three budgets in both years.
+- Round 2 question recorded before its new review calculation in
+  `followup_2_review.json`: broader registration Ridge without OAR has later error 32.99
+  versus persistence 36.24, but discovery error 34.55 versus 31.56. Test whether its later
+  review queue adds value over last change, largest latest count and random review.
+  Reuse the already saved Round 1 predictions with no refitting or new tuning. This is an
+  explicit later-error-driven follow-up; retain the original Extra Trees question and all
+  earlier failures to improve. Two rounds exhaust this sprint's authorized follow-up allowance.
+- Round 2 implementation uses a separate typed decision configuration and a `reassess`
+  command that reads verified existing predictions only. Seventeen focused tests pass after
+  an initial missing-module failure and an audit-parent reproduction regression. It checks
+  actual initial/first-follow-up ancestry, source feature omission, preserved simple comparator,
+  both periods and complete method records. The CLI test failed before command registration.
+  No additional model fit or tuning is part of this second round.
 
 ## Planning evidence
 

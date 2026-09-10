@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "study_id": "program-prediction-0031",
+  "round_id": "followup_2",
+  "question": "Does registration Ridge without OAR inputs improve allocation of 10, 15 or 25 reviews relative to last observed growth, largest latest registration counts and random review? This method is chosen after examining later-period errors, so the comparison is adapted exploratory evidence.",
+  "parent_run": "followup-1-later",
+  "target": "registrations",
+  "model": "ridge_broader",
+  "direction": "growth",
+  "budgets": [10, 15, 25],
+  "seed": 20260909,
+  "bootstrap_resamples": 2000,
+  "output_root": "data/research/program-prediction-0031"
+}
