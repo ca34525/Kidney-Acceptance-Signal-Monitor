@@ -1,6 +1,7 @@
 # Exploratory program prediction sprint
 
-Planning specification for [Plan 0031](../plans/0031-program-prediction-sprint.md).
+Execution specification for [Plan 0031](../plans/0031-program-prediction-sprint.md), authorized
+by the user on September 9, 2026, including P0–P4 and up to two documented follow-up rounds.
 This is a new exploratory study, separate from the completed V1/V2, receipt, activity and
 acceptance-forecast experiments. The first run has five targets and four pipelines; it can
 lead to documented follow-up rounds. Numerical settings below are initial research choices,

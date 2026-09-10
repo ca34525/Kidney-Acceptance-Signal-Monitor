@@ -1,9 +1,11 @@
 # Plan 0031 — Find useful program predictions through a short experiment sprint
 
-**Status:** planning complete; implementation and model fitting not started.
+**Status:** execution authorized; P0–P4 in progress.
 **Branch:** `codex/program-prediction-sprint`, based on `cta/main` at `0f1a2cc`.
-**Authorization:** the user selected the broad prediction direction and requested a new
-branch and plan. This delivery is the branch and plan; it does not execute the experiments.
+**Authorization:** on September 9, 2026, the user authorized implementation and execution of
+P0–P4, all initial fits, historical evaluations, local outputs and up to two documented
+follow-up rounds. This supersedes the original planning-only status. Local milestone commits
+are authorized; pushing, merging and rewriting history are not.
 **Study specification:** [program prediction sprint](../specs/program-prediction-sprint-0031.md).
 **Decision:** [0017](../decisions/0017-broaden-program-prediction-research.md).
 
@@ -103,9 +105,21 @@ error/review-budget calculations. Reuse existing source checks. Complete the exe
 checks in [AGENTS.md](../../AGENTS.md), including coverage for the new package, after code changes.
 No live network tests or frozen replay are needed.
 
-The planning delivery is documentation only. It needs content review, local-link checks,
-new-file whitespace inspection and `git diff --check`; software tests or model fits would not
-exercise these edits. Implementation steps P0–P4 remain open.
+The original planning delivery was documentation only. Implementation now follows the
+failing-test-first and executable verification requirements above.
+
+## Execution record
+
+- Planning changes were already committed as `5ab8697` when execution began; the requested
+  branch was checked out and the working tree was clean. Reviewed that planning commit rather
+  than duplicating it. This authorization update is documentation only and needs no new test.
+- P0/P1 expected evidence: strict settings, release-specific rows, cutoff and vintage fixtures,
+  preserved missing targets, and source/feature/fold ledgers from the verified cache.
+- P2 expected evidence: train-only preprocessing and baseline fixtures, finite predictions or
+  explicit failures, every discovery combination, matched-row metrics and a saved shortlist.
+- P3/P4 expected evidence: later scoring requires that saved shortlist; hand-worked equal-year
+  error and review-queue fixtures preserve unknown outcomes and whole-program resampling;
+  complete runs, figures, report, reproduction and full verification follow.
 
 ## Planning evidence
 

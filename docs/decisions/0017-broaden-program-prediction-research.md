@@ -4,6 +4,11 @@ Accepted for planning under the user's request to focus on broad prediction expe
 create a new branch and prepare the plan. See [Plan 0031](../plans/0031-program-prediction-sprint.md)
 and [its specification](../specs/program-prediction-sprint-0031.md).
 
+Execution update, September 9, 2026: the user subsequently authorized P0–P4, planned model
+fits and historical evaluations, local research outputs, and up to two documented follow-up
+rounds. This supersedes the planning-only boundary below; the study and application safeguards
+remain in force.
+
 The next research question covers five annual program outcomes and several simple/nonlinear
 models. Acceptance is one target and one optional feature block, not the required explanation
 for every outcome. The initial 20 experiments use shared code and a complete results ledger;
