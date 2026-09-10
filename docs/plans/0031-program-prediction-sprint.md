@@ -169,6 +169,19 @@ failing-test-first and executable verification requirements above.
   The questions concern limited activity-decline and demand-growth review. No accuracy
   threshold establishes practical usefulness; later review-budget comparisons decide what
   this evidence supports. Full unfavorable model results remain in the discovery ledger.
+- P3 initial comparison completed at clean revision `b1c1971`, after publishing
+  `initial-shortlist`. All 72 later method/year records have full forecast coverage, with no
+  model failures. Neither shortlisted model retains its average level-error advantage:
+  DDKT Ridge 14.52 versus persistence 14.38 events; registration Extra Trees 37.17 versus
+  persistence 36.24 events. Review-budget evidence is more nuanced: DDKT Ridge captures more
+  observed decline than last-change review in both years, but loses to size-based review in
+  2024 at budget 15; registration Extra Trees loses to size-based review in both years.
+- Follow-up round 1 recorded before its fits: `followup_1_no_oar.json` limits the original
+  fixed comparison to registrations and removes the 15 OAR predictors, keeping history/B1,
+  settings, folds and random seeds fixed. It tests dependence on the optional acceptance block
+  and its known definition changes. The original discovery question/model/reference stay fixed;
+  no later-winning model replaces the shortlist. DDKT's shortlisted history model already uses
+  no OAR inputs. The round is adapted exploratory analysis, never independent confirmation.
 
 ## Planning evidence
 
